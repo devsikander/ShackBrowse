@@ -1,24 +1,16 @@
 package net.swigglesoft.shackbrowse;
 
-import java.util.ArrayList;
-
 import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.JSONException;
 
 import net.swigglesoft.shackbrowse.NetworkNotificationServers.OnGCMInteractListener;
-import net.swigglesoft.shackbrowse.notifier.NotifierReceiver;
 
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -31,21 +23,21 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
+
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.InputType;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 
 public class PreferenceFragmentNotifications extends PreferenceFragment
 {
+    private static final String TAG = "PreferenceFragmentNotifications";
     private SharedPreferences _prefs;
 
     protected MaterialDialog _progressDialog;
@@ -60,7 +52,6 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
     private boolean _Venabled;
 
     private Preference _keyNotification;
-    private Preference _devicesNotification;
     private OnGCMInteractListener mGCMlistener;
 
     @Override
@@ -76,6 +67,12 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         final AppCompatActivity activ = (AppCompatActivity)getActivity();
         final PreferenceFragment thisFrag = this;
         Preference SMCheckInterval = (Preference)findPreference("PeriodicNetworkServicePeriod");
+        try {
+            mNoteKeywords = new JSONArray(_prefs.getString(PreferenceKeys.notificationKeywords, "[]"));
+        } catch(JSONException e) {
+            Log.e(TAG, "Error reading mNoteKeywords", e);
+        }
+
         SMCheckInterval.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
             @Override
@@ -90,50 +87,6 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
             }
 
         });
-
-//        Preference testNote = (Preference) findPreference("pref_testnote");
-//        testNote.setOnPreferenceClickListener(new OnPreferenceClickListener(){
-//
-//                                                  @Override
-//                                                  public boolean onPreferenceClick(Preference preference) {
-//                                                      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//
-//                                                      Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-//                                                      NotificationCompat.Builder mBuilder =
-//                                                              new NotificationCompat.Builder(getActivity(), NotifierReceiver.CHANNEL_REPLY)
-//                                                                      .setSmallIcon(R.drawable.note_logo2018)
-//                                                                      .setLargeIcon(largeIcon)
-//                                                                      .setContentTitle("Test")
-//                                                                      .setContentText("Only a test")
-//                                                                      .setColor(Color.GREEN)
-//                                                                      .setTicker("Test Notification")
-//                                                                      .setAutoCancel(true);
-//
-//                                                      NotificationManager mNotificationManager =
-//                                                              (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-//
-//                                                      PendingIntent notifyPIntent = PendingIntent.getActivity(getActivity().getApplicationContext(), 0, new Intent(), 0);
-//                                                      mBuilder.setContentIntent(notifyPIntent);
-//
-//                                                      Notification notification = mBuilder.build();
-//                                                      notification.sound = Uri.parse(prefs.getString("notificationSound", "DEFAULT_SOUND"));
-//
-//                                                      if (prefs.getBoolean("notificationVibrate", true))
-//                                                          notification.defaults|= Notification.DEFAULT_VIBRATE;
-//
-//                                                      notification.flags |= Notification.FLAG_AUTO_CANCEL;
-//                                                      notification.flags |= Notification.FLAG_SHOW_LIGHTS;
-//
-//                                                      notification.ledARGB = prefs.getInt("notificationColor", Color.GREEN);
-//                                                      notification.ledOffMS = Integer.parseInt(prefs.getString("LEDBlinkInMS", "2000"));
-//                                                      notification.ledOnMS = (int)(Integer.parseInt(prefs.getString("LEDBlinkInMS", "2000")) / 10);
-//                                                      // mId allows you to update the notification later on.
-//                                                      int mId = 58401;
-//                                                      mNotificationManager.notify(mId, notification);
-//
-//                                                      return false;
-//                                                  }}
-//        );
 
         Preference colorNote = (Preference) findPreference("notificationColor2");
         colorNote.setOnPreferenceClickListener(new OnPreferenceClickListener(){
@@ -156,188 +109,53 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
             }}
         );
 
-        mGCMlistener = new OnGCMInteractListener(){
+        mGCMlistener = new OnGCMInteractListener() {
             @Override
             public void networkResult(String res) {
-                System.out.println("NETWORKSERVERS RESULT" + res);
+                Log.d(TAG, "NETWORKSERVERS RESULT" + res);
                 Editor edit = _prefs.edit();
-                if (res.contains("remove device"))
-                {
+                if (res.contains("remove device")) {
                     edit.putBoolean("noteEnabled", false);
                     _noteEnabled.setChecked(false);
                     _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
                     _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-                    _devicesNotification.setEnabled(false);
-                    if (_progressDialog != null)
-                    {
-                        _progressDialog.dismiss();
-                        _progressDialog = null;
-                    }
-                }
-                else if (res.contains("add device"))
-                {
+                    ErrorDialog.display(getContext(), "Deregistration OK", "Deregistered with the Push Notification server.");
+                } else if (res.contains("add device")) {
                     edit.putBoolean("noteEnabled", true);
                     _noteEnabled.setChecked(true);
-                    _GCMAccess.doUserInfoTask();
-					/*
-					_vanityNotification.setChecked(false);
-					_repliesNotification.setChecked(true);
-					edit.putBoolean("noteReplies", true);
-					edit.putBoolean("noteVanity", false); */
                     _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
                     _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
+                    ErrorDialog.display(getContext(), "Registration OK", "Registered with the Push Notification server.");
+                } else if (res.toLowerCase().contains("error")) {
+                    ErrorDialog.display(getContext(), "Error registering with Push Notification server", res);
                 }
-                else if (res.contains("already exists"))
-                {
-                    // likely a vanity.repl update
-                    _GCMAccess.doUserInfoTask();
-                }
-                else
-                {
-                    if (_progressDialog != null)
-                    {
-                        _progressDialog.dismiss();
-                        _progressDialog = null;
-                    }
-                }
-                edit.commit();
-            }
-
-            @Override
-            public void userResult(JSONObject result) {
-                Editor edit = _prefs.edit();
-                try{
-                    if (result == null)
-                    {
-                        edit.putBoolean("noteVanity", false);
-                        _vanityNotification.setChecked(false);
-                        edit.putBoolean("noteReplies", false);
-                        _repliesNotification.setChecked(false);
-                        _noteEnabled.setChecked(false);
-                        _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-                        _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-                        _devicesNotification.setEnabled(false);
-                        mNoteKeywords = new ArrayList<String>();
-                        edit.putBoolean("noteEnabled", false);
-                    }
-                    else
-                    {
-                        System.out.println("TRYING TO READ USERINFO" + result.getString("get_vanity") + result.getString("get_replies"));
-                        if ("1".equals(result.getString("get_vanity")))
-                        {
-                            edit.putBoolean("noteVanity", true);
-                            _vanityNotification.setChecked(true);
-                        }
-                        else
-                        {
-                            edit.putBoolean("noteVanity", false);
-                            _vanityNotification.setChecked(false);
-                        }
-                        if ("1".equals(result.getString("get_replies")))
-                        {
-                            edit.putBoolean("noteReplies", true);
-                            _repliesNotification.setChecked(true);
-                        }
-                        else
-                        {
-                            edit.putBoolean("noteReplies", false);
-                            _repliesNotification.setChecked(false);
-                        }
-                        if (result.getJSONArray("devices").join("::").contains(_GCMAccess.getRegistrationId()))
-                        {
-                            edit.putBoolean("noteEnabled", true);
-                            _noteEnabled.setChecked(true);
-                            _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-                            _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-                            _devicesNotification.setEnabled(true);
-                            _devicesNotification.setTitle("Devices: " + result.getJSONArray("devices").length());
-                        }
-                        else
-                        {
-                            edit.putBoolean("noteEnabled", false);
-                            _noteEnabled.setChecked(false);
-                            _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-                            _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-                            _devicesNotification.setTitle("Devices: " + result.getJSONArray("devices").length());
-                            _devicesNotification.setEnabled(false);
-                        }
-
-                        mNoteKeywords = new ArrayList<String>();
-                        JSONArray keywordArr = result.getJSONArray("keywords");
-                        if ((keywordArr != null) && (keywordArr.length() > 0))
-                        {
-                            for (int i=0;i<keywordArr.length();i++)
-                            {
-                                mNoteKeywords.add(keywordArr.get(i).toString());
-                            }
-                        }
-                    }
-                } catch (Exception e) {}
-                edit.commit();
-                if (_progressDialog != null)
-                {
+                if (_progressDialog != null) {
                     _progressDialog.dismiss();
                     _progressDialog = null;
                 }
-            }};
+                edit.commit();
+            }
+        };
 
-//        ((Preference)findPreference("notificationEditOnline")).setOnPreferenceClickListener(new OnPreferenceClickListener()
-//        {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference)
-//            {
-//                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.woggle.net/notifications"));
-//                startActivity(browserIntent);
-//                return false;
-//            }
-//        });
-//        _devicesNotification = (Preference) findPreference("notificationDevices");
-//        _devicesNotification.setOnPreferenceClickListener(new OnPreferenceClickListener()
-//        {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference)
-//            {
-//                new MaterialDialog.Builder(getActivity()).title("Delete all other devices?").content("Are you sure? This will prevent all of your other devices from receiving notifications, and only this device will receive them until you re-enable notifications on other devices.").positiveText("Remove other devices").negativeText("Cancel")
-//                        .onPositive(new MaterialDialog.SingleButtonCallback()
-//                        {
-//                            @Override
-//                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which)
-//                            {
-//                                new MaterialDialog.Builder(getActivity()).title("Seriously?").content("Your other devices will be unregistered and will need to be registered on each device. Only use this if your notifications are broken.").positiveText("Remove all other devices").negativeText("Cancel")
-//                                .onPositive(new MaterialDialog.SingleButtonCallback()
-//                                {
-//                                    @Override
-//                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which)
-//                                    {
-//                                        _progressDialog = MaterialProgressDialog.show(getActivity(), "Adding Keyword", "Communicating with Shack Browse server...", true, true);
-//                                        _GCMAccess.doUserInfoTask("remallexcept", null);
-//                                    }
-//                                }).show();
-//                            }
-//                        }).show();
-//                return false;
-//            }
-//        });
-//        _devicesNotification.setTitle("Devices: #unknown");
+        _keyNotification = (Preference) findPreference("noteKeywords");
+        _keyNotification.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                showKeywords();
+                return true;
 
-//        _keyNotification = (Preference) findPreference("noteKeywords");
-//        _keyNotification.setOnPreferenceClickListener(new OnPreferenceClickListener(){
-//            @Override
-//            public boolean onPreferenceClick(Preference preference) {
-//                showKeywords();
-//                return true;
-//
-//            }
-//        });
+            }
+        });
 
         _repliesNotification = (CheckBoxPreference)findPreference("noteReplies");
         _vanityNotification = (CheckBoxPreference)findPreference("noteVanity");
         _noteEnabled = (CheckBoxPreference)findPreference("noteEnabled");
         // "enableDonatorFeatures"
         _Venabled = true;
-//        _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-//        _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-
+        _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
+        _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
+        _repliesNotification.setChecked(_prefs.getBoolean(PreferenceKeys.notificationOnReplies, false));
+        _vanityNotification.setChecked(_prefs.getBoolean(PreferenceKeys.notificationOnVanity, false));
 
         OnPreferenceChangeListener notificationOnPrefListener = new Preference.OnPreferenceChangeListener() {
             @Override
@@ -353,7 +171,7 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
 
                             @Override
                             public void onSuccess() {
-                                _progressDialog = MaterialProgressDialog.show(getActivity(), "Changing Notification Status", "Communicating with Shack Browse server...", true, true);
+                                showChangingNotificationsProgress();
 
                                 _GCMAccess = new NetworkNotificationServers(getActivity(), mGCMlistener);
                                 if (checked)
@@ -367,13 +185,12 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
                                 _noteEnabled.setChecked(false);
                                 _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
                                 _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
-                                _devicesNotification.setEnabled(false);
                             }
                         });
                     }
                     else
                     {
-                        _progressDialog = MaterialProgressDialog.show(getActivity(), "Changing Notification Status", "Communicating with Shack Browse server...", true, true);
+                        showChangingNotificationsProgress();
 
                         _GCMAccess = new NetworkNotificationServers(getActivity(), mGCMlistener);
                         if (checked)
@@ -387,19 +204,17 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
 
         };
 
-//        _noteEnabled.setOnPreferenceChangeListener(notificationOnPrefListener);
+        _noteEnabled.setOnPreferenceChangeListener(notificationOnPrefListener);
 
         OnPreferenceChangeListener replOnPrefListener = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(final Preference preference, Object newValue) {
                 if(newValue instanceof Boolean){
                     final Boolean checked = (Boolean)newValue;
-                    _progressDialog = MaterialProgressDialog.show(getActivity(), "Changing Notification Status", "Communicating with Shack Browse server...", true, true);
-                    _GCMAccess = new NetworkNotificationServers(getActivity(), mGCMlistener);
-                    if (checked)
-                        _GCMAccess.updReplVan(true,_prefs.getBoolean("noteVanity", false));
-                    else
-                        _GCMAccess.updReplVan(false,_prefs.getBoolean("noteVanity", false));
+                    Editor edit = _prefs.edit();
+                    edit.putBoolean(PreferenceKeys.notificationOnReplies, checked);
+                    edit.commit();
+                    _repliesNotification.setChecked(checked);
                 }
                 return false;
             }
@@ -409,18 +224,18 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
             public boolean onPreferenceChange(final Preference preference, Object newValue) {
                 if(newValue instanceof Boolean){
                     final Boolean checked = (Boolean)newValue;
-                    _progressDialog = MaterialProgressDialog.show(getActivity(), "Changing Notification Status", "Communicating with Shack Browse server...", true, true);
-                    _GCMAccess = new NetworkNotificationServers(getActivity(), mGCMlistener);
-                    if (checked)
-                        _GCMAccess.updReplVan(_prefs.getBoolean("noteReplies", true), true);
-                    else
-                        _GCMAccess.updReplVan(_prefs.getBoolean("noteReplies", true), false);
+                    Editor edit = _prefs.edit();
+                    edit.putBoolean(PreferenceKeys.notificationOnVanity, checked);
+                    edit.commit();
+                    _vanityNotification.setChecked(checked);
+                    showChangingNotificationsProgress();
+                    _GCMAccess.doRegisterTask("reg");
                 }
                 return false;
             }
         };
-//        _repliesNotification.setOnPreferenceChangeListener(replOnPrefListener);
-//        _vanityNotification.setOnPreferenceChangeListener(vanOnPrefListener);
+        _repliesNotification.setOnPreferenceChangeListener(replOnPrefListener);
+        _vanityNotification.setOnPreferenceChangeListener(vanOnPrefListener);
 
         Preference channelNote = (Preference) findPreference("notificationChannels");
         Preference vibeNote = (Preference) findPreference("notificationVibrate");
@@ -466,10 +281,26 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
 
     }
 
+    private void showProgressDialog(String title) {
+        _progressDialog = MaterialProgressDialog.show(getActivity(), title, "Communicating with Shack Browse server...", true, true);
+    }
+
+    private void showChangingNotificationsProgress() {
+        showProgressDialog("Changing Notification Status");
+    }
+
+    private void showAddKeywordProgress() {
+        showProgressDialog("Adding Keyword");
+    }
+
+    private void showRemoveKeywordProgress() {
+        showProgressDialog("Removing Keyword");
+    }
+
     /*
      * KEYWORDS
      */
-    ArrayList<String> mNoteKeywords = new ArrayList<String>();
+    JSONArray mNoteKeywords = new JSONArray();
     public void addKeyword()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -489,10 +320,9 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         builder.setPositiveButton("Add Keyword", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mNoteKeywords.add(input.getText().toString());
-                _progressDialog = MaterialProgressDialog.show(getActivity(), "Adding Keyword", "Communicating with Shack Browse server...", true, true);
-                _GCMAccess.doUserInfoTask("addkeyword", input.getText().toString());
-                showKeywords();
+                mNoteKeywords.put(input.getText().toString());
+                showAddKeywordProgress();
+                updateKeywords();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -505,8 +335,27 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         alert.setCanceledOnTouchOutside(false);
         alert.show();
     }
-    public void removeKeyword(final String keyword)
+
+    private void updateKeywords() {
+        Editor ed = _prefs.edit();
+        ed.putString(PreferenceKeys.notificationKeywords, mNoteKeywords.toString());
+        ed.commit();
+        showKeywords();
+        try {
+            _GCMAccess.doRegisterTask("reg");
+        } catch(Exception e) {
+            Log.e(TAG, "Exception in updateKeywords", e);
+        }
+    }
+
+    public void removeKeyword(final int item)
     {
+        String keyword = "";
+        try {
+            keyword = mNoteKeywords.getString(item);
+        } catch (JSONException e) {
+            Log.e(TAG, "Exception in removeKeyword", e);
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Remove Notification Keyword");
 
@@ -515,10 +364,9 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         builder.setPositiveButton("Stop Notifying", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mNoteKeywords.remove(keyword);
-                _progressDialog = MaterialProgressDialog.show(getActivity(), "Removing Keyword", "Communicating with Shack Browse server...", true, true);
-                _GCMAccess.doUserInfoTask("removekeyword", keyword);
-                showKeywords();
+                mNoteKeywords.remove(item);
+                showRemoveKeywordProgress();
+                updateKeywords();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -535,10 +383,17 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Keyword Notifications");
-        final CharSequence[] items = mNoteKeywords.toArray(new CharSequence[mNoteKeywords.size()]);
+        final CharSequence[] items = new CharSequence[mNoteKeywords.length()];
+        for(int i = 0; i < mNoteKeywords.length(); i++) {
+            try {
+                items[i] = mNoteKeywords.getString(i);
+            } catch (JSONException e) {
+                Log.e(TAG, "Exception in showKeywords", e);
+            }
+        }
         builder.setItems(items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                removeKeyword(mNoteKeywords.get(item));
+                removeKeyword(item);
             }});
         builder.setNegativeButton("Close", null);
         builder.setPositiveButton("Add Keyword", new DialogInterface.OnClickListener() {
@@ -589,12 +444,6 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
                 }
             });
             builder.show();
-        }
-        else
-        {
-            // TODO: Add getting notification API details if required for new PN server.
-//            _progressDialog = MaterialProgressDialog.show(getActivity(), "Checking Notification Status", "Communicating with Shack Browse server...", true, true);
-//            _GCMAccess.doUserInfoTask();
         }
         super.onResume();
     }

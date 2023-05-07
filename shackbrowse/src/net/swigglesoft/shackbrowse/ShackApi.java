@@ -38,6 +38,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import net.swigglesoft.ApiUrl;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -95,7 +96,7 @@ public class ShackApi
     static final String PUSHSERV_URL = "http://shackbrowsepublic.appspot.com/";
     static final String FASTPUSHSERV_URL = "http://shackbrowse.appspot.com/";
     
-    static final String NOTESERV_URL = "http://woggle.net/shackbrowsenotification/";
+    static final String NOTESERV_URL = "https://shacknotify.bit-shift.com";
     static final String NOTESERV_URL_SSL = "https://woggle.net/shackbrowsenotification/";
 
     static final String BASE_URL = "http://shackapi.hughes.cc/";
@@ -387,17 +388,6 @@ public class ShackApi
             values.add(new BasicNameValuePair("parent_id", Integer.toString(replyToThreadId)));
         
         System.out.println("SHACKAPI: SUBMITTING JSON FOR POST:" + content);
-        
-       /* DefaultHttpClient httpclient = new DefaultHttpClient();
-        String encoding = android.util.Base64.encodeToString((userName + ":" + password).getBytes(), android.util.Base64.NO_WRAP);
-        HttpPost httppost = new HttpPost(POST_URL);
-        httppost.setHeader("Authorization", "Basic " + encoding);
-
-        System.out.println("executing request " + httppost.getRequestLine());
-        HttpResponse response = httpclient.execute(httppost);
-        HttpEntity entity = response.getEntity();
-        JSONObject result = new JSONObject(EntityUtils.toString(entity));
-        entity.consumeContent();*/
         JSONObject result = postJson(POST_URL, userName, password, values);
         
         if (!result.has("data"))
@@ -457,7 +447,6 @@ public class ShackApi
 		URL post_url = new URL(API_MESSAGES_URL);
 		HttpsURLConnection con = (HttpsURLConnection) post_url.openConnection();
 		con.setReadTimeout(40000);
-//		con.setRequestProperty("connection", "close");
 		con.setConnectTimeout(10000);
 		con.setChunkedStreamingMode(0);
 		con.setRequestProperty("User-Agent", USER_AGENT);
@@ -495,11 +484,9 @@ public class ShackApi
 
 
     
-/*
- * THREAD RELATED
- */
-    
-    
+    /*
+     * THREAD RELATED
+     */
     public static JSONObject getThreads(int pageNumber, String userName, Context context, boolean useWinChatty) throws ClientProtocolException, IOException, JSONException
     {
     	// v2
@@ -779,68 +766,6 @@ public class ShackApi
                 posts = ordered_posts;
             }
             
-            /*
-             * This function has been moved to threadviewfragment adapter
-             * 
-             * 
-            // create depthstrings
-            for (int i = 0; i < posts.size(); i++)
-            {
-            	int j = i -1;
-            	while ((j > 0) && (posts.get(j).getLevel() >= posts.get(i).getLevel()))
-            	{
-            		StringBuilder jDString = new StringBuilder(posts.get(j).getDepthString());
-            		
-            		if ((jDString.charAt(posts.get(i).getLevel()-1) == "L".charAt(0)) && (posts.get(i).getLevel() == posts.get(j).getLevel()))
-            		{
-            			jDString.setCharAt(posts.get(i).getLevel()-1, "T".charAt(0));
-            		}
-            		if ((jDString.charAt(posts.get(i).getLevel()-1) == "[".charAt(0)) && (posts.get(i).getLevel() == posts.get(j).getLevel()))
-            		{
-            			jDString.setCharAt(posts.get(i).getLevel()-1, "+".charAt(0));
-            		}
-            		if (jDString.charAt(posts.get(i).getLevel()-1) == "0".charAt(0))
-            		{
-            			// ! denotes blue line, | denotes gray
-            			if (posts.get(i).getSeen())
-            				jDString.setCharAt(posts.get(i).getLevel()-1, "|".charAt(0));
-            			else
-            				jDString.setCharAt(posts.get(i).getLevel()-1, "!".charAt(0));
-            		}
-            		
-            		posts.get(j).setDepthString(jDString.toString());
-            		j--;
-            	}
-            }
-            
-            // collapser for deep threads
-            for (int i = 0; i < posts.size(); i++)
-            {
-	            StringBuilder depthStr = new StringBuilder(posts.get(i).getDepthString());
-	        	
-	        	// collapser for deep threads
-	        	if (depthStr.length() >= _maxBullets)
-	        	{
-		        	int j = 0;
-		        	String depthStr2 = depthStr.toString();
-		        	while (depthStr2.length() > _maxBullets)
-		        	{
-		        		depthStr2 = depthStr2.substring(5);
-		        		j++;
-		        	}
-		        	if (j > 0)
-		        	{
-			        	String repeated = new String(new char[j]).replace("\0", "C");
-			        	String repeated2 = new String(new char[(depthStr2.length() - 1)]).replace("\0", "0");
-			        	depthStr = new StringBuilder(repeated + repeated2 + "L");
-		        	}
-		        	// end collapser
-	        	}
-
-        		posts.get(i).setDepthString(depthStr.toString());
-            }
-            */
-            
             // mark as seen
             if ((context != null) && (_showNewBranches))
             {
@@ -895,28 +820,7 @@ public class ShackApi
     	
         // see if it did work
         if (!content.contains("status\":\"1\"")) {
-            /*
-            if (content.contains("already tagged"))
-            {
-                values.add(new BasicNameValuePair("action", "untag"));
-                e = new UrlEncodedFormEntity(values,"UTF-8");
-                post.setEntity(e);
-
-                content = client.execute(post, response_handler);
-                if (!content.contains("ok"))
-                {
-                    throw new Exception("Error untagging: " + content);
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            else{ */
-
             throw new Exception(content);
-
-            // }
         }
         else
         {
@@ -1004,6 +908,30 @@ public class ShackApi
         }
     }
 
+    private static boolean post(String location, List<NameValuePair> values) throws ClientProtocolException, IOException {
+        DefaultHttpClient client = new DefaultHttpClient();
+        final HttpParams httpParameters = client.getParams();
+        HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
+        HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
+        HttpPost post = new HttpPost(location);
+        post.setHeader("User-Agent", USER_AGENT);
+        Log.d("shackbrowse", "Posting to: " + location + ", values " + values.toString());
+
+        UrlEncodedFormEntity e = new UrlEncodedFormEntity(values,"UTF-8");
+        post.setEntity(e);
+
+        HttpResponse response = client.execute(post);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode >= 200 && statusCode <= 299)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     private static String getSSL(String location) throws ClientProtocolException, IOException
     {
         return getSSL (location, false);
@@ -1015,9 +943,7 @@ public class ShackApi
         URL url = new URL(location);
 
         HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
-
-
-        if  (laxTimeout)
+        if (laxTimeout)
         {
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(20000);
@@ -1060,6 +986,7 @@ public class ShackApi
         while (-1 != (n = input.read(buffer))) {
             output.append(buffer, 0, n);
         }
+        input.close();
         return output.toString();
     }
     
@@ -1134,7 +1061,6 @@ public class ShackApi
     /*
      * SHACK LOL stuff
      */
-    
     public static HashMap<String, HashMap<String, LolObj>> getLols (Context activity) throws ClientProtocolException, IOException, JSONException
     {
     	boolean _getLols = (true && MainActivity.LOLENABLED);
@@ -1455,42 +1381,18 @@ public class ShackApi
         post.setEntity(e);
 
         String content = client.execute(post, response_handler);
-        System.out.println("GET TAGGERS" + postId + " RESPONSE: " + content);
+        System.out.println("GET TAGGERS " + postId + " RESPONSE: " + content);
 
         // see if it did work
         if (!content.contains("status\":\"1\"")) {
-            /*
-            if (content.contains("already tagged"))
-            {
-                values.add(new BasicNameValuePair("action", "untag"));
-                e = new UrlEncodedFormEntity(values,"UTF-8");
-                post.setEntity(e);
-
-                content = client.execute(post, response_handler);
-                if (!content.contains("ok"))
-                {
-                    throw new Exception("Error untagging: " + content);
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            else{ */
-
             throw new Exception(content);
-
-            // }
         }
         else {
             ArrayList<String> results = new ArrayList<String>();
-
             if (!content.contains("data\":null")) {
                 JSONArray result = new JSONObject(content).getJSONArray("data").getJSONObject(0).getJSONArray("usernames");
-
                 for (int i = 0; i < result.length(); i++) {
                     results.add(result.getString(i));
-
                 }
             }
             return results;
@@ -1570,7 +1472,6 @@ public class ShackApi
      * 
      * 
     */
-    
 	public static Boolean usernameExists(String username, Context context) throws Exception {
 	    	BasicResponseHandler response_handler = new BasicResponseHandler();
 	        DefaultHttpClient client = new DefaultHttpClient();
@@ -1859,23 +1760,6 @@ public class ShackApi
         }
     }
     
-    // LIMES
-    /*
-    public static String getLimes() throws ClientProtocolException, IOException
-    {
-    	return get(BASE_URL_ALT + "limes.txt");
-    }
-    
-    public static String addLime(String username, String data, String sign) throws ClientProtocolException, UnsupportedEncodingException, IOException
-    {
-    	return get(BASE_URL_ALT + "limes2.php?mode=add&user=" +  URLEncoder.encode(username, "UTF8") + "&data=" +  URLEncoder.encode(data, "UTF8") + "&sign=" +  URLEncoder.encode(sign, "UTF8"));
-    }
-    
-    public static String removeLime(String data, String sign) throws ClientProtocolException, UnsupportedEncodingException, IOException
-    {
-    	return get(BASE_URL_ALT + "limes2.php?mode=remove&data=" +  URLEncoder.encode(data, "UTF8") + "&sign=" +  URLEncoder.encode(sign, "UTF8"));
-    }
-    */
     // PUSH NOTIFICATIONS
     public static String regPush(String username, String regId) throws ClientProtocolException, UnsupportedEncodingException, IOException
     {
@@ -1979,41 +1863,31 @@ public class ShackApi
         }        
     }
 
-    // version
-    public static String getVersion() throws ClientProtocolException, IOException
-    {
-    	return getSSL(BASE_URL_ALT_SSL + "versioncheck2.php?apikey=" + APIConstants.BLOCKLIST_API_KEY);
-    }
-
-	public static String noteAddUser(String userName, String getreplies, String getvanity) throws ClientProtocolException, UnsupportedEncodingException, IOException {
-		return get(NOTESERV_URL + "change.php?type=user&action=add&user=" + URLEncoder.encode(userName, "UTF8") + "&getreplies=" + getreplies + "&getvanity=" + getvanity );
+	public static boolean noteAddUser(String userName, JSONArray keywords, boolean vanityEnabled) throws ClientProtocolException, UnsupportedEncodingException, IOException, JSONException {
+        List<NameValuePair> values = new ArrayList<>();
+        values.add(new BasicNameValuePair("UserName", userName));
+        values.add(new BasicNameValuePair("NotifyOnUserName", vanityEnabled ? "1" : "0"));
+        for(int i = 0; i < keywords.length(); i++) {
+            values.add(new BasicNameValuePair("NotificationKeywords[" + i + "]", keywords.getString(i)));
+        }
+        return post(NOTESERV_URL + "/v2/user", values);
 	}
-	public static String noteReg(String userName, String deviceid) throws ClientProtocolException, UnsupportedEncodingException, IOException {
-		return get(NOTESERV_URL + "change.php?type=device&action=add&user=" + URLEncoder.encode(userName, "UTF8") + "&deviceid=" + URLEncoder.encode(deviceid, "UTF8"));
+	public static boolean noteReg(String userName, String deviceid) throws ClientProtocolException, UnsupportedEncodingException, IOException {
+        List<NameValuePair> values = new ArrayList<>();
+        values.add(new BasicNameValuePair("UserName", userName));
+        values.add(new BasicNameValuePair("DeviceId", "fcm://" + deviceid));
+        values.add(new BasicNameValuePair("ChannelUri", "fcm://" + deviceid));
+        return post(NOTESERV_URL + "/register", values);
 	}
-	public static String noteUnreg(String userName, String deviceid) throws ClientProtocolException, UnsupportedEncodingException, IOException {
-		return get(NOTESERV_URL + "change.php?type=device&action=remove&user=" + URLEncoder.encode(userName, "UTF8") + "&deviceid=" + URLEncoder.encode(deviceid, "UTF8"));
-	}
-	public static String noteUnregEverythingBut(String userName, String deviceid) throws ClientProtocolException, UnsupportedEncodingException, IOException {
-		return get(NOTESERV_URL + "change.php?type=device&action=remallexcept&user=" + URLEncoder.encode(userName, "UTF8") + "&deviceid=" + URLEncoder.encode(deviceid, "UTF8"));
-	}
-	public static JSONObject noteGetUser(String userName) throws ClientProtocolException, UnsupportedEncodingException, IOException, JSONException {
-		return getJson(NOTESERV_URL + "getuser.php?user=" + URLEncoder.encode(userName, "UTF8"));
-	}
-	public static String noteAddKeyword(String userName, String keyword) throws ClientProtocolException, UnsupportedEncodingException, IOException {
-		return get(NOTESERV_URL + "change.php?type=keyword&action=add&user=" + URLEncoder.encode(userName, "UTF8") + "&keyword=" + URLEncoder.encode(keyword, "UTF8"));
-	}
-	public static String noteRemoveKeyword(String userName, String keyword) throws ClientProtocolException, UnsupportedEncodingException, IOException {
-		return get(NOTESERV_URL + "change.php?type=keyword&action=remove&user=" + URLEncoder.encode(userName, "UTF8") + "&keyword=" + URLEncoder.encode(keyword, "UTF8"));
-	}
-	public static JSONObject noteGetKeywords(String userName) throws ClientProtocolException, UnsupportedEncodingException, IOException, JSONException {
-		return getJson(NOTESERV_URL + "getkeywords.php?user=" + URLEncoder.encode(userName, "UTF8"));
+	public static boolean noteUnreg(String userName, String deviceid) throws ClientProtocolException, UnsupportedEncodingException, IOException {
+        List<NameValuePair> values = new ArrayList<>();
+        values.add(new BasicNameValuePair("DeviceId", "fcm://" + deviceid));
+        return post(NOTESERV_URL + "/deregister", values);
 	}
 
 	/*
 	Blocklist
 	 */
-
     public static String blocklistAdd (String userName, String keyword) throws ClientProtocolException, UnsupportedEncodingException, IOException {
         return getSSL(NOTESERV_URL_SSL + "blocklist.php?apikey=" + APIConstants.BLOCKLIST_API_KEY + "&type=blocklist&action=add&user=" + URLEncoder.encode(userName, "UTF8") + "&item=" + URLEncoder.encode(keyword, "UTF8"));
     }
