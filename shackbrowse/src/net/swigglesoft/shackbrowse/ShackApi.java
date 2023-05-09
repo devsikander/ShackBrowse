@@ -1865,7 +1865,7 @@ public class ShackApi
 
 	public static boolean noteAddUser(String userName, JSONArray keywords, boolean vanityEnabled) throws ClientProtocolException, UnsupportedEncodingException, IOException, JSONException {
         List<NameValuePair> values = new ArrayList<>();
-        values.add(new BasicNameValuePair("UserName", userName));
+        values.add(new BasicNameValuePair("UserName", userName.trim()));
         values.add(new BasicNameValuePair("NotifyOnUserName", vanityEnabled ? "1" : "0"));
         for(int i = 0; i < keywords.length(); i++) {
             values.add(new BasicNameValuePair("NotificationKeywords[" + i + "]", keywords.getString(i)));
@@ -1874,7 +1874,7 @@ public class ShackApi
 	}
 	public static boolean noteReg(String userName, String deviceid) throws ClientProtocolException, UnsupportedEncodingException, IOException {
         List<NameValuePair> values = new ArrayList<>();
-        values.add(new BasicNameValuePair("UserName", userName));
+        values.add(new BasicNameValuePair("UserName", userName.trim()));
         values.add(new BasicNameValuePair("DeviceId", "fcm://" + deviceid));
         values.add(new BasicNameValuePair("ChannelUri", "fcm://" + deviceid));
         return post(NOTESERV_URL + "/register", values);

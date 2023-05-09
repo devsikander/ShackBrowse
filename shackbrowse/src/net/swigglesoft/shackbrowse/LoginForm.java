@@ -67,7 +67,7 @@ public class LoginForm {
         builder.setPositiveButton("Verify", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
             	_progressDialog = MaterialProgressDialog.show(_context, "Verifying", "Attempting to log in...");
-                _userName = usern.getText().toString();
+                _userName = usern.getText().toString().trim();
                 _password = passw.getText().toString();
             	new CredentialsVerifyTask().execute();
             }
