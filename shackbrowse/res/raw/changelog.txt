@@ -89,6 +89,11 @@ b{Why does the thread open when I go from landscape to portrait?}b
 How am I supposed to tell if you were looking at the thread or the list of threads? You can disable split view/tablet view to fix this, or lock the orientation to portrait.
 
 -->
+$ 7.0.13
+% v 7.0.13
+_ May 26, 2023
+* Crash fix: Handle frozen thread replies as it was previously unhandled. Now a toast message will show up and the pending post will be removed.
+
 $ 7.0.12
 % v 7.0.12
 _ May 9, 2023
