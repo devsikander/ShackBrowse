@@ -3503,12 +3503,15 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         @Override
         public void onReceive(Context context, Intent intent) {
         	Bundle ext = intent.getExtras();
-        	if (ext.getBoolean("isPRL"))
-        	{
+        	if (ext.getBoolean("isPRL")) {
         		Toast.makeText(context.getApplicationContext(), "Post PRL'd. Will retry. (" + ext.getInt("remaining") + " remaining in queue)", Toast.LENGTH_SHORT).show();
         	}
-        	else if (ext.getBoolean("wasRootPost", false))
-        	{
+			else if (ext.getBoolean("nukedFrozenReply")) {
+				Toast.makeText(context.getApplicationContext(), "Reply failed on frozen/nuked thread", Toast.LENGTH_SHORT).show();
+				if (_threadView != null)
+					_threadView.removePQPostId(Integer.parseInt(Long.toString(ext.getLong("PQPId"))));
+			}
+        	else if (ext.getBoolean("wasRootPost", false)) {
         		final int finalid = ext.getInt("finalId");
         		_tviewFrame.postDelayed(new Runnable(){
 
@@ -3517,8 +3520,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 						openThreadViewAndFave(finalid);
 					}}, 8000);
         	}
-        	else
-        	{
+        	else {
         		if ((ext.getInt("remaining") > 0) || (ext.getBoolean("isMessage")))
         			Toast.makeText(context.getApplicationContext(), (ext.getBoolean("isMessage") ? "Sent ShackMessage" : "Posted reply") + " successfully." + ((ext.getInt("remaining") > 0) ? "(" + ext.getInt("remaining") + " remaining in queue)" : ""), Toast.LENGTH_SHORT).show();
 				System.out.println("POSTQU: MAINACTIVITY RECV SIGNAL");

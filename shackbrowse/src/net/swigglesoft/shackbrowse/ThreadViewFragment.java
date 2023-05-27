@@ -3560,6 +3560,24 @@ public class ThreadViewFragment extends ListFragment
 
 	}
 
+	public void removePQPostId(int PQPId) {
+		System.out.println("removePQPostId: Got signal to update PQPid" + PQPId);
+		if( _adapter == null) {
+			return;
+		}
+		int length = _adapter.getCount();
+		for (int i = 0; i < length; i++)
+		{
+			Post post = _adapter.getItem(i);
+			if ((post.isPQP()) && (post.getPostId() == PQPId))
+			{
+				_adapter.remove(i);
+				_adapter.notifyDataSetChanged();
+				return;
+			}
+		}
+	}
+
 	class StyleCallback implements ActionMode.Callback {
 
 		private TextView mTextView;

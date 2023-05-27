@@ -282,16 +282,26 @@ public class PostQueueService extends JobIntentService
 										notify("Post Error", "Bad Login. Check shacknews credentials.", 58414, 0);
 									}
 								}
-								else if (data.toString().toLowerCase().contains("Trying to post to a nuked thread".toLowerCase()))
+								else if (data.toString().toLowerCase().contains("Trying to post to a nuked thread".toLowerCase())
+										|| data.toString().toLowerCase().contains("Trying to post to a frozen thread".toLowerCase()))
 								{
 									ret = 6;
 									// login error, delete post
 									System.out.println("POSTQU: NUKE ERROR");
 									post.commitDelete(ctx);
 
+									// send info back to main app
+									Intent localIntent = new Intent(MainActivity.PQPSERVICESUCCESS)
+											// Puts the status into the Intent
+											.putExtra("PQPId", post.getPostQueueId())
+											.putExtra("nukedFrozenReply", true)
+											.putExtra("wasRootPost", false);
+									// Broadcasts the Intent to receivers in this app.
+									LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
 									if (!prefs.getBoolean("isAppForeground", false))
 									{
-										notify("Post Error", "Cannot post to nuked thread.", 58415, 0);
+										notify("Post Error", "Cannot post to nuked/frozen thread.", 58415, 0);
 									}
 
 									statInc(ctx, "PostedToNukedThread");
