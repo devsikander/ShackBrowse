@@ -102,7 +102,7 @@ public class ShackApi
     static final String BASE_URL = "http://shackapi.hughes.cc/";
     static final String BASE_URL_ALT = "http://woggle.net/shackbrowseAPI/";
     static final String BASE_URL_ALT_SSL = "https://woggle.net/shackbrowseAPI/";
-    static final String WINCHATTYV2_API = "http://winchatty.com/v2/";
+    static final String WINCHATTYV2_API = "https://winchatty.com/v2/";
     static final String CLOUDPIN_URL = "http://woggle.net/shackcloudpin/";
     static final String DONATOR_URL = "http://woggle.net/shackbrowsedonators/";
     static final String FAKE_CORTEX_ID = "18";

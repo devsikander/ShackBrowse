@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 public abstract class LoadingAdapter<T> extends ArrayAdapter<T>
 {
     protected abstract View createView(int position, View convertView, ViewGroup parent);
@@ -153,6 +155,7 @@ public abstract class LoadingAdapter<T> extends ArrayAdapter<T>
             {
             	_wasLastCallSuccessful = false;
                ErrorDialog.display(getContext(), "Error", "Error loading data.");
+               FirebaseCrashlytics.getInstance().recordException(_exception);
             }
             else if (result != null)
             {
