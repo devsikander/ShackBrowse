@@ -34,6 +34,9 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
+import androidx.core.content.ContextCompat;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
 
 public class PreferenceFragmentNotifications extends PreferenceFragment
 {
@@ -162,6 +165,14 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
             public boolean onPreferenceChange(final Preference preference, Object newValue) {
                 if(newValue instanceof Boolean){
                     final Boolean checked = (Boolean)newValue;
+
+                    if(checked) {
+                        int permissionState = ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.POST_NOTIFICATIONS);
+                        // If the permission is not granted, request it.
+                        if (permissionState == PackageManager.PERMISSION_DENIED) {
+                            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
+                        }
+                    }
 
                     boolean verified = _prefs.getBoolean("usernameVerified", false);
                     if (!verified)
