@@ -14,6 +14,7 @@ import net.swigglesoft.EditTextSelectionSavedAllowImage;
 import net.swigglesoft.shackbrowse.imgur.ImgurAuthorization;
 import net.swigglesoft.shackbrowse.imgur.ImgurTools;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -431,6 +432,7 @@ public class ComposePostView extends AppCompatActivity {
 				return;
 			}
 		}
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 	private void sendPictureSelectIntent()
 	{
@@ -440,72 +442,34 @@ public class ComposePostView extends AppCompatActivity {
 	}
     private void openPictureSelector()
     {
-        if (Build.VERSION.SDK_INT < 19)
-        {
-            Intent intent = new Intent();
-            intent.setType("image/jpeg");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Image"), SELECT_IMAGE);
-        }
-        else
-        {
-            if (Build.VERSION.SDK_INT >= 23)
-            {
-                // Here, thisActivity is the current activity
-                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                {
-					ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-					/*
-                    // Should we show an explanation?
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_EXTERNAL_STORAGE))
-                    {
-						ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                        // Show an expanation to the user *asynchronously* -- don't block
-                        // this thread waiting for the user's response! After the user
-                        // sees the explanation, try again to request the permission.
-
-                    }
-                    else
-                    {
-
-                        // No explanation needed, we can request the permission.
-						ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-
-
-                        // MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE is an
-                        // app-defined int constant. The callback method gets the
-                        // result of the request.
-                    }
-                    */
-                }
-                else
-                {
-                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                }
-            }
-            else
-            {
-                sendPictureSelectIntent();
-            }
-        }
+		if (Build.VERSION.SDK_INT >= 33) {
+			if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED ||
+					ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(
+						this,
+						new String[]{android.Manifest.permission.READ_MEDIA_VIDEO, android.Manifest.permission.READ_MEDIA_IMAGES},
+						MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+			} else {
+				sendPictureSelectIntent();
+			}
+		} else {
+			if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+			} else {
+				ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+			}
+		}
     }
 
 	public void openCameraSelector()
 	{
-		if (Build.VERSION.SDK_INT >= 23)
-		{
-			if ((ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) || (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED))
-			{
-				ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_MULTIPLE_REQUEST);
-			}
-			else
-				sendCameraIntent();
-		}
-		else
-		{
+		if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) || (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)) {
+			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_MULTIPLE_REQUEST);
+		} else {
 			sendCameraIntent();
 		}
 	}
+
 	private void sendCameraIntent()
 	{
 		// store our image in a temp spot

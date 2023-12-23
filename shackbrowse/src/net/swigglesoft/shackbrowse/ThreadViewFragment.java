@@ -1341,6 +1341,16 @@ public class ThreadViewFragment extends ListFragment
 			}
 		}
 
+		public void exoPlayerPause()
+		{
+			Iterator it = mExoPlayers.iterator();
+			while (it.hasNext())
+			{
+				ExoPlayerTracker item = (ExoPlayerTracker)it.next();
+				item.mPlayer.setPlayWhenReady(false);
+			}
+		}
+
 		public void setViewIsOpened(boolean isOpened)
 		{
 			if (isOpened)
@@ -1358,6 +1368,7 @@ public class ThreadViewFragment extends ListFragment
 				else
 				{
 					mViewIsOpen = false;
+					exoPlayerPause();
 					setHoldPostExecute(true);
 				}
 			}
@@ -2184,7 +2195,7 @@ public class ThreadViewFragment extends ListFragment
 							MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(PopupBrowserFragment.getGIFVtoMP4(postClip.url.getURL())));
 							// Prepare the player with the source.
 							player.prepare(videoSource);
-							player.setPlayWhenReady((position == 0 ? false : true));
+							player.setPlayWhenReady((position == 0 || !mViewIsOpen ? false : true));
 							player.setRepeatMode(Player.REPEAT_MODE_ONE);
 							view.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
 							//view.setControllerAutoShow(false);

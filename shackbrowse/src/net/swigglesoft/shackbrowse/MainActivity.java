@@ -22,7 +22,6 @@ import net.swigglesoft.shackbrowse.NetworkNotificationServers.OnGCMInteractListe
 import net.swigglesoft.shackbrowse.imgur.ImgurAuthURLHandling;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -30,6 +29,7 @@ import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -60,6 +60,7 @@ import android.app.FragmentTransaction;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
+import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.core.view.MenuItemCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -205,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
 	private Bundle savedInstanceState;
 
-
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -270,6 +270,41 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 		evaluateAutoHide();
 
 		initFragments(savedInstanceState);
+
+		registerActivityLifecycleCallbacks(
+				new Application.ActivityLifecycleCallbacks() {
+					@Override
+					public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+					}
+
+					@Override
+					public void onActivityStarted(@NonNull Activity activity) {
+					}
+
+					@Override
+					public void onActivityResumed(@NonNull Activity activity) {
+					}
+
+					@Override
+					public void onActivityPaused(Activity activity) {
+					}
+
+					@Override
+					public void onActivityStopped(@NonNull Activity activity) {
+						if(_threadView != null && _threadView._adapter != null) {
+							_threadView._adapter.exoPlayerPause();
+						}
+					}
+
+					@Override
+					public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+					}
+
+					@Override
+					public void onActivityDestroyed(@NonNull Activity activity) {
+					}
+				}
+		);
 
 		mShortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime) * 1;
 
@@ -1126,6 +1161,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 		MenuItem menuRefreshItem = menu.findItem(R.id.menu_refreshThreads);
 		MenuItem menuNewpostItem = menu.findItem(R.id.menu_newPost);
 	    mFinder = menu.findItem(R.id.menu_findOnPage);
+
         MenuItemCompat.setOnActionExpandListener(mFinder, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem arg0) {

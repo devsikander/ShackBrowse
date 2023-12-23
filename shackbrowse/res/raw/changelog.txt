@@ -89,6 +89,12 @@ b{Why does the thread open when I go from landscape to portrait?}b
 How am I supposed to tell if you were looking at the thread or the list of threads? You can disable split view/tablet view to fix this, or lock the orientation to portrait.
 
 -->
+$ 7.0.16
+% v 7.0.16
+_ December 22, 2023
+* Fix: New installs on Android 13 and up were not asking for updated image and video permissions after the recent update. This resulted in the Gallery button on posting views not working. This is now fixed.
+* Fix: MP4 in thread videos will now pause when navigating away from the thread. They will also pause when the app is stopped/sent to the background.
+
 $ 7.0.15
 % v 7.0.15
 _ September 22, 2023

@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
       package="net.swigglesoft.shackbrowse"
-      android:versionCode="493"
-      android:versionName="7.0.15">
+      android:versionCode="494"
+      android:versionName="7.0.16">
 
 	<uses-feature
 		android:name="android.hardware.camera"
@@ -12,7 +12,8 @@
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-	<!--<permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+	<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+	<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
 	<uses-permission android:name="android.permission.VIBRATE" />
@@ -22,7 +23,7 @@
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
 
-    <application android:theme="@style/AppTheme" android:usesCleartextTraffic="true" android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:label="@string/app_name" android:largeHeap="true" android:name="net.swigglesoft.shackbrowse.SBApplication">
+    <application android:theme="@style/AppTheme" android:usesCleartextTraffic="true" android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:label="@string/app_name" android:largeHeap="true" android:enableOnBackInvokedCallback="true" android:name="net.swigglesoft.shackbrowse.SBApplication">
 		<provider
 			android:name="androidx.core.content.FileProvider"
 			android:authorities="net.swigglesoft.shackbrowse.provider"
