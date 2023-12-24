@@ -89,6 +89,11 @@ b{Why does the thread open when I go from landscape to portrait?}b
 How am I supposed to tell if you were looking at the thread or the list of threads? You can disable split view/tablet view to fix this, or lock the orientation to portrait.
 
 -->
+$ 7.0.17
+% v 7.0.17
+_ December 24, 2023
+* Fix: Revert a change for a warning to get the back button navigating properly in the app again.
+
 $ 7.0.16
 % v 7.0.16
 _ December 22, 2023
