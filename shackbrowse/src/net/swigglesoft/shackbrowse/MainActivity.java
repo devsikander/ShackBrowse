@@ -271,40 +271,42 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
 		initFragments(savedInstanceState);
 
-		registerActivityLifecycleCallbacks(
-				new Application.ActivityLifecycleCallbacks() {
-					@Override
-					public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-					}
+		if (Build.VERSION.SDK_INT >= 29) {
+			registerActivityLifecycleCallbacks(
+					new Application.ActivityLifecycleCallbacks() {
+						@Override
+						public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+						}
 
-					@Override
-					public void onActivityStarted(@NonNull Activity activity) {
-					}
+						@Override
+						public void onActivityStarted(@NonNull Activity activity) {
+						}
 
-					@Override
-					public void onActivityResumed(@NonNull Activity activity) {
-					}
+						@Override
+						public void onActivityResumed(@NonNull Activity activity) {
+						}
 
-					@Override
-					public void onActivityPaused(Activity activity) {
-					}
+						@Override
+						public void onActivityPaused(Activity activity) {
+						}
 
-					@Override
-					public void onActivityStopped(@NonNull Activity activity) {
-						if(_threadView != null && _threadView._adapter != null) {
-							_threadView._adapter.exoPlayerPause();
+						@Override
+						public void onActivityStopped(@NonNull Activity activity) {
+							if (_threadView != null && _threadView._adapter != null) {
+								_threadView._adapter.exoPlayerPause();
+							}
+						}
+
+						@Override
+						public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+						}
+
+						@Override
+						public void onActivityDestroyed(@NonNull Activity activity) {
 						}
 					}
-
-					@Override
-					public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-					}
-
-					@Override
-					public void onActivityDestroyed(@NonNull Activity activity) {
-					}
-				}
-		);
+			);
+		}
 
 		mShortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime) * 1;
 
@@ -2271,7 +2273,12 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         builder.setView(view);
         builder.setPositiveButton("Open", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                openThreadViewAndSelect(Integer.parseInt(tid.getText().toString()));
+				try {
+					int postId = Integer.parseInt(tid.getText().toString());
+					openThreadViewAndSelect(postId);
+				} catch (NumberFormatException e) {
+					Toast.makeText(getApplicationContext(), "The post ID does not appear to be a valid number.", Toast.LENGTH_LONG).show();
+				}
             }
         });
         builder.setNegativeButton("Cancel", null);

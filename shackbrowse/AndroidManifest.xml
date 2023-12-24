@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
       package="net.swigglesoft.shackbrowse"
-      android:versionCode="494"
+      android:versionCode="495"
       android:versionName="7.0.16">
 
 	<uses-feature

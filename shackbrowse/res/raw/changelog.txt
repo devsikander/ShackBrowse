@@ -94,6 +94,7 @@ $ 7.0.16
 _ December 22, 2023
 * Fix: New installs on Android 13 and up were not asking for updated image and video permissions after the recent update. This resulted in the Gallery button on posting views not working. This is now fixed.
 * Fix: MP4 in thread videos will now pause when navigating away from the thread. They will also pause when the app is stopped/sent to the background.
+* Fix: Fix a crash in Open Post by ID when an invalid integer is given (or nothing is given).
 
 $ 7.0.15
 % v 7.0.15
