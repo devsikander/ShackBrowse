@@ -2,6 +2,7 @@ package net.swigglesoft.shackbrowse.imgur;
 
 import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -9,8 +10,11 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class ImgurTools
@@ -32,17 +36,7 @@ public class ImgurTools
 			return accessToken;
 		}
 	}
-	private static int copy(InputStream input, OutputStream output) throws IOException
-	{
-		byte[] buffer = new byte[8192];
-		int count = 0;
-		int n = 0;
-		while (-1 != (n = input.read(buffer))) {
-			output.write(buffer, 0, n);
-			count += n;
-		}
-		return count;
-	}
+
 	protected static JSONObject onInput(InputStream in) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		Scanner scanner = new Scanner(in);
@@ -66,13 +60,21 @@ public class ImgurTools
 		try {
 			conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
 			conn.setDoOutput(true);
+			conn.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
+
+			byte[] imageData = imageIn.readAllBytes();
+			String encodedImageData = Base64.encodeToString(imageData, Base64.DEFAULT);
+
+			String data = URLEncoder.encode("image", "UTF-8") + "="
+					+ URLEncoder.encode(encodedImageData, "UTF-8");
 
 			ImgurAuthorization.getInstance().addToHttpURLConnection(conn);
 
-			OutputStream out = conn.getOutputStream();
-			copy(imageIn, out);
-			out.flush();
-			out.close();
+			OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+			wr.write(data);
+			wr.flush();
+			wr.close();
 
 			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				responseIn = conn.getInputStream();
