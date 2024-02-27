@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -52,6 +53,16 @@ public class ImgurTools
 		Log.i(TAG, "new imgur url: http://imgur.com/" + id + " (delete hash: " + deletehash + ")");
 		return root;
 	}
+
+	private static int copy(InputStream input, OutputStreamWriter output) throws IOException
+	{
+		byte[] imageBytes = IOUtils.toByteArray(input);
+		String encodedImageData = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+		String encodedData = URLEncoder.encode(encodedImageData, "UTF-8");
+		output.write(encodedData);
+		return encodedData.length();
+	}
+
 	public static JSONObject uploadImageToImgur (InputStream imageIn)
 	{
 		HttpURLConnection conn = null;
@@ -63,16 +74,12 @@ public class ImgurTools
 			conn.setRequestProperty("Content-Type",
 					"application/x-www-form-urlencoded");
 
-			byte[] imageData = imageIn.readAllBytes();
-			String encodedImageData = Base64.encodeToString(imageData, Base64.DEFAULT);
-
-			String data = URLEncoder.encode("image", "UTF-8") + "="
-					+ URLEncoder.encode(encodedImageData, "UTF-8");
-
+			String imageStartData = URLEncoder.encode("image", "UTF-8") + "=";
 			ImgurAuthorization.getInstance().addToHttpURLConnection(conn);
 
 			OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-			wr.write(data);
+			wr.write(imageStartData);
+			copy(imageIn, wr);
 			wr.flush();
 			wr.close();
 
