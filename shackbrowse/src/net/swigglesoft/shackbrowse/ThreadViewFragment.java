@@ -2709,72 +2709,13 @@ public class ThreadViewFragment extends ListFragment
 			for (CustomURLSpan target : list)
 			{
 				Drawable iSpan = mMainActivity.getResources().getDrawable(R.drawable.ic_action_action_launch);
-				iSpan.setTint(MainActivity.getThemeColor(getActivity(), R.attr.drawableTintColor));
 				iSpan.setBounds(0,0, (int)(t.getLineHeight()*1.35f),(int)(t.getLineHeight()*1.35f));
 				builder.insert(text.getSpanEnd(target), " o");
 				builder.setSpan(new ImageSpan(iSpan, DynamicDrawableSpan.ALIGN_BOTTOM) , text.getSpanEnd(target) +1, text.getSpanEnd(target)+2,   Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				final String href = target.getURL();
 				ClickableSpan clickspan = new ClickableSpan(){
 					@Override
-					public void onClick(View widget) {
-                        /*
-                        PopupMenu hrefpop = new PopupMenu(getContext(), widget);
-                        hrefpop.getMenu().add(Menu.NONE, 0, Menu.NONE, "Open Externally");
-                        hrefpop.getMenu().add(Menu.NONE, 1, Menu.NONE, "Open in Popup Browser");
-                        hrefpop.getMenu().add(Menu.NONE, 2, Menu.NONE, "Copy URL");
-                        hrefpop.getMenu().add(Menu.NONE, 3, Menu.NONE, "Share Link");
-                        hrefpop.getMenu().add(Menu.NONE, 4, Menu.NONE, "Change Default Action");
-                        hrefpop.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                if (item.getItemId() == 2)
-                                {
-                                    ClipboardManager clipboard = (ClipboardManager)activ.getSystemService(Activity.CLIPBOARD_SERVICE);
-                                    clipboard.setText(href);
-                                    Toast.makeText(activ, href, Toast.LENGTH_SHORT).show();
-                                    return true;
-                                }
-                                if (item.getItemId() == 3)
-                                {
-                                    Intent sendIntent = new Intent();
-                                    sendIntent.setAction(Intent.ACTION_SEND);
-                                    sendIntent.putExtra(Intent.EXTRA_TEXT, href);
-                                    sendIntent.setType("text/plain");
-                                    activ.startActivity(Intent.createChooser(sendIntent, "Share Link"));
-                                    return true;
-                                }
-                                if (item.getItemId() == 0)
-                                {
-                                    Uri u = Uri.parse(href);
-                                    if (u.getScheme() == null)
-                                    {
-                                        u = Uri.parse("http://" + href);
-                                    }
-                                    Intent i = new Intent(Intent.ACTION_VIEW,
-                                            u);
-                                    activ.startActivity(i);
-                                    return true;
-                                }
-                                if (item.getItemId() == 1)
-                                {
-                                    ((MainActivity)activ).openBrowser(href);
-                                    return true;
-                                }
-                                if (item.getItemId() == 4)
-                                {
-                                    Intent i = new Intent(mMainActivity, PreferenceView.class);
-                                    i.putExtra("pscreenkey", "popupbrowser");
-                                    startActivityForResult(i, ThreadListFragment.OPEN_PREFS);
-                                    return true;
-                                }
-                                return false;
-                            }
-                        });
-                        hrefpop.show();
-                        */
-						showLinkOptionsMenu(href);
-
-					}
+					public void onClick(View widget) { showLinkOptionsMenu(href); }
 				};
 				builder.setSpan(clickspan , text.getSpanEnd(target) +1, text.getSpanEnd(target)+2,   Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
