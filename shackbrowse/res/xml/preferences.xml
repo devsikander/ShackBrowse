@@ -163,9 +163,9 @@
   	     android:defaultValue="true"
   	     />
 		<CheckBoxPreference
-			android:key="onlyFavoritesFromLast18Hours"
-			android:title="@string/preference_onlyFavoritesFromLast18Hours_title"
-			android:summary="@string/preference_onlyFavoritesFromLast18Hours_summary"
+			android:key="onlyFavoritesFromLastRecentHours"
+			android:title="@string/preference_onlyFavoritesFromLastRecentHours_title"
+			android:summary="@string/preference_onlyFavoritesFromLastRecentHours_summary"
 			android:defaultValue="true"
 			/>
 

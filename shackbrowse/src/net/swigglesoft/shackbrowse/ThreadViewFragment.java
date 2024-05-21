@@ -113,6 +113,7 @@ import net.swigglesoft.CustomLinkMovementMethod;
 import net.swigglesoft.ExpandableListItemAdapter;
 import net.swigglesoft.FixedTextView;
 import net.swigglesoft.shackbrowse.twitter.TweetDataFixer;
+import static net.swigglesoft.shackbrowse.ShackApi.POST_EXPIRY_HOURS;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -422,7 +423,7 @@ public class ThreadViewFragment extends ListFragment
 
 				// adapter exists, item 0 exists, and not in message mode
 				if (_adapter != null && _adapter.getCount() != 0 && _adapter.getItem(0) != null && _messageId == 0) {
-					if (TimeDisplay.threadAgeInHours(_adapter.getItem(0).getPosted()) > 18d) {
+					if (TimeDisplay.threadAgeInHours(_adapter.getItem(0).getPosted()) > POST_EXPIRY_HOURS) {
 						_showThreadExpired = true;
 					}
 				}
@@ -3087,15 +3088,6 @@ public class ThreadViewFragment extends ListFragment
 				if (_adapter.getItem(0) != null)
 				{
 					_rootPostId = _adapter.getItem(0).getPostId();
-
-				/*
-				if (TimeDisplay.threadAgeInHours(_adapter.getItem(0).getPosted()) > 18d)
-				{
-					_showThreadExpired = true;
-				}
-				else
-					_showThreadExpired = false;
-					*/
 				}
 			}
 

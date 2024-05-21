@@ -1,5 +1,7 @@
 package net.swigglesoft.shackbrowse;
 
+import static net.swigglesoft.shackbrowse.ShackApi.POST_EXPIRY_HOURS;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -409,7 +411,7 @@ public class OfflineThread
 		while( keys.hasMoreElements() ) {
 			Object key = keys.nextElement();
 			SavedThreadObj value = _threads.get(key);
-			if (TimeDisplay.threadAgeInHours(value._postTime) > 18d)
+			if (TimeDisplay.threadAgeInHours(value._postTime) > POST_EXPIRY_HOURS)
 			{
 				_threads.remove(key);
 			}
@@ -422,7 +424,7 @@ public class OfflineThread
 	{
 		return getThreadsAsJson(false, false);
 	}
-	public JSONObject getThreadsAsJson(boolean asc, boolean onlyLessThan18Hours)
+	public JSONObject getThreadsAsJson(boolean asc, boolean onlyLessThan24Hours)
 	{
 		JSONObject listJson = new JSONObject();
 		JSONArray array = new JSONArray();
@@ -436,7 +438,7 @@ public class OfflineThread
 		int i = postIds.size() -1;
 		while ( i >= 0) {
 			SavedThreadObj value = _threads.get(postIds.get(i));
-			if ((TimeDisplay.threadAgeInHours(value._postTime) > 18d) && (onlyLessThan18Hours))
+			if ((TimeDisplay.threadAgeInHours(value._postTime) > POST_EXPIRY_HOURS) && (onlyLessThan24Hours))
 			{
 				i--;
 				continue;

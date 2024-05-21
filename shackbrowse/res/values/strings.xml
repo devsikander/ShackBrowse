@@ -380,8 +380,8 @@
     <string name="preference_limitvibratespam_summary">Limits the minimum time between two notifications that use vibrate and sound.</string>
     <string name="preference_periodicnetworkservice_summary">Select how often to check for shackmessages in the background. Set to OFF to prevent this.</string>
     <string name="preference_periodicnetworkservice_title">Background ShackMessage Check</string>
-    <string name="preference_onlyFavoritesFromLast18Hours_title">Only Recent Starred</string>
-    <string name="preference_onlyFavoritesFromLast18Hours_summary">Only starred threads from the last 18 hours will be shown at the top of the latestchatty list. Older starred threads will remain in the starred posts app area.</string>
+    <string name="preference_onlyFavoritesFromLastRecentHours_title">Only Recent Starred</string>
+    <string name="preference_onlyFavoritesFromLastRecentHours_summary">Only starred threads from the last 24 hours will be shown at the top of the latestchatty list. Older starred threads will remain in the starred posts app area.</string>
     <string name="compose_macro">Apply Macro</string>
 	<string name="preference_LEDBlinkInMS_title">LED Blink Speed</string>
     <string name="preference_LEDBlinkInMS_summary">Changes the LED blink rate</string>

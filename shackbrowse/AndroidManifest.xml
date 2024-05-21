@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
       package="net.swigglesoft.shackbrowse"
-      android:versionCode="499"
-      android:versionName="7.0.20">
+      android:versionCode="500"
+      android:versionName="7.0.21">
 
 	<uses-feature
 		android:name="android.hardware.camera"

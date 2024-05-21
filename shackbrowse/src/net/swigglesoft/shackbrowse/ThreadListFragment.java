@@ -1803,7 +1803,7 @@ public class ThreadListFragment extends ListFragment
             	Iterator<Thread> iter = null;
 				try
 				{
-					ot_threads = ShackApi.processThreadsAndUpdReplyCounts(_offlineThread.getThreadsAsJson(true, _prefs.getBoolean("onlyFavoritesFromLast18Hours", true)), getActivity());
+					ot_threads = ShackApi.processThreadsAndUpdReplyCounts(_offlineThread.getThreadsAsJson(true, _prefs.getBoolean("onlyFavoritesFromLastRecentHours", true)), getActivity());
 				}
 				catch (Exception e)
 				{
