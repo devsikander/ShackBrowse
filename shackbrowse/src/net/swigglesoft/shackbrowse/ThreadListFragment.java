@@ -85,6 +85,7 @@ import android.widget.AbsListView.OnScrollListener;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import static net.swigglesoft.shackbrowse.ShackApi.POST_EXPIRY_HOURS;
 import static net.swigglesoft.shackbrowse.StatsFragment.statInc;
 
 public class ThreadListFragment extends ListFragment
@@ -1519,11 +1520,13 @@ public class ThreadListFragment extends ListFragment
             //holder.content.setEllipsize(TextUtils.TruncateAt.END);
             
             final double threadAge = TimeDisplay.threadAgeInHours(t.getPosted());
-            if (threadAge > 16f)
+			final double badThreshold = POST_EXPIRY_HOURS - 2f;
+			final double okThreshold = (POST_EXPIRY_HOURS * 2) / 3;
+            if (threadAge > badThreshold)
             {
             	holder.posted.setTextColor(getResources().getColor(R.color.threadLifeBad));
             }
-            else if (threadAge > 12f)
+            else if (threadAge > okThreshold)
             {
                 holder.posted.setTextColor(getResources().getColor(R.color.threadLifeOk));
             }

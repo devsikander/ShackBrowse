@@ -89,6 +89,11 @@ b{Why does the thread open when I go from landscape to portrait?}b
 How am I supposed to tell if you were looking at the thread or the list of threads? You can disable split view/tablet view to fix this, or lock the orientation to portrait.
 
 -->
+$ 7.0.22
+% v 7.0.22
+_ May 24, 2024
+* Update the thread list posted time colouring for the 24 hour change. This was a missed change from the previous update. It will go red at 22 hours since posted and orange at 16 hours since posted.
+
 $ 7.0.21
 % v 7.0.21
 _ May 21, 2024
