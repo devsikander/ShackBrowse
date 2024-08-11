@@ -5,7 +5,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.5.1'
     }
 }
 
@@ -79,11 +79,11 @@ dependencies {
 }
 
 android {
+    namespace 'net.swigglesoft.shackbrowse'
     useLibrary 'org.apache.http.legacy'
     signingConfigs {
         release
     }
-    compileSdkVersion 33
     compileOptions.encoding = 'windows-1251'
     sourceSets {
         main {
@@ -111,7 +111,8 @@ android {
     defaultConfig {
         applicationId "net.swigglesoft.shackbrowse"
         minSdkVersion 23
-        targetSdkVersion 33
+        targetSdkVersion 34
+        compileSdk 34
         multiDexEnabled false
     }
     productFlavors {
@@ -140,6 +141,11 @@ android {
             exclude module: 'json'
             exclude group: 'org.apache.httpcomponents'
         }
+    }
+    buildFeatures {
+        renderScript true
+        aidl true
+        buildConfig true
     }
 }
 
