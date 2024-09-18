@@ -89,6 +89,11 @@ b{Why does the thread open when I go from landscape to portrait?}b
 How am I supposed to tell if you were looking at the thread or the list of threads? You can disable split view/tablet view to fix this, or lock the orientation to portrait.
 
 -->
+$ 7.1.1
+% v 7.1.1
+_ September 17, 2024
+* Update the ShackNews Mod & Employee list for post author colouring.
+
 $ 7.1.0
 % v 7.1.0
 _ August 17, 2024
