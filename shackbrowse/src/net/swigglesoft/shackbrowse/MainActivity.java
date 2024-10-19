@@ -110,12 +110,12 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.android.material.appbar.AppBarLayout;
-import com.pierfrancescosoffritti.androidyoutubeplayer.player.listeners.AbstractYouTubePlayerListener;
-import com.pierfrancescosoffritti.androidyoutubeplayer.player.YouTubePlayer;
-import com.pierfrancescosoffritti.androidyoutubeplayer.player.listeners.YouTubePlayerInitListener;
-import com.pierfrancescosoffritti.androidyoutubeplayer.player.YouTubePlayerView;
-import com.pierfrancescosoffritti.androidyoutubeplayer.player.listeners.YouTubePlayerFullScreenListener;
-import com.pierfrancescosoffritti.androidyoutubeplayer.ui.PlayerUIController;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.customui.DefaultPlayerUiController;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
 import static net.swigglesoft.shackbrowse.StatsFragment.statInc;
 
@@ -2177,22 +2177,21 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 		else
 		{
 			// DUAL PANE SETUP
-
 			// ytholder
-			// ytholder
-			if (mYoutubeFullscreen)
-				((RelativeLayout.LayoutParams)ytholder.getLayoutParams()).width = (int)(getScreenWidth());
-			else
-				((RelativeLayout.LayoutParams)ytholder.getLayoutParams()).width = (int)(getScreenWidth() * (1f / 3f));
+			if (mYoutubeFullscreen) {
+				ytholder.getLayoutParams().width = getScreenWidth();
+			} else {
+				ytholder.getLayoutParams().width = (int) (getScreenWidth() * (1f / 3f));
+			}
 
 			
 			// sresults slider
-			((RelativeLayout.LayoutParams)sres.getLayoutParams()).width = (int)(getScreenWidth() * (1f / 3f));
+			sres.getLayoutParams().width = (int)(getScreenWidth() * (1f / 3f));
 			
 			// threadview slider
-    		((RelativeLayout.LayoutParams)contentframe.getLayoutParams()).width = (int)(getScreenWidth() * (1f / 3f));
+    		contentframe.getLayoutParams().width = (int)(getScreenWidth() * (1f / 3f));
     		
-    		((RelativeLayout.LayoutParams)slide.getLayoutParams()).width = (int)(getScreenWidth() * (2f / 3f)) + 1;
+    		slide.getLayoutParams().width = (int)(getScreenWidth() * (2f / 3f)) + 1;
     		
     		if (_swappedSplit)
     		{
@@ -2232,7 +2231,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 		sres.requestLayout();
 		slide.requestLayout();
 		contentframe.requestLayout();
-		((RelativeLayout)contentframe.getParent()).requestLayout();
+		contentframe.getParent().requestLayout();
 
         contentframe.setTranslationX(0f);
         sres.setTranslationX(0f);
@@ -2264,8 +2263,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
         builder.setTitle("Enter Thread ID");
         final View view = _context.getLayoutInflater().inflate(R.layout.dialog_openthreadid, null);
-        final EditText tid = (EditText) view.findViewById(R.id.openIDText);
-        final TextView header = (TextView) view.findViewById(R.id.openIDHeader);
+        final EditText tid = view.findViewById(R.id.openIDText);
+        final TextView header = view.findViewById(R.id.openIDHeader);
         header.setText("/chatty?id=");
         builder.setView(view);
         builder.setPositiveButton("Open", new DialogInterface.OnClickListener() {
@@ -2416,14 +2415,34 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
     	_threadIdBackStack = new ArrayList<Integer>();
     }
 
-    
+	private void setYoutubeFullscreen(boolean isFullscreen) {
+		mYoutubeFullscreen = isFullscreen;
+		RelativeLayout youtubeHolder = findViewById(R.id.tlist_ytholder);
+		youtubeHolder.removeAllViews();
+		View decorView = getWindow().getDecorView();
+
+		// Hide the status bar or show it.
+		int uiOptions = isFullscreen ? View.SYSTEM_UI_FLAG_FULLSCREEN : View.SYSTEM_UI_FLAG_VISIBLE;
+		decorView.setSystemUiVisibility(uiOptions);
+
+		if(isFullscreen) {
+			youtubeHolder.addView(mYoutubeView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else {
+			youtubeHolder.addView(mYoutubeView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+			setOrientLock();
+		}
+		resizeOtherContentHeightsForYoutube();
+		evaluateAutoHide();
+	}
+
 	// back button overriding
 	@Override
 	public void onBackPressed() {
 
     	if (isYTOpen() && mYoutubeFullscreen)
 	    {
-	    	mYoutubeView.exitFullScreen();
+			setYoutubeFullscreen(false);
 	    }
 		else if (isMenuOpen())
 		{
@@ -3945,76 +3964,35 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 		}
 
 		mYoutubeView = new YouTubePlayerView(this);
+		mYoutubeView.setEnableAutomaticInitialization(false);
 		RelativeLayout ytHolder = (RelativeLayout) findViewById(R.id.tlist_ytholder);
 		ytHolder.addView(mYoutubeView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 		mYoutubeView.setVisibility(View.VISIBLE);
-		PlayerUIController puic = mYoutubeView.getPlayerUIController();
-
-		Drawable myIcon = getResources().getDrawable(R.drawable.ic_action_content_clear);
 		ImageView close = new ImageView(this);
-		close.setImageResource(R.drawable.ic_action_content_clear);
-		close.setOnClickListener(new View.OnClickListener()
-		{
+		YouTubePlayerListener listener = new AbstractYouTubePlayerListener() {
 			@Override
-			public void onClick(View view)
-			{
-				closeYoutube();
+			public void onReady(@NonNull YouTubePlayer youTubePlayer) {
+				DefaultPlayerUiController defaultPlayerUiController = new DefaultPlayerUiController(mYoutubeView, youTubePlayer);
+				Drawable myIcon = getResources().getDrawable(R.drawable.ic_action_content_clear);
+				close.setImageResource(R.drawable.ic_action_content_clear);
+				close.setOnClickListener(view -> closeYoutube());
+				defaultPlayerUiController.addView(close);
+				defaultPlayerUiController.setFullscreenButtonClickListener(v -> {
+					// Toggle fullscreen mode for the YouTube view
+					setYoutubeFullscreen(!mYoutubeFullscreen);
+                });
+				mYoutubeView.setCustomPlayerUi(defaultPlayerUiController.getRootView());
 			}
-		});
-		puic.addView(close);
-
-		mYoutubeView.addFullScreenListener(new YouTubePlayerFullScreenListener(){
-			@Override
-			public void onYouTubePlayerEnterFullScreen()
-			{
-				mYoutubeFullscreen = true;
-				// ActionBar actionBar = mToolbar;
-				// actionBar.hide();
-				View decorView = getWindow().getDecorView();
-				// Hide the status bar.
-				int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-				decorView.setSystemUiVisibility(uiOptions);
-
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-				resizeOtherContentHeightsForYoutube();
-				evaluateAutoHide();
-			}
-
-			@Override
-			public void onYouTubePlayerExitFullScreen()
-			{
-				mYoutubeFullscreen = false;
-				// ActionBar actionBar = mToolbar;
-				// actionBar.show();
-				View decorView = getWindow().getDecorView();
-				// Show the status bar.
-				int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
-				decorView.setSystemUiVisibility(uiOptions);
-
-				setOrientLock();
-
-				resizeOtherContentHeightsForYoutube();
-				evaluateAutoHide();
-			}
-		});
+		};
+		IFramePlayerOptions options = new IFramePlayerOptions.Builder().controls(0).build();
+		mYoutubeView.initialize(listener, options);
 
 		final String youtubeId = PopupBrowserFragment.getYoutubeId(url);
 		final int youtubeTime = PopupBrowserFragment.getYoutubeTime(url);
-		mYoutubeView.initialize(new YouTubePlayerInitListener() {
-			@Override
-			public void onInitSuccess(final YouTubePlayer initializedYouTubePlayer) {
-				initializedYouTubePlayer.addListener(new AbstractYouTubePlayerListener() {
-					@Override
-					public void onReady() {
-						initializedYouTubePlayer.loadVideo(youtubeId, youtubeTime);
-						mYoutubePlayer = initializedYouTubePlayer;
-					}
-				});
-			}
-		}, true);
-
-		new getYTTitleTask().execute(youtubeId);
+		mYoutubeView.getYouTubePlayerWhenReady(youTubePlayer -> {
+			youTubePlayer.loadVideo(youtubeId, youtubeTime);
+			mYoutubePlayer = youTubePlayer;
+		});
 
 		resizeOtherContentHeightsForYoutube();
 		evaluateAutoHide();
@@ -4022,23 +4000,19 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
 	public void closeYoutube()
 	{
-
 		if (mYoutubeFullscreen)
 		{
 			mYoutubeFullscreen = false;
-			// ActionBar actionBar = mToolbar.show();
 			View decorView = getWindow().getDecorView();
 			// Show the status bar.
 			int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
 			decorView.setSystemUiVisibility(uiOptions);
-
 			setOrientLock();
-
 		}
 
 		mYoutubeView.release();
 		mYoutubeView.setVisibility(View.GONE);
-		RelativeLayout ytHolder = (RelativeLayout) findViewById(R.id.tlist_ytholder);
+		RelativeLayout ytHolder = findViewById(R.id.tlist_ytholder);
 		ytHolder.removeAllViews();
 
 		resizeOtherContentHeightsForYoutube();
@@ -4051,23 +4025,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 		setDualPane(_dualPane);
 	}
 
-	/*
-	 * YT TITLE
-	 */
-	class getYTTitleTask extends AsyncTask<String, Void, String>
-	{
-		@Override
-		protected String doInBackground(String... params)
-		{
-			return ShackApi.getYTTitle(params[0]);
-		}
-		@Override
-		protected void onPostExecute(String result)
-		{
-			if (isYTOpen())
-				mYoutubeView.getPlayerUIController().setVideoTitle(result);
-		}
-	}
 	/*
 	Blocklist
 	 */
