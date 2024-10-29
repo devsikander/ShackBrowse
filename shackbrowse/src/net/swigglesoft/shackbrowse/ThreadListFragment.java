@@ -9,19 +9,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Random;
 
 import net.swigglesoft.AutocompleteProvider;
 import net.swigglesoft.CheckableLinearLayout;
@@ -43,7 +39,6 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -52,7 +47,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.app.ListFragment;
-import androidx.annotation.NonNull;
+
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -63,7 +58,6 @@ import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -82,7 +76,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AbsListView.OnScrollListener;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import static net.swigglesoft.shackbrowse.ShackApi.POST_EXPIRY_HOURS;
@@ -269,8 +262,9 @@ public class ThreadListFragment extends ListFragment
        	{
        		_listState = savedInstanceState.getParcelable("tlist_listState");
        		_listPosition = savedInstanceState.getInt("tlist_listPosition");
-       		if ((_viewAvailable) && (_listState != null))
-       			getListView().onRestoreInstanceState(_listState);
+       		if ((_viewAvailable) && (_listState != null)) {
+				getListView().onRestoreInstanceState(_listState);
+			}
        		
        		if (savedInstanceState.getParcelableArrayList("tlist_adapterItems") != null)
        		{
@@ -287,23 +281,27 @@ public class ThreadListFragment extends ListFragment
        		}
        		_itemPosition = savedInstanceState.getInt("tlist_itemPosition");
        		
-       		if (_viewAvailable)
-       			getListView().setSelectionFromTop(_listPosition,  _itemPosition);
+       		if (_viewAvailable) {
+				getListView().setSelectionFromTop(_listPosition, _itemPosition);
+			}
        		       		
        		_itemChecked = savedInstanceState.getInt("tlist_itemChecked");
        		
-       		if ((_itemChecked != ListView.INVALID_POSITION) && (_viewAvailable))
-       			getListView().setItemChecked(_itemChecked, true);       		
+       		if ((_itemChecked != ListView.INVALID_POSITION) && (_viewAvailable)) {
+				getListView().setItemChecked(_itemChecked, true);
+			}
        	}
        	else
        	{
        		// user rotated the screen, try to go back to where they where
-       		if (_listState != null)
-       			getListView().onRestoreInstanceState(_listState);
-       		    getListView().setSelectionFromTop(_listPosition,  _itemPosition);
+       		if (_listState != null) {
+				getListView().onRestoreInstanceState(_listState);
+			}
+			getListView().setSelectionFromTop(_listPosition,  _itemPosition);
        		
-       		if (_itemChecked != ListView.INVALID_POSITION)
-       			getListView().setItemChecked(_itemChecked, true);
+       		if (_itemChecked != ListView.INVALID_POSITION) {
+				getListView().setItemChecked(_itemChecked, true);
+			}
        	}
        	
        	
@@ -382,22 +380,22 @@ public class ThreadListFragment extends ListFragment
     {        
     	_offlineThread = ((MainActivity)getActivity()).mOffline;
     	
-    	_touchListener =
-                new SwipeDismissListViewTouchListener(
-                        getListView(),
-                        new DismissCallbacks() {
-                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
-                                for (int position : reverseSortedPositions) {
-                                    collapseAtPosition(position);
-                                }
-                                _adapter.notifyDataSetChanged();
-                            }
+    	_touchListener = new SwipeDismissListViewTouchListener(
+			getListView(),
+			new DismissCallbacks() {
+				public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+					for (int position : reverseSortedPositions) {
+						collapseAtPosition(position);
+					}
+					_adapter.notifyDataSetChanged();
+				}
 
-							@Override
-							public boolean canDismiss(int position) {
-								return true;
-							}
-                        });
+				@Override
+				public boolean canDismiss(int position) {
+					return true;
+				}
+			}
+		);
 
         getListView().setOnTouchListener(new View.OnTouchListener() {
 			@Override
@@ -410,14 +408,7 @@ public class ThreadListFragment extends ListFragment
 		});
 
         // swipe directional pref
-        if (_swipecollapse == 1)
-        {
-        	_touchListener.setAllowRightSwipe(false);
-        }
-        else
-        {
-        	_touchListener.setAllowRightSwipe(true);
-        }
+        _touchListener.setAllowRightSwipe(_swipecollapse != 1);
         
     	// set listview so it loads more when you hit 3/4 the way down
         getListView().setOnScrollListener(new OnScrollListener() {
@@ -1085,8 +1076,9 @@ public class ThreadListFragment extends ListFragment
     	if (getActivity() != null)
     	{
 	        // update post counts for threads viewing right now
-	        for (Thread t : threads)
+	        for (Thread t : threads){
 	            counts.put(t.getThreadId(), t.getReplyCount());
+			}
 	
 	        List<Integer> postIds = Collections.list(counts.keys());
 	        Collections.sort(postIds);
@@ -1144,8 +1136,9 @@ public class ThreadListFragment extends ListFragment
 	    public int getCount() {
 	    	synchronized (mLock)
         	{
-		    	if ((!_filtering) || (_filteredItemList == null))
-		    		return _itemList.size();
+		    	if ((!_filtering) || (_filteredItemList == null)) {
+					return _itemList.size();
+				}
 		        return _filteredItemList.size();
         	}
 	    }
@@ -1153,15 +1146,17 @@ public class ThreadListFragment extends ListFragment
 	    public Thread getItem(int position) {
 	    	synchronized (mLock)
         	{
-		    	if ((!_filtering) || (_filteredItemList == null))
+		    	if ((!_filtering) || (_filteredItemList == null)){
 		    		return _itemList.get(position);
+				}
 		        return _filteredItemList.get(position);
         	}
 	    }
 	    @Override
 	    public int getPosition(Thread item) {
-	    	if ((!_filtering) || (_filteredItemList == null))
-	    		return _itemList.indexOf(item);
+	    	if ((!_filtering) || (_filteredItemList == null)) {
+				return _itemList.indexOf(item);
+			}
 	        return _filteredItemList.indexOf(item);
 	    }
 	    @Override
@@ -1361,16 +1356,11 @@ public class ThreadListFragment extends ListFragment
                 holder.replyCount = (TextView)convertView.findViewById(R.id.textReplyCount);
                 holder.defaultTimeColor = holder.posted.getTextColors().getDefaultColor();
                 holder.fav = (ImageButton)convertView.findViewById(R.id.tlist_favorite);
-                // holder.collapse = (ImageButton)convertView.findViewById(R.id.tlist_collapse);
-                
+
                 holder.firstRow = (LinearLayout)convertView.findViewById(R.id.firstRow);
-                
-                
                 holder.containsLols = (TextView)convertView.findViewById(R.id.textContainsLols);
                 
-               
                 // zoom
-                //holder.moderation.setTextSize(TypedValue.COMPLEX_UNIT_PX, holder.moderation.getTextSize() * _zoom);
                 holder.content.setTextSize(TypedValue.COMPLEX_UNIT_PX, holder.content.getTextSize() * _zoom);
                 holder.userName.setTextSize(TypedValue.COMPLEX_UNIT_PX, holder.userName.getTextSize() * _zoom);
                 holder.posted.setTextSize(TypedValue.COMPLEX_UNIT_PX, holder.posted.getTextSize() * _zoom);
@@ -1382,33 +1372,25 @@ public class ThreadListFragment extends ListFragment
                 favparams.height = (int) (favparams.height *  _zoom);
                 favparams.width = (int) (favparams.width *  _zoom);
                 holder.fav.setLayoutParams(favparams);
-                
-                /*
-                favparams = holder.collapse.getLayoutParams();
-                favparams.height = (int) (favparams.height *  _zoom);
-                favparams.width = (int) (favparams.width *  _zoom);
-                holder.collapse.setLayoutParams(favparams);
-                holder.collapse.setImageBitmap(_collapseBMP);
-                */
-                
+
                 // make room for incresed fav  button size
                 favparams = holder.content.getLayoutParams();
                 holder.content.setPadding(holder.content.getPaddingLeft(), holder.content.getPaddingTop(), holder.content.getPaddingRight(), (int) (holder.content.getPaddingBottom() * _zoom * 1.1f));
                 holder.firstRow.setPadding(holder.firstRow.getPaddingLeft(), holder.firstRow.getPaddingTop(), (int) (holder.firstRow.getPaddingRight() * _zoom * 1.1f), holder.firstRow.getPaddingBottom());
-                
-                
+
                 convertView.setTag(holder);
             }
-            
-            
+
             // get the thread to display and populate all the data into the layout
             Thread t = getItem(position);
     
         	// buttons
-        	if (((MainActivity)getActivity()).mOffline.containsThreadId(t.getThreadId()))
-        		holder.fav.setImageBitmap(_favBMP);
-            else
-            	holder.fav.setImageBitmap(_unfavBMP);
+        	if (((MainActivity)getActivity()).mOffline.containsThreadId(t.getThreadId())) {
+				holder.fav.setImageBitmap(_favBMP);
+			}
+            else {
+				holder.fav.setImageBitmap(_unfavBMP);
+			}
             
         	final Thread finT = t;
             final ImageButton fav = holder.fav;
@@ -1418,63 +1400,57 @@ public class ThreadListFragment extends ListFragment
 				public void onClick(View v) {
 					// TODO Auto-generated method stub
 					toggleFavThread(finT);
-					if (((MainActivity)getActivity()).mOffline.containsThreadId(finT.getThreadId()))
+					if (((MainActivity)getActivity()).mOffline.containsThreadId(finT.getThreadId())) {
 						fav.setImageBitmap(_favBMP);
-		            else
-		            	fav.setImageBitmap(_unfavBMP);
-				}});
-            /*
-            holder.collapse.setVisibility(View.VISIBLE);
-            holder.collapse.setOnClickListener(new View.OnClickListener(){
-            	@Override
-				public void onClick(View v) {
-					// TODO Auto-generated method stub
-					toggleCollapsed(finT);
-					_adapter.notifyDataSetChanged();
-				}});
-            */
+					}
+		            else {
+						fav.setImageBitmap(_unfavBMP);
+					}
+				}
+			});
+
             
         	// mod tags
             if (_showModTags)
             {
             	holder.moderation.setVisibility(View.VISIBLE);
             	holder.container.setModTagsFalse();
-	            	
+
 	            if (t.getModeration().equalsIgnoreCase("nws"))
 	            {
 	            	holder.container.setNWS(true);
 	                holder.moderation.setTextColor(getResources().getColor(R.color.modtag_nws));
-	                holder.moderation.setText("nws");
+	                holder.moderation.setText(AppConstants.POST_TYPE_NWS);
 	            }
 	            else if (t.getModeration().equalsIgnoreCase("offtopic"))
 	            {
 	            	holder.container.setTangent(true);
 	                holder.moderation.setTextColor(getResources().getColor(R.color.modtag_tangent));
-	                holder.moderation.setText("tangent");
+	                holder.moderation.setText(AppConstants.POST_TYPE_TANGENT);
 	            }
 	            else if (t.getModeration().equalsIgnoreCase("informative"))
 	            {
 	            	holder.container.setInf(true);
 	                holder.moderation.setTextColor(getResources().getColor(R.color.modtag_inf));
-	                holder.moderation.setText("informative");
+	                holder.moderation.setText(AppConstants.POST_TYPE_INFORMATIVE);
 	            }
 	            else if (t.getModeration().equalsIgnoreCase("stupid"))
 	            {
 	            	holder.container.setStupid(true);
 	                holder.moderation.setTextColor(getResources().getColor(R.color.modtag_stupid));
-	                holder.moderation.setText("stupid");
+	                holder.moderation.setText(AppConstants.POST_TYPE_STUPID);
 	            }
 	            else if (t.getModeration().equalsIgnoreCase("political"))
 	            {
 	            	holder.container.setPolitical(true);
 	                holder.moderation.setTextColor(getResources().getColor(R.color.modtag_political));
-	                holder.moderation.setText("political");
+	                holder.moderation.setText(AppConstants.POST_TYPE_POLITICAL);
 	            }
 				else if (t.getModeration().equalsIgnoreCase("cortex"))
 				{
 					holder.container.setNWS(true);
 					holder.moderation.setTextColor(getResources().getColor(R.color.modtag_inf));
-					holder.moderation.setText("cortex");
+					holder.moderation.setText(AppConstants.POST_TYPE_CORTEX);
 				}
 	            else
 	            {
@@ -1500,11 +1476,11 @@ public class ThreadListFragment extends ListFragment
                     startSpan = txtplain.indexOf(target, endSpan);
                     BackgroundColorSpan foreColour = new BackgroundColorSpan(color);
                     // Need a NEW span object every loop, else it just moves the span
-                    if (startSpan < 0)
-                        break;
+                    if (startSpan < 0) {
+						break;
+					}
                     endSpan = startSpan + target.length();
-                    highlighted.setSpan(foreColour, startSpan, endSpan,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    highlighted.setSpan(foreColour, startSpan, endSpan, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
         		holder.content.setText(highlighted);
         	}
@@ -1517,8 +1493,7 @@ public class ThreadListFragment extends ListFragment
 
             holder.content.setLinkTextColor(MainActivity.getThemeColor(getActivity(), R.attr.colorLink));
             holder.content.setMaxLines(_previewLines);
-            //holder.content.setEllipsize(TextUtils.TruncateAt.END);
-            
+
             final double threadAge = TimeDisplay.threadAgeInHours(t.getPosted());
 			final double badThreshold = POST_EXPIRY_HOURS - 2f;
 			final double okThreshold = (POST_EXPIRY_HOURS * 2) / 3;

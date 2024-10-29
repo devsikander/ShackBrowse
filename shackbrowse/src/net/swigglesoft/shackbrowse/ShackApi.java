@@ -67,16 +67,10 @@ public class ShackApi
 	private static final int socketTimeoutSec = 35;
     public static final double POST_EXPIRY_HOURS = 24d;
     static final String USER_AGENT = "shackbrowse/7.0";
-    
-    static final String LOGIN_URL = "https://www.shacknews.com/account/signin";
-    static final String CHECKUSER_URL = "https://www.shacknews.com/account/username_exists";
-    static final String MARKREAD_URL = "https://www.shacknews.com/messages/read";
-    static final String MOD_URL = "https://www.shacknews.com/mod_chatty.x";
-    static final String POST_URL = "https://www.shacknews.com/api/chat/create/17.json";
-    static final String POST_URL_NEW = "https://www.shacknews.com/post_chatty.x";
-    static final String MSG_POST_URL = "https://www.shacknews.com/messages/send";
-    static final String LOL_URL = "http://www.lmnopc.com/greasemonkey/shacklol/report.php";
-    static final String LOL_SN_URL = "https://www.shacknews.com/api2/api-index.php";
+
+
+
+
 
     static final String LOL_CACHE_FILE = "shacklol.cache";
 
@@ -103,7 +97,7 @@ public class ShackApi
     static final String FAKE_NEWS_ID = "2";
     
     static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
-	static final String API_MESSAGES_URL = "https://www.shacknews.com/api/messages.json";
+	static final String API_MESSAGES_URL = AppConstants.SHACKNEWS_URL + "/api/messages.json";
 
 	public static Integer tryParseInt(String text) {
     	try {
@@ -120,7 +114,7 @@ public class ShackApi
         final HttpParams httpParameters = client.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
         HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
-        HttpPost post = new HttpPost(LOGIN_URL);
+        HttpPost post = new HttpPost(AppConstants.URL_LOGIN);
         post.setHeader("User-Agent", USER_AGENT);
         post.setHeader("X-Requested-With", "XMLHttpRequest");
         
@@ -138,7 +132,7 @@ public class ShackApi
         if (content.contains("{\"result\":{\"valid\":\"true\""))
         {
             int mod_type_id = getModTypeId(moderation);
-            String mod = MOD_URL + "?root=" + rootPostId + "&post_id=" + postId + "&mod_type_id=" + mod_type_id;
+            String mod = AppConstants.URL_MODERATION + "?root=" + rootPostId + "&post_id=" + postId + "&mod_type_id=" + mod_type_id;
             Log.d("shackbrowse", "Modding: " + mod);
             HttpGet get = new HttpGet(mod);
             get.setHeader("User-Agent", USER_AGENT);
@@ -176,20 +170,20 @@ public class ShackApi
     
     static int getModTypeId(String moderation) throws Exception
     {
-        if (moderation.equalsIgnoreCase("interesting"))
-            return 1;
-        else if (moderation.equalsIgnoreCase("nws"))
-            return 2;
-        else if (moderation.equalsIgnoreCase("stupid"))
-            return 3;
-        else if (moderation.equalsIgnoreCase("tangent"))
-            return 4;
-        else if (moderation.equalsIgnoreCase("ontopic"))
-            return 5;
-        else if (moderation.equalsIgnoreCase("nuked"))
-            return 8;
-        else if (moderation.equalsIgnoreCase("political"))
-            return 9;
+        if (moderation.equalsIgnoreCase(AppConstants.POST_TYPE_INTERESTING))
+            return AppConstants.POST_TYPE_INTERESTING_ID;
+        else if (moderation.equalsIgnoreCase(AppConstants.POST_TYPE_NWS))
+            return AppConstants.POST_TYPE_NWS_ID;
+        else if (moderation.equalsIgnoreCase(AppConstants.POST_TYPE_STUPID))
+            return AppConstants.POST_TYPE_STUPID_ID;
+        else if (moderation.equalsIgnoreCase(AppConstants.POST_TYPE_TANGENT))
+            return AppConstants.POST_TYPE_TANGENT_ID;
+        else if (moderation.equalsIgnoreCase(AppConstants.POST_TYPE_ONTOPIC))
+            return AppConstants.POST_TYPE_ONTOPIC_ID;
+        else if (moderation.equalsIgnoreCase(AppConstants.POST_TYPE_NUKED))
+            return AppConstants.POST_TYPE_NUKED_ID;
+        else if (moderation.equalsIgnoreCase(AppConstants.POST_TYPE_POLITICAL))
+            return AppConstants.POST_TYPE_POLITICAL_ID;
         
         throw new Exception("Invalid mod type: " + moderation);
     }
@@ -259,7 +253,7 @@ public class ShackApi
             values.add(new BasicNameValuePair("parent_id", Integer.toString(replyToThreadId)));
         
         System.out.println("SHACKAPI: SUBMITTING JSON FOR POST:" + content);
-        JSONObject result = postJson(POST_URL, userName, password, values);
+        JSONObject result = postJson(AppConstants.URL_CREATEPOST, userName, password, values);
         
         if (!result.has("data"))
             throw new Exception("Missing response data.");
@@ -395,28 +389,28 @@ public class ShackApi
         {
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
 	        if (prefs.getBoolean("showInformative", true))
-                visible_categories.add("informative");
+                visible_categories.add(AppConstants.POST_TYPE_INFORMATIVE);
             if (prefs.getBoolean("showTangent", true))
-                visible_categories.add("offtopic");
+                visible_categories.add(AppConstants.POST_TYPE_OFFTOPIC);
             if (prefs.getBoolean("showStupid", true))
-                visible_categories.add("stupid");
+                visible_categories.add(AppConstants.POST_TYPE_STUPID);
             if (prefs.getBoolean("showPolitical", false))
-                visible_categories.add("political");
+                visible_categories.add(AppConstants.POST_TYPE_POLITICAL);
             if (prefs.getBoolean("showOntopic", true))
-                visible_categories.add("ontopic");
+                visible_categories.add(AppConstants.POST_TYPE_ONTOPIC);
             if (prefs.getBoolean("showNWS", false))
-                visible_categories.add("nws");
+                visible_categories.add(AppConstants.POST_TYPE_NWS);
             if (prefs.getBoolean("showCortex", true))
-                visible_categories.add("cortex");
+                visible_categories.add(AppConstants.POST_TYPE_CORTEX);
         }
         else
         {
-            visible_categories.add("informative");
-            visible_categories.add("offtopic");
-            visible_categories.add("stupid");
-            visible_categories.add("political");
-            visible_categories.add("ontopic");
-            visible_categories.add("cortex");
+            visible_categories.add(AppConstants.POST_TYPE_INFORMATIVE);
+            visible_categories.add(AppConstants.POST_TYPE_OFFTOPIC);
+            visible_categories.add(AppConstants.POST_TYPE_STUPID);
+            visible_categories.add(AppConstants.POST_TYPE_POLITICAL);
+            visible_categories.add(AppConstants.POST_TYPE_ONTOPIC);
+            visible_categories.add(AppConstants.POST_TYPE_CORTEX);
         }
 
         // winchatty uses "rootPosts" instead of "comments"
@@ -429,11 +423,10 @@ public class ShackApi
             JSONObject comment = comments.getJSONObject(i);
 
             String category = comment.getString("category");
-            
-
             // winchatty v2 renames "offtopic" to "tangent" for some reason
-            if (category.equalsIgnoreCase("tangent"))
-            	category = "offtopic";
+            if (category.equalsIgnoreCase(AppConstants.POST_TYPE_TANGENT)) {
+                category = AppConstants.POST_TYPE_OFFTOPIC;
+            }
             
             int id = comment.getInt("id");
             
@@ -611,8 +604,9 @@ public class ShackApi
 
                     boolean seen = true;
                     // check if post is newer than last seen time
-                    if ((int)(dateTime / 1000) > epochSecs)
+                    if ((int)(dateTime / 1000) > epochSecs) {
                         seen = false;
+                    }
 
                     Post post = new Post(postId, userName, body, dateTime, depth, category, false, seen, false);
 
@@ -672,7 +666,7 @@ public class ShackApi
         final HttpParams httpParameters = client.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
         HttpConnectionParams.setSoTimeout(httpParameters, socketTimeoutSec * 1000);
-        HttpPost post = new HttpPost(LOL_SN_URL);
+        HttpPost post = new HttpPost(AppConstants.URL_TAGHANDLING);
         post.setHeader("User-Agent", USER_AGENT);
         
         List<NameValuePair> values = new ArrayList<NameValuePair>();
@@ -1005,7 +999,7 @@ public class ShackApi
         	boolean lolTimedOut = false;
         	// refresh
         	try {
-        		newJson = getJson(LOL_SN_URL + "?action2=ext_get_counts");
+        		newJson = getJson(AppConstants.URL_TAGHANDLING + "?action2=ext_get_counts");
         	}
         	catch (Exception e)
         	{
@@ -1240,7 +1234,7 @@ public class ShackApi
         final HttpParams httpParameters = client.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
         HttpConnectionParams.setSoTimeout(httpParameters, socketTimeoutSec * 1000);
-        HttpPost post = new HttpPost(LOL_SN_URL);
+        HttpPost post = new HttpPost(AppConstants.URL_TAGHANDLING);
         post.setHeader("User-Agent", USER_AGENT);
 
         List<NameValuePair> values = new ArrayList<NameValuePair>();
@@ -1349,7 +1343,7 @@ public class ShackApi
 	        final HttpParams httpParameters = client.getParams();
 	        HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
 	        HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
-	        HttpPost post = new HttpPost(CHECKUSER_URL);
+	        HttpPost post = new HttpPost(AppConstants.URL_CHECKUSEREXISTS);
 	        post.setHeader("User-Agent", USER_AGENT);
 	        post.setHeader("X-Requested-With", "XMLHttpRequest");
 	        
@@ -1384,7 +1378,7 @@ public class ShackApi
         final HttpParams httpParameters = client.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
         HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
-        HttpPost post = new HttpPost(LOGIN_URL);
+        HttpPost post = new HttpPost(AppConstants.URL_LOGIN);
         post.setHeader("User-Agent", USER_AGENT);
         post.setHeader("X-Requested-With", "XMLHttpRequest");
 
@@ -1421,7 +1415,7 @@ public class ShackApi
         final HttpParams httpParameters = client.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
         HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
-        HttpPost post = new HttpPost(LOGIN_URL);
+        HttpPost post = new HttpPost(AppConstants.URL_LOGIN);
         post.setHeader("User-Agent", USER_AGENT);
         post.setHeader("X-Requested-With", "XMLHttpRequest");
         
@@ -1439,7 +1433,7 @@ public class ShackApi
         if (content.contains("{\"result\":{\"valid\":\"true\""))
         {
             
-        	post = new HttpPost(MARKREAD_URL);
+        	post = new HttpPost(AppConstants.URL_SHACKMSGREAD);
             post.setHeader("User-Agent", USER_AGENT);
             
             values = new ArrayList<NameValuePair>();
@@ -1469,7 +1463,7 @@ public class ShackApi
         final HttpParams httpParameters = client.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
         HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
-        HttpPost post = new HttpPost(LOGIN_URL);
+        HttpPost post = new HttpPost(AppConstants.URL_LOGIN);
         post.setHeader("User-Agent", USER_AGENT);
         post.setHeader("X-Requested-With", "XMLHttpRequest");
 
@@ -1489,7 +1483,7 @@ public class ShackApi
         	if (!inbox)
         		getType = "sent";
 
-        	HttpGet get = new HttpGet("https://www.shacknews.com/messages/"+getType+"?page=" + pageNumber);
+        	HttpGet get = new HttpGet(AppConstants.SHACKNEWS_URL + "/messages/"+getType+"?page=" + pageNumber);
             get.setHeader("User-Agent", USER_AGENT);
             
             content = client.execute(get, response_handler);
@@ -1561,7 +1555,7 @@ public class ShackApi
         final HttpParams httpParameters = client.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
         HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
-        HttpPost post = new HttpPost(LOGIN_URL);
+        HttpPost post = new HttpPost(AppConstants.URL_LOGIN);
         post.setHeader("User-Agent", USER_AGENT);
         post.setHeader("X-Requested-With", "XMLHttpRequest");
         
@@ -1579,7 +1573,7 @@ public class ShackApi
         if (content.contains("{\"result\":{\"valid\":\"true\""))
         {
             
-        	post = new HttpPost(MSG_POST_URL);
+        	post = new HttpPost(AppConstants.URL_SHACKMSGPOST);
             post.setHeader("User-Agent", USER_AGENT);
             
             JSONObject resjson = new JSONObject(content);
@@ -1709,7 +1703,7 @@ public class ShackApi
         final HttpParams httpParameters = client.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
         HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
-        HttpPost post = new HttpPost(LOGIN_URL);
+        HttpPost post = new HttpPost(AppConstants.URL_LOGIN);
         post.setHeader("User-Agent", USER_AGENT);
         post.setHeader("X-Requested-With", "XMLHttpRequest");
         
