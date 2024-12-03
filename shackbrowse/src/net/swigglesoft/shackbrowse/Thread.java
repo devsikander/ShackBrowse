@@ -16,7 +16,7 @@ public class Thread implements Parcelable {
     private String _content = "unset";
     private int _replyCount = 0;
     private int _replyCountPrevious = 0;
-    private String _moderation = "ontopic";
+    private String _moderation = AppConstants.POST_TYPE_ONTOPIC;
     private boolean _replied = false;
     private JSONObject _json;
 
@@ -46,7 +46,7 @@ public class Thread implements Parcelable {
 	        // serverside replycount is off by one
 	        jconst.put("reply_count", replyCount);
             jconst.put("replied", replied);
-            jconst.put("date", TimeDisplay.convTime(postedTime, "MMM dd, yyyy h:mma zzz"));
+            jconst.put("date", TimeDisplay.getTimeAsMMDDYY_HMA_TZ(postedTime));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -128,8 +128,9 @@ public class Thread implements Parcelable {
     }
     public Spannable getPreview(boolean showTags, boolean stripNewLines)
     {
-        if (_preview == null)
+        if (_preview == null){
             _preview = PostFormatter.formatContent(this, !stripNewLines, showTags);
+        }
         return _preview;
     }
     public void nullifyPreview()
@@ -195,7 +196,7 @@ public class Thread implements Parcelable {
 	        // serverside replycount is off by one
 	        jconst.put("reply_count", _replyCount);
             jconst.put("replied", _replied);
-            jconst.put("date", TimeDisplay.convTime(_postedTime, "MMM dd, yyyy h:mma zzz"));
+            jconst.put("date", TimeDisplay.getTimeAsMMDDYY_HMA_TZ(_postedTime));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
