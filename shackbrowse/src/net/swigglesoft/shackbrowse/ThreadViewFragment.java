@@ -24,12 +24,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.app.ListFragment;
 
-import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.collection.LruCache;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.text.ClipboardManager;
@@ -597,13 +595,13 @@ public class ThreadViewFragment extends ListFragment
 			if (arr.size() > 0)
 			{
 				int color = 0;
-				if (type.equals("lol")) color = getResources().getColor(R.color.shacktag_lol);
-				if (type.equals("wtf")) color = getResources().getColor(R.color.shacktag_wtf);
-				if (type.equals("inf")) color = getResources().getColor(R.color.shacktag_inf);
-				if (type.equals("tag")) color = getResources().getColor(R.color.shacktag_tag);
-				if (type.equals("wow")) color = getResources().getColor(R.color.shacktag_wow);
-				if (type.equals("aww")) color = getResources().getColor(R.color.shacktag_aww);
-				if (type.equals("unf")) color = getResources().getColor(R.color.shacktag_unf);
+				if (type.equals(AppConstants.TAG_TYPE_LOL)) color = getResources().getColor(R.color.shacktag_lol);
+				if (type.equals(AppConstants.TAG_TYPE_WTF)) color = getResources().getColor(R.color.shacktag_wtf);
+				if (type.equals(AppConstants.TAG_TYPE_INF)) color = getResources().getColor(R.color.shacktag_inf);
+				if (type.equals(AppConstants.TAG_TYPE_TAG)) color = getResources().getColor(R.color.shacktag_tag);
+				if (type.equals(AppConstants.TAG_TYPE_WOW)) color = getResources().getColor(R.color.shacktag_wow);
+				if (type.equals(AppConstants.TAG_TYPE_AWW)) color = getResources().getColor(R.color.shacktag_aww);
+				if (type.equals(AppConstants.TAG_TYPE_UNF)) color = getResources().getColor(R.color.shacktag_unf);
 				SpannableString header = new SpannableString(type + "\'d" + "\n");
 				header.setSpan(new ForegroundColorSpan(color), 0, header.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
 				header.setSpan(new RelativeSizeSpan(1.6f), 0, header.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -611,8 +609,9 @@ public class ThreadViewFragment extends ListFragment
 				java.util.Collections.sort(arr, Collator.getInstance());
 				ListIterator<String> iter = arr.listIterator();
 				String txt = "";
-				while (iter.hasNext())
+				while (iter.hasNext()) {
 					txt = txt + iter.next() + "\n";
+				}
 
 				SpannableString list = new SpannableString(txt);
 				list.setSpan(new ForegroundColorSpan(MainActivity.getThemeColor(getActivity(), R.attr.colorUsername)), 0, txt.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -646,25 +645,25 @@ public class ThreadViewFragment extends ListFragment
 			ArrayList<String> resultswow = new ArrayList<String>();
 			ArrayList<String> resultsaww = new ArrayList<String>();
 			try {
-				resultslol = ShackApi.getLOLTaggers(parm, "lol");
-				resultsinf = ShackApi.getLOLTaggers(parm, "inf");
-				resultsunf = ShackApi.getLOLTaggers(parm, "unf");
-				resultstag = ShackApi.getLOLTaggers(parm, "tag");
-				resultswtf = ShackApi.getLOLTaggers(parm, "wtf");
-				resultswow = ShackApi.getLOLTaggers(parm, "wow");
-				resultsaww = ShackApi.getLOLTaggers(parm, "aww");
+				resultslol = ShackApi.getLOLTaggers(parm, AppConstants.TAG_TYPE_LOL);
+				resultsinf = ShackApi.getLOLTaggers(parm, AppConstants.TAG_TYPE_INF);
+				resultsunf = ShackApi.getLOLTaggers(parm, AppConstants.TAG_TYPE_UNF);
+				resultstag = ShackApi.getLOLTaggers(parm, AppConstants.TAG_TYPE_TAG);
+				resultswtf = ShackApi.getLOLTaggers(parm, AppConstants.TAG_TYPE_WTF);
+				resultswow = ShackApi.getLOLTaggers(parm, AppConstants.TAG_TYPE_WOW);
+				resultsaww = ShackApi.getLOLTaggers(parm, AppConstants.TAG_TYPE_AWW);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			CharSequence txt = TextUtils.concat(
-					arraylistFormatter("lol", resultslol),
-					arraylistFormatter("inf", resultsinf),
-					arraylistFormatter("unf", resultsunf),
-					arraylistFormatter("tag", resultstag),
-					arraylistFormatter("wtf", resultswtf),
-					arraylistFormatter("wow", resultswow),
-					arraylistFormatter("aww", resultsaww)
+					arraylistFormatter(AppConstants.TAG_TYPE_LOL, resultslol),
+					arraylistFormatter(AppConstants.TAG_TYPE_INF, resultsinf),
+					arraylistFormatter(AppConstants.TAG_TYPE_UNF, resultsunf),
+					arraylistFormatter(AppConstants.TAG_TYPE_TAG, resultstag),
+					arraylistFormatter(AppConstants.TAG_TYPE_WTF, resultswtf),
+					arraylistFormatter(AppConstants.TAG_TYPE_WOW, resultswow),
+					arraylistFormatter(AppConstants.TAG_TYPE_AWW, resultsaww)
 			);
 			return txt;
 		}
@@ -703,28 +702,34 @@ public class ThreadViewFragment extends ListFragment
 		}
 	}
 
-	public void shareURL(int pos)
+	public void shareURL(int pos, Post p)
 	{
 		Intent sendIntent = new Intent();
 		sendIntent.setAction(Intent.ACTION_SEND);
 		sendIntent.putExtra(Intent.EXTRA_TEXT, createPostURL(pos));
+		if(p != null) {
+			String subj = "Chatty post by " + p.getUserName() + " on " + TimeDisplay.getTimeAsMMDDYY(p.getPosted());
+			sendIntent.putExtra(Intent.EXTRA_SUBJECT, subj);
+		}
 		sendIntent.setType("text/plain");
 		startActivity(Intent.createChooser(sendIntent, "Share Post Link"));
 	}
+
 	private String createPostURL(int pos)
 	{
 		if (_adapter.getItem(pos) != null && _adapter.getItem(pos).getPostId() > 0)
 		{
-			String str = "http://www.shacknews.com/chatty?id=" + _adapter.getItem(pos).getPostId();
+			String str = AppConstants.SHACKNEWS_CHATTY_URL + "?id=" + _adapter.getItem(pos).getPostId();
 			if ((_lastExpanded > 0) && (pos > 0))
 			{
-				str = "http://www.shacknews.com/chatty?id=" + _adapter.getItem(pos).getPostId();
+				str = AppConstants.SHACKNEWS_CHATTY_URL + "?id=" + _adapter.getItem(pos).getPostId();
 				str = str + "#item_" + _adapter.getItem(pos).getPostId();
 			}
 			return str;
 		}
 		return null;
 	}
+
 	public void copyURL(int pos)
 	{
 		if (createPostURL(pos) != null)
@@ -732,6 +737,7 @@ public class ThreadViewFragment extends ListFragment
 			copyString(createPostURL(pos));
 		}
 	}
+
 	public void copyPostText(int pos)
 	{
 		copyString(_adapter.getItem(pos).getCopyText());
@@ -916,7 +922,15 @@ public class ThreadViewFragment extends ListFragment
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(mMainActivity);
 		builder.setTitle("Shack Moderator Tag");
-		final CharSequence[] items = { "interesting","nws","stupid","tangent","ontopic","political" };
+		final CharSequence[] items = {
+				AppConstants.POST_TYPE_INTERESTING,
+				AppConstants.POST_TYPE_NWS,
+				AppConstants.POST_TYPE_STUPID,
+				AppConstants.POST_TYPE_TANGENT,
+				AppConstants.POST_TYPE_ONTOPIC,
+				AppConstants.POST_TYPE_POLITICAL
+		};
+
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
 				modPost((String)items[item], pos);
@@ -1003,23 +1017,23 @@ public class ThreadViewFragment extends ListFragment
 
 				if (response == 1)
 				{
-					if (tag.equalsIgnoreCase("lol")) { updLol.incLol(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTaglol"); }
-					if (tag.equalsIgnoreCase("tag")) { updLol.incTag(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagtag"); }
-					if (tag.equalsIgnoreCase("wow")) { updLol.incWow(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagwow"); }
-					if (tag.equalsIgnoreCase("aww")) { updLol.incAww(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagaww"); }
-					if (tag.equalsIgnoreCase("wtf")) { updLol.incWtf(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagwtf"); }
-					if (tag.equalsIgnoreCase("inf")) { updLol.incInf(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTaginf"); }
-					if (tag.equalsIgnoreCase("unf")) { updLol.incUnf(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagunf"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_LOL)) { updLol.incLol(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTaglol"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_TAG)) { updLol.incTag(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagtag"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_WOW)) { updLol.incWow(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagwow"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_AWW)) { updLol.incAww(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagaww"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_WTF)) { updLol.incWtf(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagwtf"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_INF)) { updLol.incInf(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTaginf"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_UNF)) { updLol.incUnf(); statInc(mMainActivity, "GaveALOLTag"); statInc(mMainActivity, "GaveALOLTagunf"); }
 				}
 				if (response == -1)
 				{
-					if (tag.equalsIgnoreCase("lol")) { updLol.decLol(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTaglol"); }
-					if (tag.equalsIgnoreCase("tag")) { updLol.decTag(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagtag"); }
-					if (tag.equalsIgnoreCase("wow")) { updLol.decWow(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagwow"); }
-					if (tag.equalsIgnoreCase("aww")) { updLol.decAww(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagaww"); }
-					if (tag.equalsIgnoreCase("wtf")) { updLol.decWtf(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagwtf"); }
-					if (tag.equalsIgnoreCase("inf")) { updLol.decInf(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTaginf"); }
-					if (tag.equalsIgnoreCase("unf")) { updLol.decUnf(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagunf"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_LOL)) { updLol.decLol(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTaglol"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_TAG)) { updLol.decTag(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagtag"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_WOW)) { updLol.decWow(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagwow"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_AWW)) { updLol.decAww(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagaww"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_WTF)) { updLol.decWtf(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagwtf"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_INF)) { updLol.decInf(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTaginf"); }
+					if (tag.equalsIgnoreCase(AppConstants.TAG_TYPE_UNF)) { updLol.decUnf(); statInc(mMainActivity, "RemovedALOLTag"); statInc(mMainActivity, "RemovedALOLTagunf"); }
 				}
 
 				updLol.genTagSpan(mMainActivity);
@@ -1142,9 +1156,7 @@ public class ThreadViewFragment extends ListFragment
 	{
 		if (getListView().getPositionForView(v) != ListView.INVALID_POSITION)
 		{
-
 			this._postYLoc = v.getTop();
-
 			expandAndCheckPostWithoutAnimation(v);
 
 			// calculate sizes
@@ -1164,17 +1176,17 @@ public class ThreadViewFragment extends ListFragment
 				@Override
 				public void run() {
 					View betterView = getListViewChildAtPosition(pos, listView);
-					if (betterView != null)
-					{
+					if (betterView != null) {
 						listView.requestChildRectangleOnScreen(betterView, new Rect(0, 0, betterView.getRight(), betterView.getHeight()), false);
 					}
-					else
-						listView.requestChildRectangleOnScreen(view,
-								new Rect(0, 0, view.getRight(), view.getHeight()), false);
+					else {
+						listView.requestChildRectangleOnScreen(view, new Rect(0, 0, view.getRight(), view.getHeight()), false);
+					}
 				}
 			});
 		}
 	}
+
 	private View getListViewChildAtPosition(int position, ListView listView)
 	{
 		int wantedPosition = position; // Whatever position you're looking for
@@ -1195,6 +1207,7 @@ public class ThreadViewFragment extends ListFragment
 	{
 		expandAndCheckPostWithoutAnimation(getListView().getPositionForView(v));
 	}
+
 	private void expandAndCheckPostWithoutAnimation(int listviewposition)
 	{
 		_adapter.expandWithoutAnimation(listviewposition);
@@ -1233,6 +1246,7 @@ public class ThreadViewFragment extends ListFragment
        	_adapter.notifyDataSetChanged();
        	*/
 	}
+
 	private void expandAndCheckPost(int listviewposition)
 	{
 		_adapter.expand(listviewposition);
@@ -1299,6 +1313,7 @@ public class ThreadViewFragment extends ListFragment
 				mPlayer = player; mPlayerView = playerView; mPosition = position; mTag = tag;
 			}
 		}
+
 		// -1 clears all players
 		public void exoPlayerCleanup (int position)
 		{
@@ -1685,14 +1700,14 @@ public class ThreadViewFragment extends ListFragment
 					public void onClick(View v) {
 						PopupMenu lolpop = new PopupMenu(getContext(), btnlol);
 						lolpop.getMenu().add(Menu.NONE, 6, Menu.NONE, "Who Tagged?");
-						lolpop.getMenu().add(Menu.NONE, 0, Menu.NONE, "lol");
-						lolpop.getMenu().add(Menu.NONE, 1, Menu.NONE, "inf");
-						lolpop.getMenu().add(Menu.NONE, 2, Menu.NONE, "unf");
+						lolpop.getMenu().add(Menu.NONE, 0, Menu.NONE, AppConstants.TAG_TYPE_LOL);
+						lolpop.getMenu().add(Menu.NONE, 1, Menu.NONE, AppConstants.TAG_TYPE_INF);
+						lolpop.getMenu().add(Menu.NONE, 2, Menu.NONE, AppConstants.TAG_TYPE_UNF);
 						SubMenu sub = lolpop.getMenu().addSubMenu(Menu.NONE, 3, Menu.NONE, "More...");
-						sub.add(Menu.NONE, 4, Menu.NONE, "wow");
-						sub.add(Menu.NONE, 5, Menu.NONE, "wtf");
-						sub.add(Menu.NONE, 8, Menu.NONE, "tag");
-						sub.add(Menu.NONE, 7, Menu.NONE, "aww");
+						sub.add(Menu.NONE, 4, Menu.NONE, AppConstants.TAG_TYPE_WOW);
+						sub.add(Menu.NONE, 5, Menu.NONE, AppConstants.TAG_TYPE_WTF);
+						sub.add(Menu.NONE, 8, Menu.NONE, AppConstants.TAG_TYPE_TAG);
+						sub.add(Menu.NONE, 7, Menu.NONE, AppConstants.TAG_TYPE_AWW);
 						lolpop.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 							@Override
 							public boolean onMenuItemClick(MenuItem item) {
@@ -1799,7 +1814,7 @@ public class ThreadViewFragment extends ListFragment
 										copyURL(pos);
 										break;
 									case 2:
-										shareURL(pos);
+										shareURL(pos, p);
 										break;
 								}
 								return true;
@@ -1815,84 +1830,6 @@ public class ThreadViewFragment extends ListFragment
 					@Override
 					public void onClick(View v) {
 						modChoose(pos);
-						/*
-						PopupMenu extpop = new PopupMenu(getContext(), btnothr);
-
-						SubMenu sub = extpop.getMenu().addSubMenu(Menu.NONE, 0, Menu.NONE, unamefinal + " Actions");
-						sub.add(Menu.NONE, 3, Menu.NONE, "Shack Message " + unamefinal);
-						sub.add(Menu.NONE, 4, Menu.NONE, "Search for posts by " + unamefinal);
-						sub.add(Menu.NONE, 16, Menu.NONE, "Highlight " + unamefinal + " in thread");
-						SubMenu sub2 = extpop.getMenu().addSubMenu(Menu.NONE, 1, Menu.NONE, "Share/Copy Post");
-						sub2.add(Menu.NONE, 5, Menu.NONE, "Copy Post Text");
-						if (_messageId == 0) {
-							// not a message
-							sub2.add(Menu.NONE, 6, Menu.NONE, "Copy URL of Post");
-							sub2.add(Menu.NONE, 7, Menu.NONE, "Share Link to Post");
-						}
-
-						SubMenu sub3 = extpop.getMenu().addSubMenu(Menu.NONE, 2, Menu.NONE, "LOLtag Post");
-						sub3.add(Menu.NONE, 8, Menu.NONE, "lol");
-						sub3.add(Menu.NONE, 9, Menu.NONE, "inf");
-						sub3.add(Menu.NONE, 10, Menu.NONE, "unf");
-						sub3.add(Menu.NONE, 11, Menu.NONE, "wow");
-						sub3.add(Menu.NONE, 12, Menu.NONE, "wtf");
-						sub3.add(Menu.NONE, 13, Menu.NONE, "tag");
-						extpop.getMenu().add(Menu.NONE, 14, Menu.NONE, "Check LOL Taggers");
-
-						if ((_showModTools) && (_rootPostId != 0)) {
-							extpop.getMenu().add(Menu.NONE, 15, Menu.NONE, "Mod Tools");
-						}
-						extpop.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-							@Override
-							public boolean onMenuItemClick(MenuItem item) {
-								if (item.getItemId() <= 2)
-									return false;
-								switch (item.getItemId()) {
-
-
-									case 3:
-										shackmessageTo(unamefinal);
-										break;
-									case 4:
-										searchForPosts(unamefinal);
-										break;
-									case 5:
-										copyPostText(pos);
-										break;
-									case 6:
-										copyURL(pos);
-										break;
-									case 7:
-										shareURL(pos);
-										break;
-
-
-									case 8:
-									case 9:
-									case 10:
-									case 11:
-									case 12:
-									case 13:
-										lolPost((String) item.getTitle(), pos);
-										break;
-
-									case 14:
-										new GetTaggersTask().execute(_adapter.getItem(pos).getPostId());
-										break;
-
-
-									case 15:
-										modChoose(pos);
-										break;
-									case 16:
-										mMainActivity.openHighlighter(unamefinal);
-										break;
-								}
-								return true;
-							}
-						});
-						extpop.show();
-						*/
 					}
 				});
 
@@ -2163,7 +2100,6 @@ public class ThreadViewFragment extends ListFragment
 
 		protected View createView(int position, View convertView, ViewGroup parent, boolean isExpanded)
 		{
-
 			// get the thread to display and populate all the data into the layout
 			Post p = getItem(position);
 
@@ -2248,11 +2184,9 @@ public class ThreadViewFragment extends ListFragment
                 holder.buttonLol.setTextSize(TypedValue.COMPLEX_UNIT_PX, holder.buttonLol.getTextSize() * _zoom);
                 */
 
-
 				// buttons are already as small as they can be
 				if (_zoom >= 0.9)
 				{
-
 					ViewGroup.LayoutParams buttonLayout = holder.buttonSharePost.getLayoutParams();
 					buttonLayout.height = (int)Math.floor(buttonLayout.height * _zoom);
 					buttonLayout.width = (int)Math.floor(buttonLayout.width * _zoom);
@@ -2296,29 +2230,29 @@ public class ThreadViewFragment extends ListFragment
 				convertView.setTag(holder);
 			}
 
-
 			// preview titleview
 			if (!isExpanded)
 			{
-
-
 				// this is created by the animator, have to remove it or recycled views get weird
 				holder.previewRow.setLayoutTransition(null);
 
 				// reset container modifiers
 				holder.rowtype.setModTagsFalse();
 				holder.rowtype.setChecked(isExpanded(position));
-				if (p.isNWS())
-				{
+				if (p.isNWS()) {
 					holder.rowtype.setNWS(true);
 				}
-				else if (p.isINF())
-				{
+				else if (p.isINF()) {
 					holder.rowtype.setInf(true);
 				}
-				else if (p.isPolitical())
-				{
+				else if (p.isPolitical()) {
 					holder.rowtype.setPolitical(true);
+				}
+				else if(p.isTangent()){
+					holder.rowtype.setTangent(true);
+				}
+				else if(p.isStupid()){
+					holder.rowtype.setStupid(true);
 				}
 				else
 				{
@@ -2403,7 +2337,7 @@ public class ThreadViewFragment extends ListFragment
 
 						 */
 					}
-					else if (p.getUserName().toLowerCase().equals("the man with the briefcase"))
+					else if (p.getUserName().toLowerCase().equals(AppConstants.USERNAME_TMWTB))
 					{
 						holder.previewLimeHolder.setImageDrawable(_briefcaseIcon);
 					}
@@ -2487,6 +2421,7 @@ public class ThreadViewFragment extends ListFragment
 				type = ptype;
 			}
 		}
+
 		private ArrayList<PostClip> postTextChopper(final Spannable text, boolean removeLinksImages, boolean removeLinksVideos) {
 			// this thing chops up posts that have image links into sets up preceeding text and image link following it.
 			CustomURLSpan[] list = text.getSpans(0, text.length(), CustomURLSpan.class);
@@ -2639,10 +2574,8 @@ public class ThreadViewFragment extends ListFragment
 			alert.show();
 		}
 
-		private CharSequence applyHighlight(String preview)
-		{
-			if ((_highlight != null) && (_highlight.length() > 0))
-			{
+		private CharSequence applyHighlight(String preview) {
+			if ((_highlight != null) && (_highlight.length() > 0)) {
 				return applyHighlight(new SpannableString(preview));
 			}
 			else {
@@ -2651,8 +2584,7 @@ public class ThreadViewFragment extends ListFragment
 		}
 
 		private CharSequence applyHighlight(Spannable preview) {
-			if ((_highlight != null) && (_highlight.length() > 0))
-			{
+			if ((_highlight != null) && (_highlight.length() > 0)) {
 				Spannable text = preview;
 				String txtplain = text.toString().toLowerCase();
 				int color = getResources().getColor(R.color.modtag_political);
@@ -2663,16 +2595,15 @@ public class ThreadViewFragment extends ListFragment
 					startSpan = txtplain.indexOf(target, endSpan);
 					BackgroundColorSpan foreColour = new BackgroundColorSpan(color);
 					// Need a NEW span object every loop, else it just moves the span
-					if (startSpan < 0)
+					if (startSpan < 0) {
 						break;
+					}
 					endSpan = startSpan + target.length();
-					highlighted.setSpan(foreColour, startSpan, endSpan,
-							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					highlighted.setSpan(foreColour, startSpan, endSpan, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				}
 				return highlighted;
 			}
-			else
-			{
+			else {
 				return preview;
 			}
 		}
@@ -3042,8 +2973,9 @@ public class ThreadViewFragment extends ListFragment
 			ArrayList<Integer> postIds = new ArrayList<Integer>();
 			for (int i = 0; i < posts.size(); i++)
 			{
-				if (!posts.get(i).isPQP())
+				if (!posts.get(i).isPQP()) {
 					postIds.add(posts.get(i).getPostId());
+				}
 			}
 
 			for (int i = 0; i < posts.size(); i++)
@@ -3228,7 +3160,6 @@ public class ThreadViewFragment extends ListFragment
 			if (index >= 0 && index < getListView().getCount())
 			{
 				ensureVisible(index, true, true, false);
-
 			}
 		}
 	}
@@ -3239,8 +3170,9 @@ public class ThreadViewFragment extends ListFragment
 
 		if (view != null) {
 
-			if (position < 0 || position >= view.getCount())
+			if (position < 0 || position >= view.getCount()) {
 				return;
+			}
 
 			int firstPositionVisible = view.getFirstVisiblePosition();
 			int lastPositionVisible = view.getLastVisiblePosition();
@@ -3257,6 +3189,7 @@ public class ThreadViewFragment extends ListFragment
 				System.out.println("STUFF:L " + (lastPositionVisible - firstPositionVisible) + " gvt:" + view.getChildCount());
 				view.setSelectionFromTop(lastPositionVisible + 1, view.getChildAt(lastPositionVisible - firstPositionVisible).getBottom() - 5);
 			}
+
 			if (withPostMove) {
 				// keep the child view on screen
 				final int pos = position;
@@ -3394,9 +3327,9 @@ public class ThreadViewFragment extends ListFragment
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 			menu.findItem(R.id.menu_textSelectSearch).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 			menu.findItem(R.id.menu_textSelectSearchGoogle).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-			if (menu.findItem(android.R.id.selectAll) != null)
+			if (menu.findItem(android.R.id.selectAll) != null) {
 				menu.findItem(android.R.id.selectAll).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
+			}
 			return false;
 		}
 

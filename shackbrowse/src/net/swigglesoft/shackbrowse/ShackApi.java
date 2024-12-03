@@ -74,10 +74,16 @@ public class ShackApi
 
     static final String LOL_CACHE_FILE = "shacklol.cache";
 
-    // {"status":"1","data":[{"tag_id":"1","tag":"lol","color":"#FF8800"},{"tag_id":"4","tag":"inf","color":"#0099CC"},{"tag_id":"3","tag":"unf","color":"#FF0000"},{"tag_id":"5","tag":"tag","color":"#77BB22"},{"tag_id":"2","tag":"wtf","color":"#C000C0"},{"tag_id":"6","tag":"wow","color":"#C4A3B3"},{"tag_id":"7","tag":"aww","color":"#13A4A7"}],"message":""}
-    // the following array converts numbers to string text
-    static final String[] SN_LOL_TAG_TYPE = { "zero", "lol" , "wtf", "unf", "inf", "tag", "wow", "aww" };
-
+    /* {"status":"1","data":[
+            {"tag_id":"1","tag":"lol","color":"#FF8800"},
+            {"tag_id":"4","tag":"inf","color":"#0099CC"},
+            {"tag_id":"3","tag":"unf","color":"#FF0000"},
+            {"tag_id":"5","tag":"tag","color":"#77BB22"},
+            {"tag_id":"2","tag":"wtf","color":"#C000C0"},
+            {"tag_id":"6","tag":"wow","color":"#C4A3B3"},
+            {"tag_id":"7","tag":"aww","color":"#13A4A7"}
+       ],"message":""}
+    */
     static final String GET_LOL_URL = "http://lmnopc.com/greasemonkey/shacklol/api.php";
     
     static final String PUSHSERV_URL = "http://shackbrowsepublic.appspot.com/";
@@ -379,6 +385,7 @@ public class ShackApi
     {
 		return processThreads(json, filterNone, new ArrayList<Integer>(), activity);
     }
+
     public static ArrayList<Thread> processThreads(JSONObject json, boolean filterNone, ArrayList<Integer> collapsed, Context activity) throws ClientProtocolException, IOException, JSONException
     {
         ArrayList<Thread> threads = new ArrayList<Thread>();
@@ -388,23 +395,29 @@ public class ShackApi
         if (activity != null)
         {
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-	        if (prefs.getBoolean("showInformative", true))
+	        if (prefs.getBoolean(AppConstants.USERPREF_SHOWINFORMATIVE, true)){
                 visible_categories.add(AppConstants.POST_TYPE_INFORMATIVE);
-            if (prefs.getBoolean("showTangent", true))
+            }
+            if (prefs.getBoolean(AppConstants.USERPREF_SHOWTANGENT, true)) {
                 visible_categories.add(AppConstants.POST_TYPE_OFFTOPIC);
-            if (prefs.getBoolean("showStupid", true))
+            }
+            if (prefs.getBoolean(AppConstants.USERPREF_SHOWSTUPID, true)) {
                 visible_categories.add(AppConstants.POST_TYPE_STUPID);
-            if (prefs.getBoolean("showPolitical", false))
+            }
+            if (prefs.getBoolean(AppConstants.USERPREF_SHOWPOLITICAL, false)) {
                 visible_categories.add(AppConstants.POST_TYPE_POLITICAL);
-            if (prefs.getBoolean("showOntopic", true))
+            }
+            if (prefs.getBoolean(AppConstants.USERPREF_SHOWONTOPIC, true)) {
                 visible_categories.add(AppConstants.POST_TYPE_ONTOPIC);
-            if (prefs.getBoolean("showNWS", false))
+            }
+            if (prefs.getBoolean(AppConstants.USERPREF_SHOWNWS, false)) {
                 visible_categories.add(AppConstants.POST_TYPE_NWS);
-            if (prefs.getBoolean("showCortex", true))
+            }
+            if (prefs.getBoolean(AppConstants.USERPREF_SHOWCORTEX, true)) {
                 visible_categories.add(AppConstants.POST_TYPE_CORTEX);
+            }
         }
-        else
-        {
+        else {
             visible_categories.add(AppConstants.POST_TYPE_INFORMATIVE);
             visible_categories.add(AppConstants.POST_TYPE_OFFTOPIC);
             visible_categories.add(AppConstants.POST_TYPE_STUPID);
@@ -1071,8 +1084,7 @@ public class ShackApi
     {
     	HashMap<String, HashMap<String, LolObj>> map = new HashMap<String, HashMap<String,LolObj>>();
         JSONArray threads = json.names();
-        
-        
+
         int lolCount = 0;
         int tagCount = 0;
         int infCount = 0;
@@ -1087,9 +1099,7 @@ public class ShackApi
 	        {
 	        	JSONObject thisThread = json.getJSONObject(threads.getString(i));
 	        	JSONArray posts = thisThread.names();
-	        	
-	        	
-	        	
+
 	        	map.put(threads.getString(i), new HashMap<String, LolObj>());
 	        	
 	        	lolCount = 0;
@@ -1102,16 +1112,45 @@ public class ShackApi
 	        	
 	        	for (int j = 0; j <  posts.length(); j++)
 	            {
+                    lolobj = new LolObj();
 	        		JSONObject thisPost = thisThread.getJSONObject(posts.getString(j));
-	        		lolobj = new LolObj();
-	        		if (thisPost.has("lol")) { lolobj.setLol(tryParseInt(thisPost.getString("lol"))); lolCount = lolCount + tryParseInt(thisPost.getString("lol")); }
-	        		if (thisPost.has("inf")) { lolobj.setInf(tryParseInt(thisPost.getString("inf"))); infCount = infCount + tryParseInt(thisPost.getString("inf")); }
-	        		if (thisPost.has("unf")) { lolobj.setUnf(tryParseInt(thisPost.getString("unf"))); unfCount = unfCount + tryParseInt(thisPost.getString("unf")); }
-	        		if (thisPost.has("tag")) { lolobj.setTag(tryParseInt(thisPost.getString("tag"))); tagCount = tagCount + tryParseInt(thisPost.getString("tag")); }
-	        		if (thisPost.has("wtf")) { lolobj.setWtf(tryParseInt(thisPost.getString("wtf"))); wtfCount = wtfCount + tryParseInt(thisPost.getString("wtf")); }
-                    if (thisPost.has("wow")) { lolobj.setWow(tryParseInt(thisPost.getString("wow"))); wowCount = wowCount + tryParseInt(thisPost.getString("wow")); }
-                    if (thisPost.has("aww")) { lolobj.setAww(tryParseInt(thisPost.getString("aww"))); awwCount = awwCount + tryParseInt(thisPost.getString("aww")); }
-	        		lolobj.genTagSpan(context);
+
+                    if (thisPost.has(AppConstants.TAG_TYPE_LOL)) {
+                        lolobj.setLol(tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_LOL)));
+                        lolCount = lolCount + tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_LOL));
+                    }
+
+	        		if (thisPost.has(AppConstants.TAG_TYPE_INF)){
+                        lolobj.setInf(tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_INF)));
+                        infCount = infCount + tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_INF));
+                    }
+
+	        		if (thisPost.has(AppConstants.TAG_TYPE_UNF)) {
+                        lolobj.setUnf(tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_UNF)));
+                        unfCount = unfCount + tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_UNF));
+                    }
+
+	        		if (thisPost.has(AppConstants.TAG_TYPE_TAG)) {
+                        lolobj.setTag(tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_TAG)));
+                        tagCount = tagCount + tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_TAG));
+                    }
+
+	        		if (thisPost.has(AppConstants.TAG_TYPE_WTF)) {
+                        lolobj.setWtf(tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_WTF)));
+                        wtfCount = wtfCount + tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_WTF));
+                    }
+
+                    if (thisPost.has(AppConstants.TAG_TYPE_WOW)) {
+                        lolobj.setWow(tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_WOW)));
+                        wowCount = wowCount + tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_WOW));
+                    }
+
+                    if (thisPost.has(AppConstants.TAG_TYPE_AWW)) {
+                        lolobj.setAww(tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_AWW)));
+                        awwCount = awwCount + tryParseInt(thisPost.getString(AppConstants.TAG_TYPE_AWW));
+                    }
+
+                    lolobj.genTagSpan(context);
 	        		map.get(threads.getString(i)).put(posts.getString(j), lolobj);
 	            }
 	        	
@@ -1125,13 +1164,11 @@ public class ShackApi
                 lolobj.setAww(awwCount);
 	        	lolobj.genTagSpan(context);
 	        	map.get(threads.getString(i)).put("totalLols", lolobj);
-	        	
 	        }
 	        return map;
         }
-        else
-        	return new HashMap<String, HashMap<String,LolObj>>();
-        
+
+        return new HashMap<String, HashMap<String, LolObj>>();
     }
     
     // saved threads
@@ -1263,29 +1300,35 @@ public class ShackApi
             return results;
         }
     }
+
     // SHACKLOL SEARCH
     public static ArrayList<SearchResult> searchLOL(String tag, int days, String author, String tagger, int pageNumber) throws Exception
     {
-    	
     	Date date = new Date();
     	Calendar cal = Calendar.getInstance();
     	cal.setTime(date);
     	cal.add(Calendar.DAY_OF_YEAR, - days);
     	date = cal.getTime();
     	
-    	if (tag.equalsIgnoreCase("all"))
-    		tag = "";
-    	else tag = "&tag=" + URLEncoder.encode(tag, "UTF8");
+    	if (tag.equalsIgnoreCase("all")) {
+            tag = "";
+        }
+    	else {
+            tag = "&tag=" + URLEncoder.encode(tag, "UTF8");
+        }
     	
-    	if (author.length() > 0)
-    		author = "&author=" + URLEncoder.encode(author, "UTF8");
+    	if (author.length() > 0) {
+            author = "&author=" + URLEncoder.encode(author, "UTF8");
+        }
     	
-    	if (tagger.length() > 0)
-    		tagger = "&tagger=" + URLEncoder.encode(tagger, "UTF8");
+    	if (tagger.length() > 0) {
+            tagger = "&tagger=" + URLEncoder.encode(tagger, "UTF8");
+        }
     	
     	String order= "";
-		if (tagger.length() > 0 || author.length() > 0)
-    		order = "&order=date_desc";
+		if (tagger.length() > 0 || author.length() > 0) {
+            order = "&order=date_desc";
+        }
     		
     	SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy hh:mm Z");
     	String queryDate = sdf.format(date);
@@ -1306,22 +1349,24 @@ public class ShackApi
             String posted = comment.getString("date");
             
             int type = SearchResult.TYPE_SHACKSEARCHRESULT;
-            if (comment.getString("tag").equalsIgnoreCase("lol"))
-            	type = SearchResult.TYPE_LOL;
-            if (comment.getString("tag").equalsIgnoreCase("tag"))
-            	type = SearchResult.TYPE_TAG;
-            if (comment.getString("tag").equalsIgnoreCase("inf"))
-            	type = SearchResult.TYPE_INF;
-            if (comment.getString("tag").equalsIgnoreCase("unf"))
-            	type = SearchResult.TYPE_UNF;
-            if (comment.getString("tag").equalsIgnoreCase("wtf"))
-            	type = SearchResult.TYPE_WTF;
-            if (comment.getString("tag").equalsIgnoreCase("wow"))
-            	type = SearchResult.TYPE_WOW;
-            if (comment.getString("tag").equalsIgnoreCase("aww"))
-                type = SearchResult.TYPE_AWW;
-            	
-            
+            String commentTagType = comment.getString("tag").toLowerCase();
+            switch(commentTagType) {
+                case AppConstants.TAG_TYPE_LOL:
+                    type = AppConstants.TAG_TYPEID_LOL;
+                case AppConstants.TAG_TYPE_TAG:
+                    type = AppConstants.TAG_TYPEID_TAG;
+                case AppConstants.TAG_TYPE_INF:
+                    type = AppConstants.TAG_TYPEID_INF;
+                case AppConstants.TAG_TYPE_UNF:
+                    type = AppConstants.TAG_TYPEID_UNF;
+                case AppConstants.TAG_TYPE_WTF:
+                    type = AppConstants.TAG_TYPEID_WTF;
+                case AppConstants.TAG_TYPE_WOW:
+                    type = AppConstants.TAG_TYPEID_WOW;
+                case AppConstants.TAG_TYPE_AWW:
+                    type = AppConstants.TAG_TYPEID_AWW;
+            }
+
             // convert time to local timezone
             Long postedTime = convertTimeThom(posted);
             
@@ -1338,32 +1383,31 @@ public class ShackApi
      * 
     */
 	public static Boolean usernameExists(String username, Context context) throws Exception {
-	    	BasicResponseHandler response_handler = new BasicResponseHandler();
-	        DefaultHttpClient client = new DefaultHttpClient();
-	        final HttpParams httpParameters = client.getParams();
-	        HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
-	        HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
-	        HttpPost post = new HttpPost(AppConstants.URL_CHECKUSEREXISTS);
-	        post.setHeader("User-Agent", USER_AGENT);
-	        post.setHeader("X-Requested-With", "XMLHttpRequest");
-	        
-	        List<NameValuePair> values = new ArrayList<NameValuePair>();
-	        values.add(new BasicNameValuePair("get_fields[]", "result"));
-	        values.add(new BasicNameValuePair("username", username));
-	        
-	        UrlEncodedFormEntity e = new UrlEncodedFormEntity(values,"UTF-8");
-	        post.setEntity(e);
-	        
-	        String content = client.execute(post, response_handler);
-	        if (content.contains("\"result\":\"true\""))
-	        {
-	            System.out.println("USER EXISTS: " + username);
-	            return true;
-	        }
-	        else {
-                System.out.println("USER !NOT! EXISTS: " + username);
-	            return false;
-            }
+        BasicResponseHandler response_handler = new BasicResponseHandler();
+        DefaultHttpClient client = new DefaultHttpClient();
+        final HttpParams httpParameters = client.getParams();
+        HttpConnectionParams.setConnectionTimeout(httpParameters, connectionTimeOutSec * 1000);
+        HttpConnectionParams.setSoTimeout        (httpParameters, socketTimeoutSec * 1000);
+        HttpPost post = new HttpPost(AppConstants.URL_CHECKUSEREXISTS);
+        post.setHeader("User-Agent", USER_AGENT);
+        post.setHeader("X-Requested-With", "XMLHttpRequest");
+
+        List<NameValuePair> values = new ArrayList<NameValuePair>();
+        values.add(new BasicNameValuePair("get_fields[]", "result"));
+        values.add(new BasicNameValuePair("username", username));
+
+        UrlEncodedFormEntity e = new UrlEncodedFormEntity(values,"UTF-8");
+        post.setEntity(e);
+
+        String content = client.execute(post, response_handler);
+        if (content.contains("\"result\":\"true\"")) {
+            System.out.println("USER EXISTS: " + username);
+            return true;
+        }
+        else {
+            System.out.println("USER !NOT! EXISTS: " + username);
+            return false;
+        }
 	}
 
     public static List<Cookie> getLoginCookie(Context context) throws Exception {
@@ -1392,16 +1436,12 @@ public class ShackApi
         post.setEntity(e);
 
         String content = client.execute(post, response_handler);
-
         if (content.contains("{\"result\":{\"valid\":\"true\""))
         {
-
             return client.getCookieStore().getCookies();
         }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
 
     public static boolean markRead(String messageId, Context context) throws Exception {
@@ -1430,9 +1470,7 @@ public class ShackApi
         
         String content = client.execute(post, response_handler);
         
-        if (content.contains("{\"result\":{\"valid\":\"true\""))
-        {
-            
+        if (content.contains("{\"result\":{\"valid\":\"true\"")) {
         	post = new HttpPost(AppConstants.URL_SHACKMSGREAD);
             post.setHeader("User-Agent", USER_AGENT);
             
@@ -1442,18 +1480,21 @@ public class ShackApi
             e = new UrlEncodedFormEntity(values, "UTF-8");
             post.setEntity(e);
             	
-            content = client.execute(post, response_handler);
-            
+            client.execute(post, response_handler);
             return true;
         }
-        else
-        {
-        	return false;
-        }        
-    }	
-	public static ArrayList<Message> getMessages(int pageNumber, Context context) throws Exception { return getMessages(pageNumber,context,true); }
+
+        return false;
+    }
+
+	public static ArrayList<Message> getMessages(int pageNumber, Context context) throws Exception {
+        return getMessages(pageNumber,context,true);
+    }
+
     public static ArrayList<Message> getMessages(int pageNumber, Context context, Boolean inbox) throws Exception {
-    	
+
+        ArrayList<Message> msg_items = new ArrayList<Message>();
+
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String userName = prefs.getString("userName", null);
         String password = prefs.getString("password", null);
@@ -1480,68 +1521,74 @@ public class ShackApi
         if (content.contains("{\"result\":{\"valid\":\"true\""))
         {
             String getType = "inbox";
-        	if (!inbox)
-        		getType = "sent";
+        	if (!inbox) {
+                getType = "sent";
+            }
 
         	HttpGet get = new HttpGet(AppConstants.SHACKNEWS_URL + "/messages/"+getType+"?page=" + pageNumber);
             get.setHeader("User-Agent", USER_AGENT);
-            
             content = client.execute(get, response_handler);
             
-            ArrayList<Message> msg_items = new ArrayList<Message>();
-            // process
+            // message data
+            int iid = 0;
+            String id = "";
+            String user = "";
+            String subject = "";
+            String date = "";
+            String mContent = "";
+
+            // process messages
             String[] msgs = content.split("<li class=\"message");
             for (int i = 1; i < msgs.length; i++)
             {
             	boolean read = false;
-            	if (msgs[i].substring(0,10).contains("read"))
-            	{
+            	if (msgs[i].substring(0,10).contains("read")) {
             		read = true;
             	}
+
             	String startStr = "<a class=\"username\" href=\"#\">";
             	int start = msgs[i].indexOf(startStr);
             	int end = msgs[i].indexOf("</a>",start + startStr.length());
-            	String user = msgs[i].substring(start + startStr.length(), end);
+            	user = msgs[i].substring(start + startStr.length(), end);
             	
             	startStr = "<input type=\"checkbox\" class=\"mid\" name=\"messages[]\" value=\"";
             	start = msgs[i].indexOf(startStr);
             	end = msgs[i].indexOf("\">",start + startStr.length());
-            	String id = msgs[i].substring(start + startStr.length(), end);
-            	int iid = tryParseInt(id);
+            	id = msgs[i].substring(start + startStr.length(), end);
+            	iid = tryParseInt(id);
             	
             	startStr = "<div class=\"subject-column toggle-message\"><a href=\"#\">";
             	start = msgs[i].indexOf(startStr);
             	end = msgs[i].indexOf("</a>",start + startStr.length());
-            	String subject = msgs[i].substring(start + startStr.length(), end);
+            	subject = msgs[i].substring(start + startStr.length(), end);
+                if(subject == null || subject.trim().length() == 0) {
+                    subject = "Message subject not specified by sender";
+                }
 
             	startStr = "<div class=\"date-column toggle-message\"><a href=\"#\">";
             	start = msgs[i].indexOf(startStr);
             	end = msgs[i].indexOf("</a>",start + startStr.length());
-            	String date = msgs[i].substring(start + startStr.length(), end);
+            	date = msgs[i].substring(start + startStr.length(), end);
 
             	startStr = "<div class=\"message-body\">";
             	start = msgs[i].indexOf(startStr);
             	end = msgs[i].indexOf("</div>",start + startStr.length());
-            	String mContent = urlify("<span class=\"jt_sample\"><b>Subject</b>: " + subject + "<br/>" + "<b>Date</b>: " + date + "</span><br/><br/>" + msgs[i].substring(start + startStr.length(), end));
+            	mContent = urlify("<span class=\"jt_sample\"><b>Subject</b>: " + subject + "<br/>" + "<b>Date</b>: " + date + "</span><br/><br/>" + msgs[i].substring(start + startStr.length(), end));
 
-
-            	// convert time to local timezone
-                Long postedTime = convertTimeMsg(date);
-
-	            if (!inbox)
-	                msg_items.add(new Message(iid, "To: " + user, subject, mContent, msgs[i].substring(start + startStr.length(), end), postedTime, read));
-	            else
-            	    msg_items.add(new Message(iid, user, subject, mContent, msgs[i].substring(start + startStr.length(), end), postedTime, read));
-            	
+	            if (!inbox) {
+                    msg_items.add(new Message(iid, "To: " + user, subject, mContent, msgs[i].substring(start + startStr.length(), end), convertTimeMsg(date), read));
+                }
+	            else {
+                    msg_items.add(new Message(iid, user, subject, mContent, msgs[i].substring(start + startStr.length(), end), convertTimeMsg(date), read));
+                }
             }
             return msg_items;
         }
-        else
-        {
-        	ArrayList<Message> msg_items = new ArrayList<Message>();
-        	msg_items.add(new Message(1, "Login Failure", "You must set your login correctly to check messages", "Either you have not yet set your login credentials up, or you have set them incorrectly. Login with the current settings failed.", "ERROR", 0l, false));
-        	return msg_items;
-        }        
+        else {
+        	msg_items.add(new Message(1, "Login Failure", "You must set your login correctly to check messages", "Either you have not yet set up your login credentials, or you have set them incorrectly. Login was unsuccessful.", "ERROR", 0l, false));
+        }
+
+        return msg_items;
     }
     
     public static boolean postMessage(Context context, String subject, String recipient, String msg) throws Exception {
@@ -1572,13 +1619,17 @@ public class ShackApi
         
         if (content.contains("{\"result\":{\"valid\":\"true\""))
         {
-            
         	post = new HttpPost(AppConstants.URL_SHACKMSGPOST);
             post.setHeader("User-Agent", USER_AGENT);
             
             JSONObject resjson = new JSONObject(content);
             String uid = resjson.getJSONObject("result").getString("uid");
-            
+
+            // fix empty subject
+            if(subject == null || subject.trim().length() == 0){
+                subject = "subject-not-specified-by-sender";
+            }
+
             values = new ArrayList<NameValuePair>();
             values.add(new BasicNameValuePair("message", msg));
             values.add(new BasicNameValuePair("to", recipient));
@@ -1603,10 +1654,8 @@ public class ShackApi
             System.out.println("RESPONSE TO POST: " + msg + uid + recipient + subject);
             return true;
         }
-        else
-        {
-        	return false;
-        }        
+
+        return false;
     }	
     
     public static String urlify(String mytext) throws PatternSyntaxException {
@@ -1614,15 +1663,12 @@ public class ShackApi
             Matcher matcher = android.util.Patterns.WEB_URL.matcher(mytext);
             if (matcher.find()) {
                 return matcher.replaceAll("<a href=\"$0\">$0</a>");
-            } else {
-                return mytext;
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             e.printStackTrace();
-            return mytext;
         }
+        return mytext;
     }
     
     // PUSH NOTIFICATIONS
@@ -1659,8 +1705,9 @@ public class ShackApi
     // cloud sync
     public static JSONObject getCloudPinned(String username) throws ClientProtocolException, IOException, JSONException
     {
-    	if (username != null && !username.equals(""))
-    		return getJson(CLOUDPIN_URL + URLEncoder.encode(username, "UTF8") + "/settings");
+    	if (username != null && !username.equals("")) {
+            return getJson(CLOUDPIN_URL + URLEncoder.encode(username, "UTF8") + "/settings");
+        }
 		return null;
     }
     
@@ -1718,14 +1765,11 @@ public class ShackApi
         
         String content = client.execute(post, response_handler);
         
-        if (content.contains("{\"result\":{\"valid\":\"true\""))
-        {
+        if (content.contains("{\"result\":{\"valid\":\"true\"")) {
             return true;
         }
-        else
-        {
-        	return false;
-        }        
+
+        return false;
     }
 
 	public static boolean noteAddUser(String userName, JSONArray keywords, boolean vanityEnabled) throws ClientProtocolException, UnsupportedEncodingException, IOException, JSONException {
@@ -1737,6 +1781,7 @@ public class ShackApi
         }
         return post(NOTESERV_URL + "/v2/user", values);
 	}
+
 	public static boolean noteReg(String userName, String deviceid) throws ClientProtocolException, UnsupportedEncodingException, IOException {
         List<NameValuePair> values = new ArrayList<>();
         values.add(new BasicNameValuePair("UserName", userName.trim()));
@@ -1744,6 +1789,7 @@ public class ShackApi
         values.add(new BasicNameValuePair("ChannelUri", "fcm://" + deviceid));
         return post(NOTESERV_URL + "/register", values);
 	}
+
 	public static boolean noteUnreg(String userName, String deviceid) throws ClientProtocolException, UnsupportedEncodingException, IOException {
         List<NameValuePair> values = new ArrayList<>();
         values.add(new BasicNameValuePair("DeviceId", "fcm://" + deviceid));
@@ -1756,9 +1802,11 @@ public class ShackApi
     public static String blocklistAdd (String userName, String keyword) throws ClientProtocolException, UnsupportedEncodingException, IOException {
         return getSSL(NOTESERV_URL_SSL + "blocklist.php?apikey=" + APIConstants.BLOCKLIST_API_KEY + "&type=blocklist&action=add&user=" + URLEncoder.encode(userName, "UTF8") + "&item=" + URLEncoder.encode(keyword, "UTF8"));
     }
+
     public static String blocklistRemove (String userName, String keyword) throws ClientProtocolException, UnsupportedEncodingException, IOException {
         return getSSL(NOTESERV_URL_SSL + "blocklist.php?apikey=" + APIConstants.BLOCKLIST_API_KEY + "&type=blocklist&action=remove&user=" + URLEncoder.encode(userName, "UTF8") + "&item=" + URLEncoder.encode(keyword, "UTF8"));
     }
+
     public static String blocklistCheck (String userName) throws ClientProtocolException, UnsupportedEncodingException, IOException {
         return getSSL(NOTESERV_URL_SSL + "blocklist.php?apikey=" + APIConstants.BLOCKLIST_API_KEY + "&type=blocklist&action=get&user=" + URLEncoder.encode(userName, "UTF8"));
     }
@@ -1770,6 +1818,7 @@ public class ShackApi
     {
         return new JSONArray(get(DONATOR_URL));
     }
+
     public static String[] getLimeList() throws ClientProtocolException, IOException, JSONException
     {
         JSONArray list = getDonators();
