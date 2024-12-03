@@ -2524,7 +2524,7 @@ public class ThreadViewFragment extends ListFragment
 					}
 					startClip = text.getSpanEnd(target);
 				}
-				if (PopupBrowserFragment.isYoutube(target.getURL().trim()) && _verified) {
+				if ((new YoutubeUriParser(target.getURL().trim())).isYoutube() && _verified) {
 					if ((text.subSequence(startClip, text.getSpanEnd(target)).toString().length() > 0)) {
 						if (removeLinksImages) {
 							Spannable tempTxt = ((Spannable) text.subSequence(startClip, text.getSpanStart(target)));

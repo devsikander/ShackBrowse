@@ -400,69 +400,6 @@ public class PopupBrowserFragment extends Fragment {
 		}
 	}
 
-	public static boolean isYoutube (String _href)
-	{
-		if ((
-				_href.contains("/youtu.be/")
-				) || (
-			_href.contains("/www.youtube.com/")
-	) || (
-				_href.contains("/youtube.com/")
-		))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	public static String getYoutubeId (String _href)
-	{
-		if ((_href.contains("/youtu.be/")) || (_href.contains("youtube.com/")))
-		{
-			String pattern = "(?<=watch\\?v=|/videos/|embed\\/|youtu.be\\/|\\/v\\/|\\/e\\/|watch\\?v%3D|watch\\?feature=player_embedded&v=|%2Fvideos%2F|embed%\u200C\u200B2F|youtu.be%2F|%2Fv%2F)[^#\\&\\?\\n]*";
-
-			Pattern compiledPattern = Pattern.compile(pattern);
-			Matcher matcher = compiledPattern.matcher(_href); //url is youtube url for which you want to extract the id.
-			if (matcher.find()) {
-				return matcher.group();
-			}
-			else return null;
-		}
-		else
-		{
-			return null;
-		}
-	}
-	public static int getYoutubeTime (String _href)
-	{
-		// PATTERN
-		String regex = "v=([^#&\n\r]+)|t=([^#&\n\r]+)";
-
-		// INIT RETURN DATA
-		String timeS = "";
-
-		// RUN REGEX
-		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(_href);
-
-		// CHECK
-		while (matcher.find()) {
-			// SET TIME
-			if(matcher.group(2) != null)
-				timeS = matcher.group(2);
-		}
-		// RETURN
-		int time = 0;
-		try {
-			time = Integer.parseInt(timeS);
-		}
-		catch (Exception e) {}
-		return time;
-	}
-
-
 	private void showZoomSetup()
 	{
 		mState = SHOW_ZOOM_CONTROLS;

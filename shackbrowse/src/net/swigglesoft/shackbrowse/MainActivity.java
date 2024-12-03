@@ -3956,6 +3956,16 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 	public void openYoutube(String url)
 	{
 		System.out.println("OPENING YT" + url);
+		YoutubeUriParser parser = new YoutubeUriParser(url);
+		final String youtubeId = parser.getYoutubeId();
+		final int youtubeTime = parser.getYoutubeTime();
+
+		if (youtubeId == null) {
+			ErrorDialog.display(this, "Error", "Could not find the YouTube video ID in the URL");
+			System.out.println("Could not find YouTube Video ID IN " + url);
+			return;
+		}
+
 		if (isYTOpen())
 		{
 			mYoutubeView.release();
@@ -3987,8 +3997,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 		IFramePlayerOptions options = new IFramePlayerOptions.Builder().controls(0).build();
 		mYoutubeView.initialize(listener, options);
 
-		final String youtubeId = PopupBrowserFragment.getYoutubeId(url);
-		final int youtubeTime = PopupBrowserFragment.getYoutubeTime(url);
 		mYoutubeView.getYouTubePlayerWhenReady(youTubePlayer -> {
 			youTubePlayer.loadVideo(youtubeId, youtubeTime);
 			mYoutubePlayer = youTubePlayer;
