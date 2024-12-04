@@ -26,8 +26,7 @@ public class FontFitTextView extends androidx.appcompat.widget.AppCompatTextView
     /* Re size the font so the specified text fits in the text box
      * assuming the text box is the specified width.
      */
-    private void refitText(String text, int textWidth)
-    {
+    private void refitText(String text, int textWidth) {
         if (textWidth <= 0)
             return;
         int targetWidth = textWidth - this.getPaddingLeft() - this.getPaddingRight();
@@ -37,10 +36,10 @@ public class FontFitTextView extends androidx.appcompat.widget.AppCompatTextView
 
         mTestPaint.set(this.getPaint());
 
-        while((hi - lo) > threshold) {
-            float size = (hi+lo)/2;
+        while ((hi - lo) > threshold) {
+            float size = (hi + lo) / 2;
             mTestPaint.setTextSize(size);
-            if(mTestPaint.measureText(text) >= targetWidth)
+            if (mTestPaint.measureText(text) >= targetWidth)
                 hi = size; // too big
             else
                 lo = size; // too small
@@ -50,8 +49,7 @@ public class FontFitTextView extends androidx.appcompat.widget.AppCompatTextView
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-    {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
         int height = getMeasuredHeight();
@@ -65,7 +63,7 @@ public class FontFitTextView extends androidx.appcompat.widget.AppCompatTextView
     }
 
     @Override
-    protected void onSizeChanged (int w, int h, int oldw, int oldh) {
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         if (w != oldw) {
             refitText(this.getText().toString(), w);
         }

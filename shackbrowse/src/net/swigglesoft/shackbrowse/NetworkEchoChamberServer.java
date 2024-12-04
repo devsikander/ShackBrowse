@@ -20,45 +20,40 @@ public class NetworkEchoChamberServer {
     public static final String ACTION_ADD = "add";
     public static final String ACTION_GET = "get";
 
-    public NetworkEchoChamberServer(Context activity, OnEchoChamberResultListener listener)
-    {
+    public NetworkEchoChamberServer(Context activity, OnEchoChamberResultListener listener) {
         context = activity;
         _prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         _listener = listener;
     }
 
-    public void doBlocklistTask (String preAction, String parameter)
-    {
+    public void doBlocklistTask(String preAction, String parameter) {
         System.out.println("GETTING USER blocklist");
 
         new BlocklistTask().execute(preAction, parameter);
     }
-    public void doBlocklistTask (String preAction)
-    {
+
+    public void doBlocklistTask(String preAction) {
         System.out.println("GETTING USER blocklist");
-        if (preAction.equalsIgnoreCase(ACTION_GET))
-        {
+        if (preAction.equalsIgnoreCase(ACTION_GET)) {
             new BlocklistTask().execute(preAction, "none");
         }
     }
 
-    interface OnEchoChamberResultListener
-    {
+    interface OnEchoChamberResultListener {
         public void networkResult(JSONArray result);
+
         public void addError();
     }
 
-    public class BlocklistTask extends AsyncTask<String, Void, JSONArray>
-    {
+    public class BlocklistTask extends AsyncTask<String, Void, JSONArray> {
         Exception _exception;
         boolean addmode = false;
 
         @Override
-        protected JSONArray doInBackground(String... params)
-        {
+        protected JSONArray doInBackground(String... params) {
             String userName = _prefs.getString("userName", "");
-            boolean verified  = _prefs.getBoolean("usernameVerified", false);
+            boolean verified = _prefs.getBoolean("usernameVerified", false);
 
             String preAction = params[0];
 
@@ -67,24 +62,19 @@ public class NetworkEchoChamberServer {
             if (preAction == null)
                 preAction = "0";
 
-            if (verified)
-            {
+            if (verified) {
                 try {
                     sleep(200);
-                    if (preAction.equals(ACTION_ADD))
-                    {
+                    if (preAction.equals(ACTION_ADD)) {
                         addmode = true;
-                        if (ShackApi.usernameExists(params[1],context)) {
+                        if (ShackApi.usernameExists(params[1], context)) {
                             retval = ShackApi.blocklistAdd(userName, params[1]);
-                        }
-                        else return null;
+                        } else return null;
                     }
-                    if (preAction.equals(ACTION_REMOVE))
-                    {
+                    if (preAction.equals(ACTION_REMOVE)) {
                         retval = ShackApi.blocklistRemove(userName, params[1]);
                     }
-                    if (preAction.equals(ACTION_GET))
-                    {
+                    if (preAction.equals(ACTION_GET)) {
                         retval = ShackApi.blocklistCheck(userName);
                     }
                     JSONObject retjson = new JSONObject(retval);
@@ -99,20 +89,15 @@ public class NetworkEchoChamberServer {
         }
 
         @Override
-        protected void onPostExecute(JSONArray result)
-        {
-            if (result == null)
-            {
-                if (addmode)
-                {
+        protected void onPostExecute(JSONArray result) {
+            if (result == null) {
+                if (addmode) {
                     _listener.addError();
                 }
             }
             try {
                 _listener.networkResult(result);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
             }
         }
     }

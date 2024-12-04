@@ -9,13 +9,12 @@ public class Message {
     private Long _postedTime;
     private String _content;
     private Spanned _preview;
-	private String _subject;
-	private boolean _read;
-	private String _rawContent;
+    private String _subject;
+    private boolean _read;
+    private String _rawContent;
 
-    
-    public Message(int msgId, String userName, String subject, String content, String rawContent, Long postedTime, boolean read)
-    {
+
+    public Message(int msgId, String userName, String subject, String content, String rawContent, Long postedTime, boolean read) {
         _messageId = msgId;
         _userName = userName;
         _content = content;
@@ -25,47 +24,39 @@ public class Message {
         _read = read;
     }
 
-    public int getMessageId()
-    {
+    public int getMessageId() {
         return _messageId;
     }
-    
-    public boolean getRead()
-    {
-    	return _read;
-    }
-    public void setRead(boolean set)
-    {
-    	_read = set;
+
+    public boolean getRead() {
+        return _read;
     }
 
-    public String getUserName()
-    {
+    public void setRead(boolean set) {
+        _read = set;
+    }
+
+    public String getUserName() {
         return _userName;
     }
 
-    public Long getPosted()
-    {
+    public Long getPosted() {
         return _postedTime;
     }
 
-    public String getContent()
-    {
+    public String getContent() {
         return _content;
     }
-    
-    public String getRawContent()
-    {
+
+    public String getRawContent() {
         return _rawContent;
     }
-    
-    public String getSubject()
-    {
+
+    public String getSubject() {
         return _subject;
     }
 
-    public Spanned getPreview(boolean showTags, boolean stripNewLines)
-    {
+    public Spanned getPreview(boolean showTags, boolean stripNewLines) {
         if (_preview == null) {
             _preview = PostFormatter.formatContent(this, !stripNewLines, showTags);
         }

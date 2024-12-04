@@ -20,8 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by brad on 6/21/2016 with FirebaseJobDispatcher. Modified to WorkManager as of 2023-03-31
  */
-public class PeriodicNetworkService extends Worker
-{
+public class PeriodicNetworkService extends Worker {
     private Context context;
     public static final String IDTAG = "sbsmcheck";
 
@@ -30,8 +29,7 @@ public class PeriodicNetworkService extends Worker
         this.context = appContext;
     }
 
-    public static void scheduleJob(Context context, long updateIntervalSeconds)
-    {
+    public static void scheduleJob(Context context, long updateIntervalSeconds) {
         Log.d("startuptest", "StartUpBootReceiver BOOT_COMPLETED");
 
         System.out.println("SHACKBROWSE PERIODIC NETWORK MESSAGE CHECK STARTUP");
@@ -43,12 +41,9 @@ public class PeriodicNetworkService extends Worker
 
 
         // go no further if it wont work
-        if ((!prefs.getBoolean("SMAutoCheckEnabled", true)) || (!verified) || (userName.contentEquals("")) || (updateIntervalSeconds == 0L))
-        {
+        if ((!prefs.getBoolean("SMAutoCheckEnabled", true)) || (!verified) || (userName.contentEquals("")) || (updateIntervalSeconds == 0L)) {
             WorkManager.getInstance(context).cancelUniqueWork(IDTAG);
-        }
-        else
-        {
+        } else {
             Data input = new Data.Builder().build();
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -75,8 +70,7 @@ public class PeriodicNetworkService extends Worker
         boolean verified = prefs.getBoolean("usernameVerified", false);
 
         // go no further if it wont work
-        if ((!prefs.getBoolean("SMAutoCheckEnabled", true)) || (!verified) || (userName.contentEquals("")) || (updateInterval == 0L))
-        {
+        if ((!prefs.getBoolean("SMAutoCheckEnabled", true)) || (!verified) || (userName.contentEquals("")) || (updateInterval == 0L)) {
             WorkManager.getInstance(appContext).cancelUniqueWork(IDTAG);
             return Result.success();
         }
@@ -88,7 +82,7 @@ public class PeriodicNetworkService extends Worker
     }
 
     @Override
-    public void  onStopped() {
+    public void onStopped() {
         // Nothing to do on stopped
     }
 }

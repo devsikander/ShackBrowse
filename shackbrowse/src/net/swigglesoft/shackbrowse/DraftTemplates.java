@@ -23,37 +23,33 @@ public class DraftTemplates {
     int MAX_DRAFTS_TO_SAVE = 30;
     private Activity _activity;
 
-    Hashtable<String,String> mTpls = null;
+    Hashtable<String, String> mTpls = null;
 
-    DraftTemplates (Activity activity) {
+    DraftTemplates(Activity activity) {
         _activity = activity;
         loadTplsFromDisk();
     }
-    public void deleteTplById(String id)
-    {
-        if (mTpls != null)
-        {
+
+    public void deleteTplById(String id) {
+        if (mTpls != null) {
             mTpls.remove(id);
             saveTplsToDisk();
         }
     }
-    public void saveThisTpl (String tplId, String TplText)
-    {
-        if (mTpls == null)
-        {
-            mTpls = new Hashtable<String,String>();
+
+    public void saveThisTpl(String tplId, String TplText) {
+        if (mTpls == null) {
+            mTpls = new Hashtable<String, String>();
         }
 
         // trimming
-        if (mTpls.size() > MAX_DRAFTS_TO_SAVE)
-        {
+        if (mTpls.size() > MAX_DRAFTS_TO_SAVE) {
             // trim down
             List<String> postIds = Collections.list(mTpls.keys());
             Collections.sort(postIds);
 
             List<String> postIdsToRemove = postIds.subList(0, postIds.size() - (1 + MAX_DRAFTS_TO_SAVE));
-            for (String postId : postIdsToRemove)
-            {
+            for (String postId : postIdsToRemove) {
                 mTpls.remove(postId);
             }
         }
@@ -65,26 +61,20 @@ public class DraftTemplates {
         saveTplsToDisk();
     }
 
-    public void loadTplsFromDisk()
-    {
-        mTpls = new Hashtable<String,String>();
-        if ((_activity != null) && (_activity.getFileStreamPath(DRAFTSFILE_NAME).exists()))
-        {
+    public void loadTplsFromDisk() {
+        mTpls = new Hashtable<String, String>();
+        if ((_activity != null) && (_activity.getFileStreamPath(DRAFTSFILE_NAME).exists())) {
             // look at that, we got a file
             try {
                 FileInputStream input = _activity.openFileInput(DRAFTSFILE_NAME);
-                try
-                {
+                try {
                     DataInputStream in = new DataInputStream(input);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                     String line = reader.readLine();
                     int i = 0;
-                    while (line != null)
-                    {
-                        if (line.length() > 0)
-                        {
-                            if ((line.indexOf(FIRST_TOKEN) > -1) )
-                            {
+                    while (line != null) {
+                        if (line.length() > 0) {
+                            if ((line.indexOf(FIRST_TOKEN) > -1)) {
                                 String[] draftbits = line.split(Pattern.quote(FIRST_TOKEN));
                                 String tplName = draftbits[0];
                                 String draft = "";
@@ -99,23 +89,20 @@ public class DraftTemplates {
                 } catch (NumberFormatException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-                }
-                finally
-                {
+                } finally {
                     input.close();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            catch (IOException e) { e.printStackTrace(); }
         }
     }
-    public boolean saveTplsToDisk()
-    {
+
+    public boolean saveTplsToDisk() {
         boolean result = true;
-        try
-        {
+        try {
             FileOutputStream _output = _activity.openFileOutput(DRAFTSFILE_NAME, Activity.MODE_PRIVATE);
-            try
-            {
+            try {
                 DataOutputStream out = new DataOutputStream(_output);
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
                 // clear file
@@ -124,8 +111,8 @@ public class DraftTemplates {
 
                 Enumeration keys = mTpls.keys();
                 System.out.println("TPL: size" + mTpls.size());
-                while(keys.hasMoreElements()) {
-                    String key = (String)keys.nextElement();
+                while (keys.hasMoreElements()) {
+                    String key = (String) keys.nextElement();
                     String value = mTpls.get(key);
                     i++;
                     // write line
@@ -133,18 +120,14 @@ public class DraftTemplates {
                     writer.write(key + FIRST_TOKEN + value);
                     writer.newLine();
                 }
-                System.out.println("TPL: done" +i);
+                System.out.println("TPL: done" + i);
                 writer.flush();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
                 result = false;
             }
             _output.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             result = false;
         }
         return result;

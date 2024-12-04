@@ -48,34 +48,32 @@ public class FrontpageBrowserFragment extends Fragment {
     private boolean mLoginAtInit = false;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
     }
 
-    public View getParentView() { return getView(); }
+    public View getParentView() {
+        return getView();
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mViewAvailable = true;
         return inflater.inflate(R.layout.fpbrowser, null);
     }
 
 
     @Override
-    public void onDestroyView()
-    {
+    public void onDestroyView() {
         mViewAvailable = false;
         super.onDestroyView();
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mWebview = (WebView) getView().findViewById(R.id.fp_webView);
 
@@ -92,18 +90,17 @@ public class FrontpageBrowserFragment extends Fragment {
             ((MainActivity)getActivity()).showOnlyProgressBarFromPTRLibrary(false);
 */
         mWebview.setWebChromeClient(new WebChromeClient() {
-                                 @Override
-                                        public void onProgressChanged(WebView view, int progress) {
-                                            if ((progress > 50) && (mLoading == true))
-                                            {
-                                                if ((getActivity() != null) && (mSplashSuppress == false)) {
-                                                    ((MainActivity) getActivity()).hideLoadingSplash();
-                                                }
-                                                mSplashSuppress = false;
-                                                mLoading = false;
-                                            }
-                                        }
-                                    });
+            @Override
+            public void onProgressChanged(WebView view, int progress) {
+                if ((progress > 50) && (mLoading == true)) {
+                    if ((getActivity() != null) && (mSplashSuppress == false)) {
+                        ((MainActivity) getActivity()).hideLoadingSplash();
+                    }
+                    mSplashSuppress = false;
+                    mLoading = false;
+                }
+            }
+        });
             	/*
             	if (pb != null && progress < 100)
             	{
@@ -130,43 +127,37 @@ public class FrontpageBrowserFragment extends Fragment {
                 new WebViewClient() {
 
                     @Override
-                    public WebResourceResponse shouldInterceptRequest (final WebView view, String url) {
+                    public WebResourceResponse shouldInterceptRequest(final WebView view, String url) {
                         ArrayList<String> list = new ArrayList<String>();
                         URL res = null;
                         //if (true) return null;
                         try {
-                                list = new ArrayList<String>(Arrays.asList(getActivity().getAssets().list("frontpage")));
-                                res = new URL(url);
-                        }catch(Exception e){
-                                e.printStackTrace();
-                                return null; // give up here if there is exception
+                            list = new ArrayList<String>(Arrays.asList(getActivity().getAssets().list("frontpage")));
+                            res = new URL(url);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return null; // give up here if there is exception
                         }
 
                         boolean contains = false;
                         String asset = null;
-                        for (String assetTest: list)
-                        {
-                            if (assetTest.contains(getLastBitFromUrl(res.getPath())))
-                            {
+                        for (String assetTest : list) {
+                            if (assetTest.contains(getLastBitFromUrl(res.getPath()))) {
                                 System.out.println("INTERCEPTED!" + assetTest);
                                 asset = assetTest;
                                 contains = true;
                                 break;
                             }
                         }
-                        
+
                         if (contains) {
                             // present local resource for loading
                             WebResourceResponse response;
-                            if (getFileExtension(getLastBitFromUrl(res.getPath())).equals("css"))
-                            {
+                            if (getFileExtension(getLastBitFromUrl(res.getPath())).equals("css")) {
                                 response = getWebResourceResponseFromAsset(asset, "text/css");
-                            }
-                            else if (getFileExtension(getLastBitFromUrl(res.getPath())).equals("js"))
-                            {
+                            } else if (getFileExtension(getLastBitFromUrl(res.getPath())).equals("js")) {
                                 response = getWebResourceResponseFromAsset(asset, "text/javascript");
-                            }
-                            else {
+                            } else {
                                 // otherwise dont intercept
                                 return null;
                             }
@@ -192,8 +183,10 @@ public class FrontpageBrowserFragment extends Fragment {
                                 e.printStackTrace();
                                 return null;
                             }
+                        } else {
+                            System.out.println("EXCEOPTION NO ACTIV" + asset);
+                            return null;
                         }
-                        else { System.out.println("EXCEOPTION NO ACTIV" + asset); return null; }
                     }
 
                     @Override
@@ -226,14 +219,9 @@ public class FrontpageBrowserFragment extends Fragment {
                         ((MainActivity)getActivity()).showOnlyProgressBarFromPTRLibrary(false);
                         */
                             return true;
-                        }
-                        else if ((uri.getHost().equalsIgnoreCase(AppConstants.SHACKNEWS_HOST_WWW) || uri.getHost().equalsIgnoreCase(AppConstants.SHACKNEWS_HOST)))
-                        {
+                        } else if ((uri.getHost().equalsIgnoreCase(AppConstants.SHACKNEWS_HOST_WWW) || uri.getHost().equalsIgnoreCase(AppConstants.SHACKNEWS_HOST))) {
                             return false;
-                        }
-
-                        else
-                        {
+                        } else {
                             System.out.println("open external" + _href);
                             openExternal(_href);
                             return true;
@@ -252,18 +240,15 @@ public class FrontpageBrowserFragment extends Fragment {
 
         // login the user if they are logged into the app
         boolean verified = mPrefs.getBoolean("usernameVerified", false);
-        if (verified)
-        {
+        if (verified) {
             new CookieTask().execute();
-        }
-        else
+        } else
             mWebview.loadUrl(mFirstHref);
     }
 
     // reset the progress bars when we are detached from the activity
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         /*
         if (getActivity() != null) {
             ((MainActivity) getActivity()).mSOPBFPTRL = true;
@@ -274,31 +259,25 @@ public class FrontpageBrowserFragment extends Fragment {
     }
 
     public void openExternal(String href) {
-        if (getActivity() != null)
-        {
+        if (getActivity() != null) {
             Intent i = new Intent(Intent.ACTION_VIEW,
                     Uri.parse(href));
             getActivity().startActivity(i);
-        }
-        else
-        {
+        } else {
             System.out.println("openExternal: NO ACTIVITY");
         }
     }
 
-    public void copyURL()
-    {
-        if (getActivity() != null)
-        {
-            ClipboardManager clipboard = (ClipboardManager)((MainActivity)getActivity()).getSystemService(Activity.CLIPBOARD_SERVICE);
+    public void copyURL() {
+        if (getActivity() != null) {
+            ClipboardManager clipboard = (ClipboardManager) ((MainActivity) getActivity()).getSystemService(Activity.CLIPBOARD_SERVICE);
             clipboard.setText(getHREFText());
             Toast.makeText(getActivity(), getHREFText(), Toast.LENGTH_SHORT).show();
         }
     }
-    public void shareURL()
-    {
-        if (getActivity() != null)
-        {
+
+    public void shareURL() {
+        if (getActivity() != null) {
             Toast.makeText(getActivity(), getHREFText(), Toast.LENGTH_SHORT).show();
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
@@ -307,27 +286,27 @@ public class FrontpageBrowserFragment extends Fragment {
             getActivity().startActivity(Intent.createChooser(sendIntent, "Share Link"));
         }
     }
-    public static String getLastBitFromUrl(final String url){
+
+    public static String getLastBitFromUrl(final String url) {
         // return url.replaceFirst("[^?]*/(.*?)(?:\\?.*)","$1);" <-- incorrect
         return url.replaceFirst(".*/([^/?]+).*", "$1");
     }
 
-    public static String getFileExtension(String path)
-    {
+    public static String getFileExtension(String path) {
         int i = path.lastIndexOf('.');
         if (i >= 0) {
-            return path.substring(i+1);
-        }
-        else return path;
+            return path.substring(i + 1);
+        } else return path;
     }
-    public String getHREFText()
-    {
+
+    public String getHREFText() {
         String copyText = mWebview.getUrl();
         return copyText;
     }
 
     public void open(String href) {
-        mWebview.loadUrl(href); mLoading = true;
+        mWebview.loadUrl(href);
+        mLoading = true;
     }
 
     public void setFirstOpen(String href) {
@@ -343,19 +322,14 @@ public class FrontpageBrowserFragment extends Fragment {
         mLoginAtInit = true;
     }
 
-    class CookieTask extends AsyncTask<String, Void, List<Cookie>>
-    {
+    class CookieTask extends AsyncTask<String, Void, List<Cookie>> {
         Exception _exception;
 
         @Override
-        protected List<Cookie> doInBackground(String... params)
-        {
-            try
-            {
+        protected List<Cookie> doInBackground(String... params) {
+            try {
                 return ShackApi.getLoginCookie(getActivity());
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Log.e("shackbrowse", "Error gettin cookies", e);
                 _exception = e;
                 return null;
@@ -363,7 +337,7 @@ public class FrontpageBrowserFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(List <Cookie> cookies) {
+        protected void onPostExecute(List<Cookie> cookies) {
             CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.setAcceptCookie(true);
             cookieManager.removeAllCookie();
@@ -371,7 +345,7 @@ public class FrontpageBrowserFragment extends Fragment {
                 for (Cookie cookie : cookies) {
                     String cookieString = cookie.getName() + "=" + cookie.getValue() + "; Domain=" + cookie.getDomain();
                     cookieManager.setCookie(cookie.getDomain(), cookieString);
-                    Log.d("CookieUrl",cookieString + " ");
+                    Log.d("CookieUrl", cookieString + " ");
                 }
             }
             mWebview.loadUrl(mFirstHref);

@@ -24,8 +24,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-public class PreferenceFragmentEchoChamber extends PreferenceFragment
-{
+public class PreferenceFragmentEchoChamber extends PreferenceFragment {
     private SharedPreferences _prefs;
 
     protected MaterialDialog _progressDialog;
@@ -38,23 +37,21 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
     private NetworkEchoChamberServer.OnEchoChamberResultListener mListener = new NetworkEchoChamberServer.OnEchoChamberResultListener() {
         @Override
         public void networkResult(JSONArray result) {
-            if (_progressDialog != null)
-            {
+            if (_progressDialog != null) {
                 _progressDialog.dismiss();
                 _progressDialog = null;
             }
-            ((MainActivity)getActivity()).mBlockList = result;
+            ((MainActivity) getActivity()).mBlockList = result;
             Editor ed = _prefs.edit();
             ed.putString("echoChamberBlockList", result.toString());
             ed.commit();
-            
+
             showBlocklist();
         }
 
         @Override
         public void addError() {
-            if (_progressDialog != null)
-            {
+            if (_progressDialog != null) {
                 _progressDialog.dismiss();
                 _progressDialog = null;
             }
@@ -143,8 +140,7 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
      */
 
 
-    public void addBlock()
-    {
+    public void addBlock() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Add Block");
         // Set up the input
@@ -163,21 +159,19 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (_userName.equalsIgnoreCase(input.getText().toString()))
-                {
+                if (_userName.equalsIgnoreCase(input.getText().toString())) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle("Are you OK?");
                     builder.setMessage("You can\'t block yourself.");
                     builder.setNegativeButton("Ok", null);
                     builder.create().show();
-                }
-                else {
+                } else {
 //                    _progressDialog = MaterialProgressDialog.show(getActivity(), "Escorting user from Echo Chamber", "Communicating with Shack Browse server...", true, true);
 //                    mEchoServerInteract.doBlocklistTask(NetworkEchoChamberServer.ACTION_ADD, input.getText().toString());
-                    ((MainActivity)getActivity()).mBlockList.put(input.getText().toString());
+                    ((MainActivity) getActivity()).mBlockList.put(input.getText().toString());
                     Editor ed = _prefs.edit();
                     ed.putBoolean("echoEnabled", true);
-                    ed.putString("echoChamberBlockList", ((MainActivity)getActivity()).mBlockList.toString());
+                    ed.putString("echoChamberBlockList", ((MainActivity) getActivity()).mBlockList.toString());
                     ed.commit();
                 }
 
@@ -193,8 +187,8 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
         alert.setCanceledOnTouchOutside(false);
         alert.show();
     }
-    public void removeBlock(final String keyword)
-    {
+
+    public void removeBlock(final String keyword) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Remove Blocked User");
 
@@ -205,7 +199,7 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
             public void onClick(DialogInterface dialog, int which) {
 //                _progressDialog = MaterialProgressDialog.show(getActivity(), "Removing Blocked User", "Communicating with Shack Browse server...", true, true);
 //                mEchoServerInteract.doBlocklistTask(NetworkEchoChamberServer.ACTION_REMOVE, keyword);
-                JSONArray jsonArray = (JSONArray)((MainActivity)getActivity()).mBlockList;
+                JSONArray jsonArray = (JSONArray) ((MainActivity) getActivity()).mBlockList;
                 JSONArray newJsonArray = new JSONArray();
                 for (int j = 0; j < jsonArray.length(); j++) {
                     try {
@@ -219,7 +213,7 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
                 Editor ed = _prefs.edit();
                 ed.putString("echoChamberBlockList", newJsonArray.toString());
                 ed.commit();
-                ((MainActivity)getActivity()).mBlockList = newJsonArray;
+                ((MainActivity) getActivity()).mBlockList = newJsonArray;
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -232,21 +226,21 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
         alert.setCanceledOnTouchOutside(false);
         alert.show();
     }
-    public void showBlocklist()
-    {
+
+    public void showBlocklist() {
         String empty = "";
         ArrayList<String> list = new ArrayList<String>();
-        JSONArray jsonArray = (JSONArray)((MainActivity)getActivity()).mBlockList;
+        JSONArray jsonArray = (JSONArray) ((MainActivity) getActivity()).mBlockList;
         if (jsonArray != null) {
             int len = jsonArray.length();
-            for (int i=0;i<len;i++){
+            for (int i = 0; i < len; i++) {
                 try {
                     list.add(jsonArray.get(i).toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                catch (Exception e) { e.printStackTrace(); }
             }
-            if (len == 0)
-            {
+            if (len == 0) {
                 empty = " (empty)";
             }
         }
@@ -257,7 +251,8 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
         builder.setItems(items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 removeBlock(list.get(item));
-            }});
+            }
+        });
         builder.setNegativeButton("Close", null);
         builder.setPositiveButton("Add Block", new DialogInterface.OnClickListener() {
             @Override
@@ -271,13 +266,12 @@ public class PreferenceFragmentEchoChamber extends PreferenceFragment
     }
 
     @Override
-    public void onActivityCreated(Bundle bundle)
-    {
+    public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
     }
 
-    @Override public void onResume()
-    {
+    @Override
+    public void onResume() {
         super.onResume();
     }
 }

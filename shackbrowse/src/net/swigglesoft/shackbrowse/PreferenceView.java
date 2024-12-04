@@ -33,106 +33,104 @@ import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-public class PreferenceView extends PreferenceFragment
-{
-	private SharedPreferences _prefs;
+public class PreferenceView extends PreferenceFragment {
+    private SharedPreferences _prefs;
 
-	protected MaterialDialog _progressDialog;
+    protected MaterialDialog _progressDialog;
 
     private CheckBoxPreference mChattyPicsEnable;
-	private boolean mLoggedIn;
+    private boolean mLoggedIn;
 
 
-	@Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         doOrientation(-1);
-        
+
         _prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        
+
         addPreferencesFromResource(R.xml.preferences);
-        
+
         String versionName = "App Version Unknown";
         try {
-			versionName = getActivity().getApplication().getPackageManager().getPackageInfo(getActivity().getApplication().getPackageName(), 0 ).versionName;
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
+            versionName = getActivity().getApplication().getPackageManager().getPackageInfo(getActivity().getApplication().getPackageName(), 0).versionName;
+        } catch (NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         Preference customPref = (Preference) findPreference("versionName");
         customPref.setTitle("Shack Browse V. " + versionName);
         final Context cont = getActivity();
-        customPref.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+        customPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				ChangeLog cl = new ChangeLog(cont);
-		        cl.getFullLogDialog().show();
-				return false;
-			}}
+                                                    @Override
+                                                    public boolean onPreferenceClick(Preference preference) {
+                                                        ChangeLog cl = new ChangeLog(cont);
+                                                        cl.getFullLogDialog().show();
+                                                        return false;
+                                                    }
+                                                }
         );
 
-	    Preference imgurLogin = (Preference) findPreference("imgurLogin");
-	    imgurLogin.setOnPreferenceClickListener(new OnPreferenceClickListener(){
-		    @Override
-		    public boolean onPreferenceClick(Preference preference) {
-			    if (mLoggedIn)
-			    {
-				    ImgurAuthorization.getInstance().logout();
-				    Toast.makeText(getActivity(), "Logged out of Imgur", Toast.LENGTH_SHORT).show();
-				    setImgurLoginText();
-			    }
-			    else
-			    {
-					CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
-					customTabsIntent.launchUrl(cont, Uri.parse(ImgurAuthURLHandling.generateAuthUrl()));
-			    }
-			    return true;
-		    }}
-	    );
-
-	    Preference bAutoImageZoomPref = (Preference) findPreference("openBrowserImageZoom");
-        bAutoImageZoomPref.setOnPreferenceClickListener(new OnPreferenceClickListener(){
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-                ((MainActivity)getActivity()).openBrowserZoomAdjust();
-				return true;
-			}}
+        Preference imgurLogin = (Preference) findPreference("imgurLogin");
+        imgurLogin.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                                                    @Override
+                                                    public boolean onPreferenceClick(Preference preference) {
+                                                        if (mLoggedIn) {
+                                                            ImgurAuthorization.getInstance().logout();
+                                                            Toast.makeText(getActivity(), "Logged out of Imgur", Toast.LENGTH_SHORT).show();
+                                                            setImgurLoginText();
+                                                        } else {
+                                                            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+                                                            customTabsIntent.launchUrl(cont, Uri.parse(ImgurAuthURLHandling.generateAuthUrl()));
+                                                        }
+                                                        return true;
+                                                    }
+                                                }
         );
 
-        Preference orientLock = (Preference)findPreference("orientLock");
+        Preference bAutoImageZoomPref = (Preference) findPreference("openBrowserImageZoom");
+        bAutoImageZoomPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                                                            @Override
+                                                            public boolean onPreferenceClick(Preference preference) {
+                                                                ((MainActivity) getActivity()).openBrowserZoomAdjust();
+                                                                return true;
+                                                            }
+                                                        }
+        );
+
+        Preference orientLock = (Preference) findPreference("orientLock");
         orientLock.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				doOrientation(Integer.parseInt((String)newValue));
-				return true;
-			}
-					
-		});
-        
-        Preference fontZoom = (Preference)findPreference("fontZoom");
-        fontZoom.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		        builder.setTitle("Font Size Change");
-		        builder.setMessage("Changing the font size requires an app restart.");
-		        builder.setPositiveButton("Restart Now", new DialogInterface.OnClickListener() {
-		            public void onClick(DialogInterface dialog, int id) {
-                        ((MainActivity)getActivity()).restartApp();
-		            }
-		        });
-		        builder.setNegativeButton("Deal with Bugs", null);
-		        builder.create().show();
-				return true;
-			}
-					
-		});
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                doOrientation(Integer.parseInt((String) newValue));
+                return true;
+            }
 
-        Preference appColor = (Preference)findPreference("appTheme");
+        });
+
+        Preference fontZoom = (Preference) findPreference("fontZoom");
+        fontZoom.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Font Size Change");
+                builder.setMessage("Changing the font size requires an app restart.");
+                builder.setPositiveButton("Restart Now", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        ((MainActivity) getActivity()).restartApp();
+                    }
+                });
+                builder.setNegativeButton("Deal with Bugs", null);
+                builder.create().show();
+                return true;
+            }
+
+        });
+
+        Preference appColor = (Preference) findPreference("appTheme");
         appColor.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -141,7 +139,7 @@ public class PreferenceView extends PreferenceFragment
                 builder.setMessage("Changing the app theme requires an app restart.");
                 builder.setPositiveButton("Restart Now", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        ((MainActivity)getActivity()).restartApp();
+                        ((MainActivity) getActivity()).restartApp();
                     }
                 });
                 builder.setNegativeButton("Later", null);
@@ -152,60 +150,59 @@ public class PreferenceView extends PreferenceFragment
         });
 
         Preference notePref = (Preference) findPreference("notifications");
-        notePref.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+        notePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-                ((MainActivity)getActivity()).cleanUpViewer();
-				((MainActivity)getActivity()).setContentTo(MainActivity.CONTENT_NOTEPREFS);
-				return false;
-			}}
+                                                  @Override
+                                                  public boolean onPreferenceClick(Preference preference) {
+                                                      ((MainActivity) getActivity()).cleanUpViewer();
+                                                      ((MainActivity) getActivity()).setContentTo(MainActivity.CONTENT_NOTEPREFS);
+                                                      return false;
+                                                  }
+                                              }
         );
 
-		Preference echoPref = (Preference) findPreference("echoChamber");
-		echoPref.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+        Preference echoPref = (Preference) findPreference("echoChamber");
+        echoPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				((MainActivity)getActivity()).cleanUpViewer();
-				((MainActivity)getActivity()).setContentTo(MainActivity.CONTENT_ECHOPREFS);
-				return false;
-			}}
-		);
+                                                  @Override
+                                                  public boolean onPreferenceClick(Preference preference) {
+                                                      ((MainActivity) getActivity()).cleanUpViewer();
+                                                      ((MainActivity) getActivity()).setContentTo(MainActivity.CONTENT_ECHOPREFS);
+                                                      return false;
+                                                  }
+                                              }
+        );
     }
 
     @Override
-    public void onResume()
-    {
-	    super.onResume();
-	    setImgurLoginText();
+    public void onResume() {
+        super.onResume();
+        setImgurLoginText();
     }
 
     public void setImgurLoginText() {
-	    Preference imgurLogin = (Preference) findPreference("imgurLogin");
-	    mLoggedIn = ImgurAuthorization.getInstance().isLoggedIn();
-	    if (mLoggedIn) {
-		    imgurLogin.setTitle("Click to log out");
-	    }
-	    else {
-		    imgurLogin.setTitle("Click to log in");
-	    }
-	    imgurLogin.setSummary(getResources().getString(R.string.preference_imgur_login_summary) + " Currently uploading " + (mLoggedIn ? "as \"" + ImgurAuthorization.getInstance().getUsername() + "\" - uploads will appear in your Imgur account." : "anonymously - cannot delete uploads."));
+        Preference imgurLogin = (Preference) findPreference("imgurLogin");
+        mLoggedIn = ImgurAuthorization.getInstance().isLoggedIn();
+        if (mLoggedIn) {
+            imgurLogin.setTitle("Click to log out");
+        } else {
+            imgurLogin.setTitle("Click to log in");
+        }
+        imgurLogin.setSummary(getResources().getString(R.string.preference_imgur_login_summary) + " Currently uploading " + (mLoggedIn ? "as \"" + ImgurAuthorization.getInstance().getUsername() + "\" - uploads will appear in your Imgur account." : "anonymously - cannot delete uploads."));
     }
-	
-	final static int OPEN_BROWSER_ZOOM_SETUP = 37;
-	final static int RESTART_APP = 38;
+
+    final static int OPEN_BROWSER_ZOOM_SETUP = 37;
+    final static int RESTART_APP = 38;
+
     @SuppressLint("SourceLockedOrientationActivity")
-	public void doOrientation (int _orientLock)
-    {
-    	if (_orientLock == -1)
-    	{
-	    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-	        _orientLock = Integer.parseInt(prefs.getString("orientLock", "0"));
-    	}
-        
+    public void doOrientation(int _orientLock) {
+        if (_orientLock == -1) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            _orientLock = Integer.parseInt(prefs.getString("orientLock", "0"));
+        }
+
         if (_orientLock == 0)
-        	getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         if (_orientLock == 1)
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         if (_orientLock == 2)
@@ -216,93 +213,83 @@ public class PreferenceView extends PreferenceFragment
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
     }
 
-	/*
-	 * 
-	 * PING TASK
-	 * 
-	 */
-	
-    class PingTask extends AsyncTask<Void, Void, String>
-	{
-	    Exception _exception;
-		private String _taskMode;
-		
+    /*
+     *
+     * PING TASK
+     *
+     */
+
+    class PingTask extends AsyncTask<Void, Void, String> {
+        Exception _exception;
+        private String _taskMode;
+
         @Override
-        protected String doInBackground(Void... params)
-        {
-            try
-            {
-                getActivity().runOnUiThread(new Runnable(){
-            		@Override public void run()
-            		{
-            			_progressDialog = MaterialProgressDialog.show(getActivity(), "Pinging", "Communicating with servers...", true, true, new OnCancelListener() {
-							
-							@Override
-							public void onCancel(DialogInterface dialog) {
-								cancel(true);
-								
-							}
-						});
-            		}
-            	});
-            	
-            	// warm up the servers
-            	Long current = TimeDisplay.now();
-            	ShackApi.getPosts(3000000, getActivity(), new ApiUrl(ShackApi.WINCHATTYV2_API, true));
-            	float winchatty = (TimeDisplay.now() - current);
-            	if (isCancelled()) 
-            	    return null;
-            	
+        protected String doInBackground(Void... params) {
+            try {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        _progressDialog = MaterialProgressDialog.show(getActivity(), "Pinging", "Communicating with servers...", true, true, new OnCancelListener() {
+
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                cancel(true);
+
+                            }
+                        });
+                    }
+                });
+
+                // warm up the servers
+                Long current = TimeDisplay.now();
+                ShackApi.getPosts(3000000, getActivity(), new ApiUrl(ShackApi.WINCHATTYV2_API, true));
+                float winchatty = (TimeDisplay.now() - current);
+                if (isCancelled())
+                    return null;
+
                 return String.valueOf(winchatty);
-                
-            }
-            catch (Exception e)
-            {
+
+            } catch (Exception e) {
                 Log.e("shackbrowse", "Error pinging", e);
                 _exception = e;
                 return null;
             }
         }
-        
+
         @Override
-        protected void onPostExecute(final String result)
-        {
-        	try {
-        		Handler handler = new Handler();
-        		handler.postDelayed(new Runnable() {
-        		    public void run() {
-        		    	_progressDialog.dismiss();
-        		    	
-        		    	if (result == null)
-        		    		return;
-        		    	
-        		    	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        		    	builder.setTitle("API Average Time for getPosts");
-        		    	// Set up the input
-        		    	String[] pingbits = result.split(Pattern.quote(" "));
-        				builder.setMessage("arhughes: " + pingbits[0] + "\n" + "swigglesoft: " + pingbits[1] + "\n" +"appspot: " + pingbits[2] + "\n" +"winchatty V2: " + pingbits[3] + "\n"+"swigglesoft V2: " + pingbits[4] + "\n");
-        				builder.setNegativeButton("Close", null);
-        		    	AlertDialog alert = builder.create();
-        		        alert.setCanceledOnTouchOutside(false);
-        		        alert.show();
-        		        
-        		    }}, 500);  // 700 milliseconds
-        	}
-        	catch (Exception e)
-        	{
-        		
-        	}
-            
-            if (_exception != null)
-            {
-                ErrorDialog.display(getActivity(), "Error", "Error pinging:\n" + _exception.getMessage());
+        protected void onPostExecute(final String result) {
+            try {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        _progressDialog.dismiss();
+
+                        if (result == null)
+                            return;
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("API Average Time for getPosts");
+                        // Set up the input
+                        String[] pingbits = result.split(Pattern.quote(" "));
+                        builder.setMessage("arhughes: " + pingbits[0] + "\n" + "swigglesoft: " + pingbits[1] + "\n" + "appspot: " + pingbits[2] + "\n" + "winchatty V2: " + pingbits[3] + "\n" + "swigglesoft V2: " + pingbits[4] + "\n");
+                        builder.setNegativeButton("Close", null);
+                        AlertDialog alert = builder.create();
+                        alert.setCanceledOnTouchOutside(false);
+                        alert.show();
+
+                    }
+                }, 500);  // 700 milliseconds
+            } catch (Exception e) {
+
             }
-            else if (result == null)
-            {
-            	System.out.println("pushreg: err");
+
+            if (_exception != null) {
+                ErrorDialog.display(getActivity(), "Error", "Error pinging:\n" + _exception.getMessage());
+            } else if (result == null) {
+                System.out.println("pushreg: err");
                 ErrorDialog.display(getActivity(), "Error", "Unknown ping error.");
             }
         }
-	}
+    }
 
 }

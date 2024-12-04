@@ -25,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.text.InputType;
 import android.util.Log;
 import android.widget.EditText;
@@ -34,12 +35,14 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
+
 import androidx.core.content.ContextCompat;
+
 import android.content.pm.PackageManager;
+
 import androidx.core.app.ActivityCompat;
 
-public class PreferenceFragmentNotifications extends PreferenceFragment
-{
+public class PreferenceFragmentNotifications extends PreferenceFragment {
     private static final String TAG = "PreferenceFragmentNotifications";
     private SharedPreferences _prefs;
 
@@ -58,8 +61,7 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
     private OnGCMInteractListener mGCMlistener;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         _prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -67,12 +69,12 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         addPreferencesFromResource(R.xml.preferences_notifications);
 
         final Context fincon = getActivity();
-        final AppCompatActivity activ = (AppCompatActivity)getActivity();
+        final AppCompatActivity activ = (AppCompatActivity) getActivity();
         final PreferenceFragment thisFrag = this;
-        Preference SMCheckInterval = (Preference)findPreference("PeriodicNetworkServicePeriod");
+        Preference SMCheckInterval = (Preference) findPreference("PeriodicNetworkServicePeriod");
         try {
             mNoteKeywords = new JSONArray(_prefs.getString(PreferenceKeys.notificationKeywords, "[]"));
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             Log.e(TAG, "Error reading mNoteKeywords", e);
         }
 
@@ -80,9 +82,9 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
 
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                int newInterval = Integer.parseInt((String)newValue);
+                int newInterval = Integer.parseInt((String) newValue);
 
-                long updateInterval = (long)newInterval; // DEFAULT 3 HR,  5 minutes 50-100mb, 10 minutes 25-50mb, 30mins 10-20mb, 1 hr 5-10mb, 3 hr 1-3mb, 6hr .5-1.5mb, 12hr .25-1mb
+                long updateInterval = (long) newInterval; // DEFAULT 3 HR,  5 minutes 50-100mb, 10 minutes 25-50mb, 30mins 10-20mb, 1 hr 5-10mb, 3 hr 1-3mb, 6hr .5-1.5mb, 12hr .25-1mb
 
                 PeriodicNetworkService.scheduleJob(fincon, updateInterval);
 
@@ -92,24 +94,25 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         });
 
         Preference colorNote = (Preference) findPreference("notificationColor2");
-        colorNote.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+        colorNote.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                new ColorChooserDialog.Builder(fincon, R.string.notepref_color)
+                                                   @Override
+                                                   public boolean onPreferenceClick(Preference preference) {
+                                                       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                                                       new ColorChooserDialog.Builder(fincon, R.string.notepref_color)
 
-                        .allowUserColorInputAlpha(false)
-                        .titleSub(R.string.notepref_colorsub)  // title of dialog when viewing shades of a color
-                        .accentMode(false)  // when true, will display accent palette instead of primary palette
-                        .doneButton(R.string.md_done_label)  // changes label of the done button
-                        .cancelButton(R.string.md_cancel_label)  // changes label of the cancel button
-                        .backButton(R.string.md_back_label)  // changes label of the back button
-                        .preselect(prefs.getInt("notificationColor", Color.GREEN))  // optionally preselects a color
-                        .dynamicButtonColor(true)  // defaults to true, false will disable changing action buttons' color to currently selected color
-                        .show((AppCompatActivity)getActivity()); // an AppCompatActivity which implements ColorCallback
-                return false;
-            }}
+                                                               .allowUserColorInputAlpha(false)
+                                                               .titleSub(R.string.notepref_colorsub)  // title of dialog when viewing shades of a color
+                                                               .accentMode(false)  // when true, will display accent palette instead of primary palette
+                                                               .doneButton(R.string.md_done_label)  // changes label of the done button
+                                                               .cancelButton(R.string.md_cancel_label)  // changes label of the cancel button
+                                                               .backButton(R.string.md_back_label)  // changes label of the back button
+                                                               .preselect(prefs.getInt("notificationColor", Color.GREEN))  // optionally preselects a color
+                                                               .dynamicButtonColor(true)  // defaults to true, false will disable changing action buttons' color to currently selected color
+                                                               .show((AppCompatActivity) getActivity()); // an AppCompatActivity which implements ColorCallback
+                                                       return false;
+                                                   }
+                                               }
         );
 
         mGCMlistener = new OnGCMInteractListener() {
@@ -141,7 +144,7 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         };
 
         _keyNotification = (Preference) findPreference("noteKeywords");
-        _keyNotification.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+        _keyNotification.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 showKeywords();
@@ -150,9 +153,9 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
             }
         });
 
-        _repliesNotification = (CheckBoxPreference)findPreference("noteReplies");
-        _vanityNotification = (CheckBoxPreference)findPreference("noteVanity");
-        _noteEnabled = (CheckBoxPreference)findPreference("noteEnabled");
+        _repliesNotification = (CheckBoxPreference) findPreference("noteReplies");
+        _vanityNotification = (CheckBoxPreference) findPreference("noteVanity");
+        _noteEnabled = (CheckBoxPreference) findPreference("noteEnabled");
         // "enableDonatorFeatures"
         _Venabled = true;
         _vanityNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
@@ -163,10 +166,10 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         OnPreferenceChangeListener notificationOnPrefListener = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(final Preference preference, Object newValue) {
-                if(newValue instanceof Boolean){
-                    final Boolean checked = (Boolean)newValue;
+                if (newValue instanceof Boolean) {
+                    final Boolean checked = (Boolean) newValue;
 
-                    if(checked) {
+                    if (checked) {
                         int permissionState = ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.POST_NOTIFICATIONS);
                         // If the permission is not granted, request it.
                         if (permissionState == PackageManager.PERMISSION_DENIED) {
@@ -175,8 +178,7 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
                     }
 
                     boolean verified = _prefs.getBoolean("usernameVerified", false);
-                    if (!verified)
-                    {
+                    if (!verified) {
                         LoginForm login = new LoginForm(getActivity());
                         login.setOnVerifiedListener(new LoginForm.OnVerifiedListener() {
 
@@ -198,9 +200,7 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
                                 _keyNotification.setEnabled(_Venabled && _noteEnabled.isChecked());
                             }
                         });
-                    }
-                    else
-                    {
+                    } else {
                         showChangingNotificationsProgress();
 
                         _GCMAccess = new NetworkNotificationServers(getActivity(), mGCMlistener);
@@ -220,8 +220,8 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         OnPreferenceChangeListener replOnPrefListener = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(final Preference preference, Object newValue) {
-                if(newValue instanceof Boolean){
-                    final Boolean checked = (Boolean)newValue;
+                if (newValue instanceof Boolean) {
+                    final Boolean checked = (Boolean) newValue;
                     Editor edit = _prefs.edit();
                     edit.putBoolean(PreferenceKeys.notificationOnReplies, checked);
                     edit.commit();
@@ -233,8 +233,8 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         OnPreferenceChangeListener vanOnPrefListener = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(final Preference preference, Object newValue) {
-                if(newValue instanceof Boolean){
-                    final Boolean checked = (Boolean)newValue;
+                if (newValue instanceof Boolean) {
+                    final Boolean checked = (Boolean) newValue;
                     Editor edit = _prefs.edit();
                     edit.putBoolean(PreferenceKeys.notificationOnVanity, checked);
                     edit.commit();
@@ -253,40 +253,35 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         Preference soundNote = (Preference) findPreference("notificationSound");
         Preference blinkspdNote = (Preference) findPreference("LEDBlinkInMS");
         Preference vibespdNote = (Preference) findPreference("limitVibrateSpamInMS");
-        channelNote.setOnPreferenceClickListener(new OnPreferenceClickListener()
-                                                 {
-                                                     @Override
-                                                     public boolean onPreferenceClick(Preference preference)
-                                                     {
-                                                         Intent intent = new Intent();
-                                                         if(android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1){
-                                                             intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-                                                             intent.putExtra("android.provider.extra.APP_PACKAGE", getActivity().getPackageName());
-                                                         }else if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-                                                             intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-                                                             intent.putExtra("app_package", getActivity().getPackageName());
-                                                             intent.putExtra("app_uid", getActivity().getApplicationInfo().uid);
-                                                         }else {
-                                                             intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                                             intent.addCategory(Intent.CATEGORY_DEFAULT);
-                                                             intent.setData(Uri.parse("package:" + getActivity().getPackageName()));
-                                                         }
+        channelNote.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent();
+                if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+                    intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                    intent.putExtra("android.provider.extra.APP_PACKAGE", getActivity().getPackageName());
+                } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                    intent.putExtra("app_package", getActivity().getPackageName());
+                    intent.putExtra("app_uid", getActivity().getApplicationInfo().uid);
+                } else {
+                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.addCategory(Intent.CATEGORY_DEFAULT);
+                    intent.setData(Uri.parse("package:" + getActivity().getPackageName()));
+                }
 
-                                                         getActivity().startActivity(intent);
-                                                         return false;
-                                                     }
-                                                 });
-                PreferenceCategory pCategory = (PreferenceCategory) findPreference("notificationCat");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        {
+                getActivity().startActivity(intent);
+                return false;
+            }
+        });
+        PreferenceCategory pCategory = (PreferenceCategory) findPreference("notificationCat");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             pCategory.removePreference(colorNote);
             pCategory.removePreference(vibeNote);
             pCategory.removePreference(soundNote);
             pCategory.removePreference(blinkspdNote);
             pCategory.removePreference(vibespdNote);
-        }
-        else
-        {
+        } else {
             pCategory.removePreference(channelNote);
         }
 
@@ -312,8 +307,8 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
      * KEYWORDS
      */
     JSONArray mNoteKeywords = new JSONArray();
-    public void addKeyword()
-    {
+
+    public void addKeyword() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Add Keyword Notification");
         // Set up the input
@@ -354,13 +349,12 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         showKeywords();
         try {
             _GCMAccess.doRegisterTask("reg");
-        } catch(Exception e) {
+        } catch (Exception e) {
             Log.e(TAG, "Exception in updateKeywords", e);
         }
     }
 
-    public void removeKeyword(final int item)
-    {
+    public void removeKeyword(final int item) {
         String keyword = "";
         try {
             keyword = mNoteKeywords.getString(item);
@@ -390,12 +384,12 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         alert.setCanceledOnTouchOutside(false);
         alert.show();
     }
-    public void showKeywords()
-    {
+
+    public void showKeywords() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Keyword Notifications");
         final CharSequence[] items = new CharSequence[mNoteKeywords.length()];
-        for(int i = 0; i < mNoteKeywords.length(); i++) {
+        for (int i = 0; i < mNoteKeywords.length(); i++) {
             try {
                 items[i] = mNoteKeywords.getString(i);
             } catch (JSONException e) {
@@ -405,7 +399,8 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
         builder.setItems(items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 removeKeyword(item);
-            }});
+            }
+        });
         builder.setNegativeButton("Close", null);
         builder.setPositiveButton("Add Keyword", new DialogInterface.OnClickListener() {
             @Override
@@ -419,33 +414,28 @@ public class PreferenceFragmentNotifications extends PreferenceFragment
     }
 
     @Override
-    public void onActivityCreated(Bundle bundle)
-    {
+    public void onActivityCreated(Bundle bundle) {
         _GCMAccess = new NetworkNotificationServers(getActivity(), mGCMlistener);
 
         super.onActivityCreated(bundle);
     }
 
-    @Override public void onResume()
-    {
+    @Override
+    public void onResume() {
 
         if (!_GCMAccess.checkPlayServices()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("No Play Services");
             builder.setMessage("You need to have Google Play Services installed and updated to receive notifications.");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-            {
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i)
-                {
-                    ((MainActivity)getActivity()).setContentTo(MainActivity.CONTENT_PREFS);
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    ((MainActivity) getActivity()).setContentTo(MainActivity.CONTENT_PREFS);
                 }
             });
-            builder.setNeutralButton("Update", new DialogInterface.OnClickListener()
-            {
+            builder.setNeutralButton("Update", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i)
-                {
+                public void onClick(DialogInterface dialogInterface, int i) {
                     String appPackageName = "com.google.android.gms";
                     try {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));

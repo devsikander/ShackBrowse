@@ -1,7 +1,6 @@
 package net.swigglesoft.shackbrowse;
 
-public class SearchResult
-{
+public class SearchResult {
     private int _postId;
     private String _author;
     private String _content;
@@ -9,12 +8,11 @@ public class SearchResult
     private int _type;
     private int _extra;
     private boolean _new = false;
-    
+
     public static int TYPE_SHACKSEARCHRESULT = 1;
     public static int TYPE_DRAFTS = 8;
-    
-    public SearchResult(int postId, String author, String content, Long posted, int type, int extra)
-    {
+
+    public SearchResult(int postId, String author, String content, Long posted, int type, int extra) {
         _postId = postId;
         _author = author;
         _content = content;
@@ -22,44 +20,36 @@ public class SearchResult
         _type = type;
         _extra = extra;
     }
-    
-    public boolean getNew()
-    {
-    	return _new;
+
+    public boolean getNew() {
+        return _new;
     }
-    
-    public void setNew(boolean set)
-    {
-    	_new = set;
+
+    public void setNew(boolean set) {
+        _new = set;
     }
-    
-    public int getPostId()
-    {
+
+    public int getPostId() {
         return _postId;
     }
-    
-    public int getType()
-    {
+
+    public int getType() {
         return _type;
     }
-    
-    public int getExtra()
-    {
+
+    public int getExtra() {
         return _extra;
     }
-    
-    public String getAuthor()
-    {
+
+    public String getAuthor() {
         return _author;
     }
-    
-    public String getContent()
-    {
+
+    public String getContent() {
         return _content;
     }
-    
-    public Long getPosted()
-    {
+
+    public Long getPosted() {
         return _postedTime;
     }
 

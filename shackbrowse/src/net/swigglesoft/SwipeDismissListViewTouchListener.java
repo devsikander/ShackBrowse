@@ -86,8 +86,8 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
     private int mDownPosition;
     private View mDownView;
     private boolean mPaused;
-	private boolean mAllowRightSwipe = true;
-	private float mDownY;
+    private boolean mAllowRightSwipe = true;
+    private float mDownY;
 
     /**
      * The callback interface used by {@link SwipeDismissListViewTouchListener} to inform its client
@@ -176,11 +176,11 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
-                
-            	if (mPaused) {
+
+                if (mPaused) {
                     return false;
                 }
-                
+
                 // TODO: ensure this is a finger, and set a flag
 
                 // Find the child view that was touched (perform a hit test)
@@ -222,12 +222,11 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 
                 float deltaX = 0;
                 if (mAllowRightSwipe)
-                	deltaX = motionEvent.getRawX() - mDownX;
-                else
-                {
-                	deltaX = motionEvent.getRawX() - mDownX;
-                	if (deltaX > 0)
-                		deltaX = 0;
+                    deltaX = motionEvent.getRawX() - mDownX;
+                else {
+                    deltaX = motionEvent.getRawX() - mDownX;
+                    if (deltaX > 0)
+                        deltaX = 0;
                 }
                 mVelocityTracker.addMovement(motionEvent);
                 mVelocityTracker.computeCurrentVelocity(1000);
@@ -297,10 +296,9 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                 mVelocityTracker.addMovement(motionEvent);
                 float deltaX = 0;
                 float deltaY = Math.abs(motionEvent.getRawY() - mDownY);
-                if (deltaY > (mViewWidth / 6))
-                {
-                	// copypasta from cancel above
-                	if (mVelocityTracker == null) {
+                if (deltaY > (mViewWidth / 6)) {
+                    // copypasta from cancel above
+                    if (mVelocityTracker == null) {
                         break;
                     }
 
@@ -322,12 +320,11 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                     break;
                 }
                 if (mAllowRightSwipe)
-                	deltaX = motionEvent.getRawX() - mDownX;
-                else
-                {
-                	deltaX = motionEvent.getRawX() - mDownX;
-                	if (deltaX > 0)
-                		deltaX = 0;
+                    deltaX = motionEvent.getRawX() - mDownX;
+                else {
+                    deltaX = motionEvent.getRawX() - mDownX;
+                    if (deltaX > 0)
+                        deltaX = 0;
                 }
                 if ((Math.abs(deltaX) > mSlop)) {
                     mSwiping = true;
@@ -353,16 +350,17 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
         }
         return false;
     }
-    public void setAllowRightSwipe(boolean set)
-    {
-    	mAllowRightSwipe  = set;
+
+    public void setAllowRightSwipe(boolean set) {
+        mAllowRightSwipe = set;
     }
+
     private void dismiss(final View view, final int position, boolean dismissRight) {
         ++mDismissAnimationRefCount;
         if (view == null) {
             // No view, shortcut to calling onDismiss to let it deal with adapter
             // updates and all that.
-            mCallbacks.onDismiss(mListView, new int[] { position });
+            mCallbacks.onDismiss(mListView, new int[]{position});
             return;
         }
 
@@ -410,28 +408,25 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
         final ViewGroup.LayoutParams lp = dismissView.getLayoutParams();
         // final int originalHeight = dismissView.getHeight();
         View nextView = null;
-        if (mListView != null)
-        {
-        	try {
-	        	int position = mListView.getPositionForView(dismissView);
-	        
-		        int wantedPosition = position + 1; // Whatever position you're looking for
-		        int firstPosition = mListView.getFirstVisiblePosition() - mListView.getHeaderViewsCount(); // This is the same as child #0
-		        int wantedChild = wantedPosition - firstPosition;
-		        // Say, first visible position is 8, you want position 10, wantedChild will now be 2
-		        // So that means your view is child #2 in the ViewGroup:
-		        if (wantedChild < 0 || wantedChild >= mListView.getChildCount()) {
-		        	// couldnt find child
-		        }
-		        // Could also check if wantedPosition is between listView.getFirstVisiblePosition() and listView.getLastVisiblePosition() instead.
-		        nextView = mListView.getChildAt(wantedChild);
-        	}
-        	catch (Exception e)
-        	{
-        		nextView = null;
-        	}
+        if (mListView != null) {
+            try {
+                int position = mListView.getPositionForView(dismissView);
+
+                int wantedPosition = position + 1; // Whatever position you're looking for
+                int firstPosition = mListView.getFirstVisiblePosition() - mListView.getHeaderViewsCount(); // This is the same as child #0
+                int wantedChild = wantedPosition - firstPosition;
+                // Say, first visible position is 8, you want position 10, wantedChild will now be 2
+                // So that means your view is child #2 in the ViewGroup:
+                if (wantedChild < 0 || wantedChild >= mListView.getChildCount()) {
+                    // couldnt find child
+                }
+                // Could also check if wantedPosition is between listView.getFirstVisiblePosition() and listView.getLastVisiblePosition() instead.
+                nextView = mListView.getChildAt(wantedChild);
+            } catch (Exception e) {
+                nextView = null;
+            }
         }
-		final int originalHeight = nextView != null ? nextView.getHeight() : dismissView.getHeight();
+        final int originalHeight = nextView != null ? nextView.getHeight() : dismissView.getHeight();
 
         ValueAnimator animator = ValueAnimator.ofInt(originalHeight, 1).setDuration(mAnimationTime);
 
@@ -448,7 +443,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                     for (int i = mPendingDismisses.size() - 1; i >= 0; i--) {
                         dismissPositions[i] = mPendingDismisses.get(i).position;
                     }
-                    
+
                     mCallbacks.onDismiss(mListView, dismissPositions);
 
                     ViewGroup.LayoutParams lp;
@@ -461,7 +456,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         pendingDismiss.view.setLayoutParams(lp);
                     }
-                    
+
                     mListView.invalidateViews();
 
                     mPendingDismisses.clear();

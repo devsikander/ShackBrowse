@@ -1,6 +1,7 @@
 package net.swigglesoft.shackbrowse.imgur;
 
 import net.swigglesoft.shackbrowse.APIConstants;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +19,11 @@ public class ImgurAuthURLHandling {
 
         // intercept the tokens
         // shackbrowse://auth#access_token=ACCESS_TOKEN&token_type=Bearer&expires_in=3600
-        Matcher m; String refreshToken = null; String accessToken = null; long expiresIn = 0L; String username = null;
+        Matcher m;
+        String refreshToken = null;
+        String accessToken = null;
+        long expiresIn = 0L;
+        String username = null;
         m = refreshTokenPattern.matcher(url);
         if (m.find()) {
             refreshToken = m.group(1);

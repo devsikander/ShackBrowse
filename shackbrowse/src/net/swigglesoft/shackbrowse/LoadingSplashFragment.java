@@ -22,44 +22,43 @@ public class LoadingSplashFragment extends Fragment {
     private SharedPreferences mPrefs;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
     }
 
-    public View getParentView() { return getView(); }
+    public View getParentView() {
+        return getView();
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mViewAvailable = true;
         return inflater.inflate(R.layout.loading_splash, null);
     }
 
 
     @Override
-    public void onDestroyView()
-    {
+    public void onDestroyView() {
         mViewAvailable = false;
         super.onDestroyView();
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
-        getActivity().findViewById(R.id.splash_tagline).setOnClickListener(new View.OnClickListener(){
+        getActivity().findViewById(R.id.splash_tagline).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 randomizeTagline();
                 statInc(v.getContext(), "ClickedOnLoadingSplashScreen");
             }
         });
-        getActivity().findViewById(R.id.splash_tagline).setBackgroundResource(MainActivity.getThemeResource(getActivity(),R.attr.colorHighlight));
+        getActivity().findViewById(R.id.splash_tagline).setBackgroundResource(MainActivity.getThemeResource(getActivity(), R.attr.colorHighlight));
     }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -69,8 +68,7 @@ public class LoadingSplashFragment extends Fragment {
         showEcho();
     }
 
-    public void showEcho()
-    {
+    public void showEcho() {
         if (getView() != null) {
             TextView echo = (TextView) ((View) getView()).findViewById(R.id.echo_chamber);
 //            String echostatus = "";
@@ -91,6 +89,7 @@ public class LoadingSplashFragment extends Fragment {
             echo.setText("");
         }
     }
+
     public void randomizeTagline() {
         if (getView() != null) {
             TextView tline = (TextView) ((View) getView()).findViewById(R.id.splash_tagline);

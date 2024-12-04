@@ -18,19 +18,16 @@ public class ChromeTabReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         System.out.println("GOT THING!");
         Bundle ext = intent.getExtras();
-        if (ext.getBoolean("CopyUrl"))
-        {
+        if (ext.getBoolean("CopyUrl")) {
             copyText(ext.getString("Url"), context);
-        }
-        else if (ext.getBoolean("OpenInBrowser"))
-        {
+        } else if (ext.getBoolean("OpenInBrowser")) {
             Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(ext.getString("Url")));
             context.startActivity(i);
         }
     }
-    public void copyText(String text, Context context)
-    {
-        ClipboardManager clipboard = (ClipboardManager)context.getSystemService(Activity.CLIPBOARD_SERVICE);
+
+    public void copyText(String text, Context context) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Activity.CLIPBOARD_SERVICE);
         clipboard.setText(text);
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }

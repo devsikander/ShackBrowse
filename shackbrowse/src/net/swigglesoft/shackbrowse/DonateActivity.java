@@ -20,6 +20,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,7 @@ import org.json.JSONArray;
 
 
 /**
+ *
  */
 public class DonateActivity extends AppCompatActivity {
     // Debug tag, for logging
@@ -42,28 +44,27 @@ public class DonateActivity extends AppCompatActivity {
     boolean mHasChecked = false;
 
 
-
     // (arbitrary) request code for the purchase flow
     static final int RC_REQUEST = 10001;
 
-	public SharedPreferences _prefs;
+    public SharedPreferences _prefs;
 
-	protected String _unlockData;
+    protected String _unlockData;
 
-	protected String _unlockSign;
+    protected String _unlockSign;
     private boolean _goldLime;
     private int mThemeResId;
     private boolean _quadLime;
-	private Toolbar mToolbar;
+    private Toolbar mToolbar;
 
-	@Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         _prefs = PreferenceManager.getDefaultSharedPreferences(this);
         mThemeResId = MainActivity.themeApplicator(this);
         setContentView(R.layout.donate);
-	    mToolbar = (Toolbar) findViewById(R.id.donateapp_toolbar);
-	    setSupportActionBar(mToolbar);
+        mToolbar = (Toolbar) findViewById(R.id.donateapp_toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -78,18 +79,18 @@ public class DonateActivity extends AppCompatActivity {
 
         String versionName = "Unknown";
         try {
-			versionName = this.getApplication().getPackageManager().getPackageInfo(getApplication().getPackageName(), 0 ).versionName;
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}
-        ((TextView)findViewById(R.id.donateVersion)).setText("Version " + versionName);
-        
-        this.findViewById(R.id.changeLog).setOnClickListener(new OnClickListener (){
-			@Override
-			public void onClick(View v) {
-				ChangeLog cl = new ChangeLog(DonateActivity.this);
-		        cl.getFullLogDialog().show();
-			}
+            versionName = this.getApplication().getPackageManager().getPackageInfo(getApplication().getPackageName(), 0).versionName;
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        ((TextView) findViewById(R.id.donateVersion)).setText("Version " + versionName);
+
+        this.findViewById(R.id.changeLog).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChangeLog cl = new ChangeLog(DonateActivity.this);
+                cl.getFullLogDialog().show();
+            }
         });
 
         this.findViewById(R.id.termsAndConditions).setOnClickListener(v -> {
@@ -101,19 +102,19 @@ public class DonateActivity extends AppCompatActivity {
             CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
             customTabsIntent.launchUrl(DonateActivity.this, Uri.parse(getResources().getString(R.string.tcs_privacy_url)));
         });
-        
-        
+
+
         updateUi();
     }
 
 
-	public MaterialDialog _progressDialog;
+    public MaterialDialog _progressDialog;
 
-	private boolean _limeRegistered;
+    private boolean _limeRegistered;
 
-	private boolean _donatorStatus;
+    private boolean _donatorStatus;
 
-    
+
     // We're being destroyed. It's important to dispose of the helper here!
     @Override
     public void onDestroy() {
@@ -169,24 +170,19 @@ public class DonateActivity extends AppCompatActivity {
 //        ((TextView)findViewById(R.id.donatorText)).setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    class DonatorTask extends AsyncTask<String, Void, JSONArray>
-    {
+    class DonatorTask extends AsyncTask<String, Void, JSONArray> {
         Exception _exception;
         private String userName;
 
         @Override
-        protected JSONArray doInBackground(String... params)
-        {
-            try
-            {
+        protected JSONArray doInBackground(String... params) {
+            try {
                 userName = _prefs.getString("userName", "");
                 if (!userName.equals(""))
                     return ShackApi.getDonators();
                 else
                     return null;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Log.e("shackbrowse", "Error getting donators", e);
                 _exception = e;
                 return null;
@@ -194,47 +190,39 @@ public class DonateActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(JSONArray result)
-        {
+        protected void onPostExecute(JSONArray result) {
             try {
                 _progressDialog.dismiss();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
 
             }
 
-            if (_exception != null)
-            {
+            if (_exception != null) {
                 System.out.println("limechange: err");
                 ErrorDialog.display(DonateActivity.this, "Error", "Error getting list of donators:\n" + _exception.getMessage());
-            }
-            else if (result == null)
-            {
+            } else if (result == null) {
                 mHasChecked = true;
                 mIsUnlocked = false;
                 updateUi();
-            }
-            else {
+            } else {
                 System.out.println("DONATEACTIVITY: downloaded donator list: " + result);
 
                 for (int i = 0; i < result.length(); i++) {
                     try {
-                        if (result.getJSONObject(i).getString("user").equals(userName))
-                        {
+                        if (result.getJSONObject(i).getString("user").equals(userName)) {
                             ErrorDialog.display(DonateActivity.this, "Congrats", "Found your name in the online donator list.");
                             Editor edit = _prefs.edit();
                             edit.putBoolean("enableLimeAccess", true);
                             edit.commit();
                             break;
                         }
+                    } catch (Exception e) {
                     }
-                    catch (Exception e) {}
                 }
 
-                runOnUiThread(new Runnable(){
-                    @Override public void run()
-                    {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
                         mHasChecked = true;
                         mIsUnlocked = _prefs.getBoolean("enableLimeAccess", false);
                         updateUi();
@@ -243,129 +231,108 @@ public class DonateActivity extends AppCompatActivity {
             }
         }
     }
-    
-	class LimeTask extends AsyncTask<String, Void, String[]>
-	{
-	    Exception _exception;
-		private String _taskMode;
-	    
+
+    class LimeTask extends AsyncTask<String, Void, String[]> {
+        Exception _exception;
+        private String _taskMode;
+
         @Override
-        protected String[] doInBackground(String... params)
-        {
-            try
-            {
+        protected String[] doInBackground(String... params) {
+            try {
                 String userName = _prefs.getString("userName", "");
-                
+
                 _taskMode = params[0];
-                
+
                 // actually upload the thing
-                if (params[0].equals("add"))
-                {
-                	runOnUiThread(new Runnable(){
-                		@Override public void run()
-                		{
-                			_progressDialog = MaterialProgressDialog.show(DonateActivity.this, "Adding Lime", "Communicating with server...");
-                		}
-                	});
-                	return new String[]{ShackApi.putDonator(true, userName), null};
+                if (params[0].equals("add")) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            _progressDialog = MaterialProgressDialog.show(DonateActivity.this, "Adding Lime", "Communicating with server...");
+                        }
+                    });
+                    return new String[]{ShackApi.putDonator(true, userName), null};
                 }
-                
-                if (params[0].equals("remove"))
-                {
-                	runOnUiThread(new Runnable(){
-                		@Override public void run()
-                		{
-                			_progressDialog = MaterialProgressDialog.show(DonateActivity.this, "Removing Lime", "Communicating with server...");
-                		}
-                	});
-                	return new String[]{ShackApi.putDonator(false, userName), null};
+
+                if (params[0].equals("remove")) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            _progressDialog = MaterialProgressDialog.show(DonateActivity.this, "Removing Lime", "Communicating with server...");
+                        }
+                    });
+                    return new String[]{ShackApi.putDonator(false, userName), null};
                 }
-                
+
                 if (params[0].equals("get"))
-                	return ShackApi.getLimeList();
-                
+                    return ShackApi.getLimeList();
+
                 return null;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Log.e("shackbrowse", "Error changing lime status", e);
                 _exception = e;
                 return null;
             }
         }
-        
+
         @Override
-        protected void onPostExecute(String[] result)
-        {
-        	try {
-        		_progressDialog.dismiss();
-        	}
-        	catch (Exception e)
-        	{
-        		
-        	}
-            
-            if (_exception != null)
-            {
-            	System.out.println("limechange: err");
+        protected void onPostExecute(String[] result) {
+            try {
+                _progressDialog.dismiss();
+            } catch (Exception e) {
+
+            }
+
+            if (_exception != null) {
+                System.out.println("limechange: err");
                 ErrorDialog.display(DonateActivity.this, "Error", "Error changing lime:\n" + _exception.getMessage());
-            }
-            else if (result == null)
-            {
-            	System.out.println("limechange: err");
+            } else if (result == null) {
+                System.out.println("limechange: err");
                 ErrorDialog.display(DonateActivity.this, "Error", "Unknown lime error.");
-            }
-            else if (!_taskMode.equals("get"))
-            {
-            	runOnUiThread(new Runnable(){
-            		@Override public void run()
-            		{
-            			new LimeTask().execute("get");
-            		}
-            	});
-            }
-            else if (_taskMode.equals("get"))
-            {
-            	System.out.println("DONATEACTIVITY: downloaded donator list: " + result[1]);
-            	SharedPreferences.Editor editor = _prefs.edit();
+            } else if (!_taskMode.equals("get")) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new LimeTask().execute("get");
+                    }
+                });
+            } else if (_taskMode.equals("get")) {
+                System.out.println("DONATEACTIVITY: downloaded donator list: " + result[1]);
+                SharedPreferences.Editor editor = _prefs.edit();
                 editor.putString("limeUsers", result[0]);
                 editor.putString("goldLimeUsers", result[1]);
                 editor.putString("quadLimeUsers", result[2]);
-            	editor.commit();
-            	
-            	runOnUiThread(new Runnable(){
-            		@Override public void run()
-            		{
-            			updateUi();
-            		}
-            	});
+                editor.commit();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateUi();
+                    }
+                });
             }
         }
-	}
-    
-    public String getUsername()
-    {
-        AccountManager manager = AccountManager.get(this); 
-        Account[] accounts = manager.getAccountsByType("com.google"); 
+    }
+
+    public String getUsername() {
+        AccountManager manager = AccountManager.get(this);
+        Account[] accounts = manager.getAccountsByType("com.google");
         List<String> possibleEmails = new LinkedList<String>();
 
-        for (Account account : accounts)
-        {
-          // TODO: Check possibleEmail against an email regex or treat
-          // account.name as an email address only for certain account.type values.
-        	possibleEmails.add(account.name);
+        for (Account account : accounts) {
+            // TODO: Check possibleEmail against an email regex or treat
+            // account.name as an email address only for certain account.type values.
+            possibleEmails.add(account.name);
         }
 
-        if(!possibleEmails.isEmpty() && possibleEmails.get(0) != null)
-        {
+        if (!possibleEmails.isEmpty() && possibleEmails.get(0) != null) {
             String email = possibleEmails.get(0);
             String[] parts = email.split("@");
-            if(parts.length > 0 && parts[0] != null)
+            if (parts.length > 0 && parts[0] != null)
                 return parts[0];
             else
                 return null;
-        }
-        else
+        } else
             return null;
     }
 
@@ -387,13 +354,11 @@ public class DonateActivity extends AppCompatActivity {
         Log.d(TAG, "Showing alert dialog: " + message);
         bld.create().show();
     }
-    
-    
+
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
-        {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 Intent upIntent = new Intent(this, MainActivity.class);
                 if (NavUtils.shouldUpRecreateTask(this, upIntent)) {

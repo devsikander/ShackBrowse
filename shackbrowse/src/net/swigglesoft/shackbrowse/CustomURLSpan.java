@@ -2,7 +2,9 @@ package net.swigglesoft.shackbrowse;
 
 import android.app.Dialog;
 import android.content.Intent;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.text.style.ClickableSpan;
 import android.view.View;
 
@@ -10,24 +12,22 @@ import java.util.regex.Pattern;
 
 import static net.swigglesoft.shackbrowse.StatsFragment.statInc;
 
-public class CustomURLSpan extends ClickableSpan
-{
-	private String href;
+public class CustomURLSpan extends ClickableSpan {
+    private String href;
 
 
-	public CustomURLSpan(String href) {
-		// TODO Auto-generated constructor stub
-		super();
-		this.href = addHttp(href);
-	}
+    public CustomURLSpan(String href) {
+        // TODO Auto-generated constructor stub
+        super();
+        this.href = addHttp(href);
+    }
 
 
-	public static Dialog dialog;
-	
-	public String getURL()
-	{
-		return href;
-	}
+    public static Dialog dialog;
+
+    public String getURL() {
+        return href;
+    }
 
     public String addHttp(String url) {
         if (!Pattern.compile("^(?:f|ht)tps?://.*", Pattern.DOTALL).matcher(url).matches()) {
@@ -36,79 +36,79 @@ public class CustomURLSpan extends ClickableSpan
 
         return url;
     }
-	/*
-	 * DEPRECATED 
-	 * LONGCLICK NOT ACTUALLY USED
-	 * 
 
-	@Override
-	public boolean onLongClick (View v)
-	{
-		final View view = v;
-		final FragmentActivity activ = ((FragmentActivity)v.getContext());
-		v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-		activ.runOnUiThread(new Runnable(){
-    		@Override public void run()
-    		{
+    /*
+     * DEPRECATED
+     * LONGCLICK NOT ACTUALLY USED
+     *
+
+    @Override
+    public boolean onLongClick (View v)
+    {
+        final View view = v;
+        final FragmentActivity activ = ((FragmentActivity)v.getContext());
+        v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+        activ.runOnUiThread(new Runnable(){
+            @Override public void run()
+            {
                 AlertDialog.Builder builder = new AlertDialog.Builder(activ);
-    			builder.setTitle("Choose Link Action");
-    	        final CharSequence[] items = { "Copy URL","Share Link","Open Externally", "Open in popup browser"};
-    	        builder.setItems(items, new DialogInterface.OnClickListener() {
-    	            public void onClick(DialogInterface dialog, int item) {
-    	                if (item == 0)
-    	                {
-    	                	ClipboardManager clipboard = (ClipboardManager)activ.getSystemService(Activity.CLIPBOARD_SERVICE);
-    	                	clipboard.setText(href);
-    	                	Toast.makeText(activ, href, Toast.LENGTH_SHORT).show();
-    	                }
-    	                if (item == 1)
-    	                {
-    	                	Intent sendIntent = new Intent();
-    	            	    sendIntent.setAction(Intent.ACTION_SEND);
-    	            	    sendIntent.putExtra(Intent.EXTRA_TEXT, href);
-    	            	    sendIntent.setType("text/plain");
-    	            	    activ.startActivity(Intent.createChooser(sendIntent, "Share Link"));
-    	                }
-    	                if (item == 2)
-    	                {
-    	                	Intent i = new Intent(Intent.ACTION_VIEW, 
-    	             		       Uri.parse(href));
-    	             		activ.startActivity(i);
-    	                }
-    	                if (item == 3)
-    	                {
-    	                	((MainActivity)view.getContext()).openBrowser(href);
-    	                }
-    	                }});
-    	        AlertDialog alert = builder.create();
-    	        alert.setCanceledOnTouchOutside(true);
-    	        alert.show();
-    		}
-		});
-		return true;
-	}
+                builder.setTitle("Choose Link Action");
+                final CharSequence[] items = { "Copy URL","Share Link","Open Externally", "Open in popup browser"};
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        if (item == 0)
+                        {
+                            ClipboardManager clipboard = (ClipboardManager)activ.getSystemService(Activity.CLIPBOARD_SERVICE);
+                            clipboard.setText(href);
+                            Toast.makeText(activ, href, Toast.LENGTH_SHORT).show();
+                        }
+                        if (item == 1)
+                        {
+                            Intent sendIntent = new Intent();
+                            sendIntent.setAction(Intent.ACTION_SEND);
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, href);
+                            sendIntent.setType("text/plain");
+                            activ.startActivity(Intent.createChooser(sendIntent, "Share Link"));
+                        }
+                        if (item == 2)
+                        {
+                            Intent i = new Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(href));
+                             activ.startActivity(i);
+                        }
+                        if (item == 3)
+                        {
+                            ((MainActivity)view.getContext()).openBrowser(href);
+                        }
+                        }});
+                AlertDialog alert = builder.create();
+                alert.setCanceledOnTouchOutside(true);
+                alert.show();
+            }
+        });
+        return true;
+    }
 
-	// fix for support library sucking
-	private Activity getActivityFromView(View v) {
-		Context context = v.getContext();
-		while (context instanceof ContextWrapper) {
-			if (context instanceof Activity) {
-				return (Activity)context;
-			}
-			context = ((ContextWrapper)context).getBaseContext();
-		}
-		return null;
-	}
+    // fix for support library sucking
+    private Activity getActivityFromView(View v) {
+        Context context = v.getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
+    }
 */
-	@Override
-	public void onClick (View v) 
-	{
+    @Override
+    public void onClick(View v) {
 
-		Intent localIntent = new Intent(MainActivity.CLICKLINK)
-				// Puts the status into the Intent
-				.putExtra("URL", href);
-		// Broadcasts the Intent to receivers in this app.
-		LocalBroadcastManager.getInstance(v.getContext().getApplicationContext()).sendBroadcast(localIntent);
+        Intent localIntent = new Intent(MainActivity.CLICKLINK)
+                // Puts the status into the Intent
+                .putExtra("URL", href);
+        // Broadcasts the Intent to receivers in this app.
+        LocalBroadcastManager.getInstance(v.getContext().getApplicationContext()).sendBroadcast(localIntent);
 
 /*
 		Activity test = getActivityFromView(v);
@@ -195,5 +195,5 @@ public class CustomURLSpan extends ClickableSpan
 			}
 		}
 		*/
-	}
+    }
 }

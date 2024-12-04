@@ -1,4 +1,5 @@
 package net.swigglesoft.shackbrowse;
+
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -30,26 +31,20 @@ import android.text.style.UpdateAppearance;
 import android.util.Log;
 import android.view.View;
 
-public class ShackTags
-{
+public class ShackTags {
     private static final HTMLSchema schema = new HTMLSchema();
-    
-    public static Spannable fromHtml(String source, View owner, Boolean single_line, Boolean showTags)
-    {
-        return fromHtml(source, owner, single_line, showTags, new HashMap <Integer, Boolean>());
+
+    public static Spannable fromHtml(String source, View owner, Boolean single_line, Boolean showTags) {
+        return fromHtml(source, owner, single_line, showTags, new HashMap<Integer, Boolean>());
     }
 
-    public static Spannable fromHtml(String source, View owner, Boolean single_line, Boolean showTags, HashMap<Integer, Boolean> spoiled)
-    {
+    public static Spannable fromHtml(String source, View owner, Boolean single_line, Boolean showTags, HashMap<Integer, Boolean> spoiled) {
         Parser parser = new Parser();
-        try
-        {
+        try {
             parser.setProperty(Parser.schemaProperty, schema);
             ShackTagsConverter converter = new ShackTagsConverter(source.replace("\r", ""), parser, owner, single_line, showTags, spoiled);
             return converter.convert();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Log.e("ShackTags", "Error parsing shack tags" + source, e);
             return new SpannableString("!!HTML Parsing Error!! Source:: " + source);
         }

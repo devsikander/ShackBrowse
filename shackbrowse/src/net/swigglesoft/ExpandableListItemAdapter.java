@@ -55,7 +55,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
     private AbsListView mAbsListView;
 
     private ExpandCollapseListener mExpandCollapseListener;
-	private int mOriginalUsernameHeight = 0;
+    private int mOriginalUsernameHeight = 0;
     private float mZoom = 1.0f;
     private ValueAnimator mLastExpansionAnimation;
     private ValueAnimator mLastCollapseAnimation;
@@ -66,12 +66,11 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
     /**
      * Creates a new ExpandableListItemAdapter with an empty list.
      */
-    
-    public int getExpandedPosition()
-    {
-    	if ((mLimit >= 2) && (mExpandedIds.size() > 1))
-    		return findPositionForId(mExpandedIds.get(1));
-    	else return -1;
+
+    public int getExpandedPosition() {
+        if ((mLimit >= 2) && (mExpandedIds.size() > 1))
+            return findPositionForId(mExpandedIds.get(1));
+        else return -1;
     }
 
     /**
@@ -198,8 +197,9 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
         viewHolder.contentView = contentView;
 
         // optimization
-        if (mExpandedIds.contains(getItemId(position)))
-        { loadExpandedViewDataIntoView(position, viewHolder.contentView); }
+        if (mExpandedIds.contains(getItemId(position))) {
+            loadExpandedViewDataIntoView(position, viewHolder.contentView);
+        }
 
         viewHolder.contentParent.setVisibility(mExpandedIds.contains(getItemId(position)) ? View.VISIBLE : View.GONE);
         viewHolder.contentParent.setTag(getItemId(position));
@@ -297,6 +297,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
         }
         return titleView;
     }
+
     protected View getTitleParent(final int position) {
         View titleParent = null;
 
@@ -343,7 +344,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
         }
 
         mExpandedIds.removeAll(removedIds);
-        
+
         // System.out.println("NDSC: mEX1:" + ((mExpandedIds.size() > 0) ? findPositionForId(mExpandedIds.get(0)) : " ") + " 2:" + ((mExpandedIds.size() > 1) ? findPositionForId(mExpandedIds.get(1)) : " "));
     }
 
@@ -380,29 +381,29 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
 
         toggle(position);
     }
-    
+
     public void expandWithoutAnimation(final int position) {
-    	boolean shouldCollapseOther = mLimit > 0 && mExpandedIds.size() >= mLimit;
+        boolean shouldCollapseOther = mLimit > 0 && mExpandedIds.size() >= mLimit;
         if (shouldCollapseOther) {
-        	Long firstId = mExpandedIds.get(0);
-        	
-        	// hack to allow first post to remain open
-        	if ((mLimit >= 2) && (mExpandedIds.size() > 1))
-        		firstId = mExpandedIds.get(1);
-	        
-        	mExpandedIds.remove(firstId);
+            Long firstId = mExpandedIds.get(0);
+
+            // hack to allow first post to remain open
+            if ((mLimit >= 2) && (mExpandedIds.size() > 1))
+                firstId = mExpandedIds.get(1);
+
+            mExpandedIds.remove(firstId);
 
             //System.out.println("COLLAPSED ID" + findPositionForId(firstId));
         }
-        
+
         long itemId = getItemId(position);
         if (mExpandedIds.contains(itemId)) {
             return;
         }
         mExpandedIds.add(itemId);
         //System.out.println("EXPANDED ID" + position);
-        
-        
+
+
         notifyDataSetChanged();
     }
 
@@ -461,16 +462,16 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
             boolean isVisible = false;
             boolean shouldCollapseOther = !isVisible && mLimit > 0 && mExpandedIds.size() >= mLimit;
             if (shouldCollapseOther) {
-            	Long firstId = mExpandedIds.get(0);
-            	
-            	// hack to allow first post to remain open
-            	if ((mLimit >= 2) && (mExpandedIds.size() > 1))
-            		firstId = mExpandedIds.get(1);
+                Long firstId = mExpandedIds.get(0);
+
+                // hack to allow first post to remain open
+                if ((mLimit >= 2) && (mExpandedIds.size() > 1))
+                    firstId = mExpandedIds.get(1);
 
                 int firstPosition = findPositionForId(firstId);
 
                 // stop the current expansion animation if running
-    	        if ((mLastExpansionAnimation != null) && (mLastExpansionAnimation.isRunning()))
+                if ((mLastExpansionAnimation != null) && (mLastExpansionAnimation.isRunning()))
                     mLastExpansionAnimation.cancel();
 
                 View firstEV = getContentParent(firstPosition);
@@ -487,7 +488,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
                 if (mExpandCollapseListener != null) {
                     mExpandCollapseListener.onItemCollapsed(firstPosition);
                 }
-            	
+
             }
         }
     }
@@ -497,18 +498,18 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
         boolean shouldCollapseOther = !isVisible && mLimit > 0 && mExpandedIds.size() >= mLimit;
         if (shouldCollapseOther) {
 
-        	Long firstId = mExpandedIds.get(0);
-        	
-        	// hack to allow first post to remain open
-        	if ((mLimit >= 2) && (mExpandedIds.size() > 1))
-        		firstId = mExpandedIds.get(1);
+            Long firstId = mExpandedIds.get(0);
+
+            // hack to allow first post to remain open
+            if ((mLimit >= 2) && (mExpandedIds.size() > 1))
+                firstId = mExpandedIds.get(1);
 
             int firstPosition = findPositionForId(firstId);
 
             // stop the current expansion animation if running
             if ((mLastExpansionAnimation != null) && (mLastExpansionAnimation.isRunning()))
                 mLastExpansionAnimation.cancel();
-	
+
 
             View firstEV = getContentParent(firstPosition);
             if (firstEV != null) {
@@ -524,7 +525,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
             if (mExpandCollapseListener != null) {
                 mExpandCollapseListener.onItemCollapsed(firstPosition);
             }
-        	
+
         }
 
         Long id = (Long) contentParent.getTag();
@@ -567,21 +568,20 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
 
         @Override
         public void onClick(final View view) {
-            if (mTitleViewOnClickListener == null)
-            {
+            if (mTitleViewOnClickListener == null) {
                 toggle(mContentParent);
-            }
-            else
+            } else
                 mTitleViewOnClickListener.OnClick(mContentParent);
         }
     }
+
     titleViewOnClick mTitleViewOnClickListener = null;
-    public void setTitleViewOnClickListener (titleViewOnClick listener)
-    {
+
+    public void setTitleViewOnClickListener(titleViewOnClick listener) {
         mTitleViewOnClickListener = listener;
     }
-    public interface titleViewOnClick
-    {
+
+    public interface titleViewOnClick {
         public void OnClick(View contentParent);
     }
 
@@ -615,46 +615,45 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
         public View contentView;
         public Animation currentAnim;
     }
-    
-    public static class AnimationResIds
-    {
-    	int contentResId;
-    	int titleResId;
-    	int textPreviewResId;
-    	int userNameResId;
-    	int postedTimeResId;
-    	int layoutResId;
-    	int rowType;
-    	int previewLolTag;
-    	AnimationResIds()
-    	{}
-    	public AnimationResIds(int content, int title, int layout, int textpreview, int username, int postedtime, int rowtype, int prevloltag)
-    	{
-    		contentResId = content;
-    		titleResId =  title;
-    		textPreviewResId = textpreview;
-    		userNameResId = username;
-    		postedTimeResId = postedtime;
-    		layoutResId = layout;
-    		rowType = rowtype;
-    		previewLolTag = prevloltag;
-    	}
+
+    public static class AnimationResIds {
+        int contentResId;
+        int titleResId;
+        int textPreviewResId;
+        int userNameResId;
+        int postedTimeResId;
+        int layoutResId;
+        int rowType;
+        int previewLolTag;
+
+        AnimationResIds() {
+        }
+
+        public AnimationResIds(int content, int title, int layout, int textpreview, int username, int postedtime, int rowtype, int prevloltag) {
+            contentResId = content;
+            titleResId = title;
+            textPreviewResId = textpreview;
+            userNameResId = username;
+            postedTimeResId = postedtime;
+            layoutResId = layout;
+            rowType = rowtype;
+            previewLolTag = prevloltag;
+        }
     }
-    public void setOriginalUsernameHeight(int set)
-    {
-    	mOriginalUsernameHeight =  set;
+
+    public void setOriginalUsernameHeight(int set) {
+        mOriginalUsernameHeight = set;
     }
 
     private static class ExpandCollapseHelper {
-    	
-    	public static void animateSwapTitle(final View view, final AnimationResIds resIds, boolean collapse, Post p, int oUNH, long duration, float zoom)
-    	{
 
-    		final TextView tomove = (TextView) view.findViewById(resIds.userNameResId);
-    		final View loltag = view.findViewById(resIds.previewLolTag);
-    		final View time = view.findViewById(resIds.postedTimeResId);
-    		final View tohide = view.findViewById(resIds.textPreviewResId);
-    		final CheckableTableLayout bg = (CheckableTableLayout) view.findViewById(resIds.rowType);
+        public static void animateSwapTitle(final View view, final AnimationResIds resIds, boolean collapse, Post p, int oUNH, long duration, float zoom) {
+
+            final TextView tomove = (TextView) view.findViewById(resIds.userNameResId);
+            final View loltag = view.findViewById(resIds.previewLolTag);
+            final View time = view.findViewById(resIds.postedTimeResId);
+            final View tohide = view.findViewById(resIds.textPreviewResId);
+            final CheckableTableLayout bg = (CheckableTableLayout) view.findViewById(resIds.rowType);
 
             final TableRow tr = (TableRow) bg.getChildAt(0);
 
@@ -683,8 +682,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
                 }
             });*/
 
-    		if (collapse)
-    		{
+            if (collapse) {
                 /*
     			ObjectAnimator animalpha3 = ObjectAnimator.ofFloat(tohide, "alpha", 1f, 0f);
     			animalpha3.setInterpolator(new DecelerateInterpolator());
@@ -706,11 +704,10 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
 */
 
                 // text and username moving handled by layouttransition
-                if (p.getLolObj() != null)
-                {
+                if (p.getLolObj() != null) {
                     loltag.setVisibility(View.VISIBLE);
-                }
-                else { loltag.setVisibility(View.GONE);
+                } else {
+                    loltag.setVisibility(View.GONE);
                 }
                 time.setVisibility(View.GONE);
                 tomove.setTextSize(TypedValue.COMPLEX_UNIT_PX, view.getContext().getResources().getDimension(R.dimen.previewUserNameSize) * zoom);
@@ -722,10 +719,8 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
                 set.setDuration(duration);
                 set.start(); */
                 tohide.setVisibility(View.VISIBLE);
-    			bg.setChecked(false);
-    		}
-    		else
-            {
+                bg.setChecked(false);
+            } else {
                 loltag.setVisibility(View.GONE);
                 time.setVisibility(View.VISIBLE);
                 tohide.setVisibility(View.GONE);
@@ -750,12 +745,12 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
 					}});
     			animalpha3.start();
     			*/
-    		}
-    	}
+            }
+        }
 
         public static ValueAnimator animateCollapsing(final View view, int to, int from, long duration) {
-        	final View secondRow = ((RelativeLayout)((LinearLayout)(((FrameLayout)view).getChildAt(0))).getChildAt(0));
-            
+            final View secondRow = ((RelativeLayout) ((LinearLayout) (((FrameLayout) view).getChildAt(0))).getChildAt(0));
+
             int origHeight = view.getHeight();
             secondRow.setBackgroundColor(to);
             ValueAnimator animator = createHeightAnimator(view, origHeight, 0, duration);
@@ -776,6 +771,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
                     // secondRow.setBackgroundColor(to);
                     super.onAnimationEnd(animator);
                 }
+
                 @Override
                 public void onAnimationCancel(Animator animation) {
                     view.setVisibility(View.VISIBLE);
@@ -790,7 +786,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
         public static ValueAnimator animateExpanding(final View view, final AbsListView listView, int to, int from, final long duration) {
             view.setVisibility(View.VISIBLE);
 
-            final View secondRow = ((RelativeLayout)((LinearLayout)(((FrameLayout)view).getChildAt(0))).getChildAt(0));
+            final View secondRow = ((RelativeLayout) ((LinearLayout) (((FrameLayout) view).getChildAt(0))).getChildAt(0));
 
             View parent = (View) view.getParent();
             final int widthSpec = View.MeasureSpec.makeMeasureSpec(parent.getMeasuredWidth() - parent.getPaddingLeft() - parent.getPaddingRight(), View.MeasureSpec.AT_MOST);
@@ -818,6 +814,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
                         final int origTop = v != null ? v.getTop() : 0;
                         boolean hitTop = false;
                         boolean hitBottom = false;
+
                         @Override
                         public void onAnimationUpdate(final ValueAnimator animation) {
                             if (v != null) {
@@ -852,6 +849,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
 
                     super.onAnimationEnd(animation);
                 }
+
                 @Override
                 public void onAnimationCancel(Animator animation) {
                     // secondRow.setBackgroundColor(from);
@@ -867,10 +865,9 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
             View parent = (View) result.getParent();
             while (parent != listView) {
                 result = parent;
-                if (result.getParent() instanceof  View) {
+                if (result.getParent() instanceof View) {
                     parent = (View) result.getParent();
-                }
-                else {
+                } else {
                     break;
                 }
             }
@@ -901,6 +898,7 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
                     view.setLayoutParams(layoutParams);
                     super.onAnimationEnd(animation);
                 }
+
                 @Override
                 public void onAnimationCancel(Animator animation) {
                     int value = start;
@@ -915,11 +913,11 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> imple
         }
     }
 
-	public static AnimationResIds createResIds(
-			int tviewThreadrowExpandedContainer,
-			int tviewThreadrowPreviewContainer, int threadRowContainer,
-			int textpreview, int textpreviewusername, int textpostedtime, int rowType, int previewloltag) {
-		// TODO Auto-generated method stub
-		return new AnimationResIds(tviewThreadrowExpandedContainer, tviewThreadrowPreviewContainer,threadRowContainer, textpreview, textpreviewusername, textpostedtime, rowType, previewloltag);
-	}
+    public static AnimationResIds createResIds(
+            int tviewThreadrowExpandedContainer,
+            int tviewThreadrowPreviewContainer, int threadRowContainer,
+            int textpreview, int textpreviewusername, int textpostedtime, int rowType, int previewloltag) {
+        // TODO Auto-generated method stub
+        return new AnimationResIds(tviewThreadrowExpandedContainer, tviewThreadrowPreviewContainer, threadRowContainer, textpreview, textpreviewusername, textpostedtime, rowType, previewloltag);
+    }
 }

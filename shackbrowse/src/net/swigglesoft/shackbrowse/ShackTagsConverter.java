@@ -27,8 +27,7 @@ import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-public class ShackTagsConverter implements ContentHandler
-{
+public class ShackTagsConverter implements ContentHandler {
     private String _source;
     private XMLReader _reader;
     private SpannableStringBuilder _builder;
@@ -39,8 +38,7 @@ public class ShackTagsConverter implements ContentHandler
     private String _currentColor = null;
     private HashMap<Integer, Boolean> _spoilers;
 
-    public ShackTagsConverter(String source, Parser parser, View owner, Boolean singleLine, Boolean showTags, HashMap<Integer,Boolean> spoiled)
-    {
+    public ShackTagsConverter(String source, Parser parser, View owner, Boolean singleLine, Boolean showTags, HashMap<Integer, Boolean> spoiled) {
         _source = source;
         _reader = parser;
         _owner = owner;
@@ -50,16 +48,14 @@ public class ShackTagsConverter implements ContentHandler
         _spoilers = spoiled;
     }
 
-    public Spannable convert() throws Exception
-    {
+    public Spannable convert() throws Exception {
         _reader.setContentHandler(this);
         _reader.parse(new InputSource(new StringReader(_source)));
 
         return revertSpans(_builder);
     }
 
-    private void handleStartTag(String tag, Attributes attributes)
-    {
+    private void handleStartTag(String tag, Attributes attributes) {
         if (tag.equalsIgnoreCase("p"))
             handleP(_builder);
         else if (tag.equalsIgnoreCase("b"))
@@ -70,8 +66,7 @@ public class ShackTagsConverter implements ContentHandler
             start(new Underline(_currentColor));
         else if (tag.equalsIgnoreCase("a"))
             startA(attributes);
-        else if (tag.equalsIgnoreCase("span"))
-        {
+        else if (tag.equalsIgnoreCase("span")) {
             String c = attributes.getValue("class");
             if (c.equalsIgnoreCase("jt_quote"))
                 start(new Blockquote());
@@ -112,8 +107,7 @@ public class ShackTagsConverter implements ContentHandler
         }
     }
 
-    private void handleEndTag(String tag)
-    {
+    private void handleEndTag(String tag) {
         if (tag.equalsIgnoreCase("br"))
             handleBr(_builder);
         else if (tag.equalsIgnoreCase("p"))
@@ -132,8 +126,7 @@ public class ShackTagsConverter implements ContentHandler
 
 
     private void handleP(SpannableStringBuilder text) {
-        if (_singleLine)
-        {
+        if (_singleLine) {
             text.append(" ");
             return;
         }
@@ -154,62 +147,53 @@ public class ShackTagsConverter implements ContentHandler
         }
     }
 
-    private void handleBr(SpannableStringBuilder text)
-    {
+    private void handleBr(SpannableStringBuilder text) {
         if (_singleLine)
             text.append(" ");
         else
             text.append("\n");
     }
 
-    private Object getLast(Spanned text, Class<?> kind)
-    {
+    private Object getLast(Spanned text, Class<?> kind) {
         Object[] objs = _builder.getSpans(0, _builder.length(), kind);
 
         if (objs.length == 0)
             return null;
-        return objs[objs.length -1];
+        return objs[objs.length - 1];
     }
 
-    private void start(Object mark)
-    {
+    private void start(Object mark) {
         int len = _builder.length();
         _builder.setSpan(mark, len, len, Spannable.SPAN_MARK_MARK);
-        if (mark instanceof Font)
-        {
-            _currentColor = ((Font)mark).getColor();
+        if (mark instanceof Font) {
+            _currentColor = ((Font) mark).getColor();
         }
     }
 
-    private void startA(Attributes attributes)
-    {
+    private void startA(Attributes attributes) {
         String href = attributes.getValue("", "href");
 
         int len = _builder.length();
         _builder.setSpan(new Href(href), len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private void endA()
-    {
+    private void endA() {
         int len = _builder.length();
         Object obj = getLast(_builder, Href.class);
         int where = _builder.getSpanStart(obj);
 
         _builder.removeSpan(obj);
 
-        if (where != len)
-        {
-            Href h = (Href)obj;
+        if (where != len) {
+            Href h = (Href) obj;
 
-            if (h.getHref() != null)
-            {
+            if (h.getHref() != null) {
                 _builder.setSpan(new CustomURLSpan(h.getHref()), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
     }
 
-    private void end(Class<?> kind, Object repl)
-    {
+    private void end(Class<?> kind, Object repl) {
         int len = _builder.length();
         Object obj = getLast(_builder, kind);
         int where = _builder.getSpanStart(obj);
@@ -220,16 +204,14 @@ public class ShackTagsConverter implements ContentHandler
             _builder.setSpan(repl, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    private void endLastSpan()
-    {
+    private void endLastSpan() {
         int len = _builder.length();
         Object obj = getLast(_builder, Span.class);
         int where = _builder.getSpanStart(obj);
 
         _builder.removeSpan(obj);
 
-        if (where != len)
-        {
+        if (where != len) {
             Object span = null;
 
             if (obj instanceof Bold)
@@ -238,38 +220,27 @@ public class ShackTagsConverter implements ContentHandler
                 span = new StyleSpan(Typeface.ITALIC);
             else if (obj instanceof Blockquote)
                 span = new TypefaceSpan("serif");
-            else if (obj instanceof Underline)
-            {
-                span = new ColoredUnderlineSpan(getColor(((Underline)obj).getColor()) | 0xFF000000);
-            }
-            else if (obj instanceof Strikethrough)
+            else if (obj instanceof Underline) {
+                span = new ColoredUnderlineSpan(getColor(((Underline) obj).getColor()) | 0xFF000000);
+            } else if (obj instanceof Strikethrough)
                 span = new StrikethroughSpan();
-            else if (obj instanceof Spoiler)
-            {
-                if (this._spoilers.containsKey(_spoilerSpanCount))
-                {
-                    if (_spoilers.get(_spoilerSpanCount))
-                    {
+            else if (obj instanceof Spoiler) {
+                if (this._spoilers.containsKey(_spoilerSpanCount)) {
+                    if (_spoilers.get(_spoilerSpanCount)) {
                         span = new Span();
                     }
-                }
-                else
-                {
+                } else {
                     span = new SpoilerSpan(_owner, _spoilerSpanCount, false);
                 }
                 _spoilerSpanCount++;
-            }
-            else if (obj instanceof PrevSpoiler)
-            {
+            } else if (obj instanceof PrevSpoiler) {
                 span = new SpoilerSpan(_owner, 0, true);
-            }
-            else if (obj instanceof Sample)
-                span = new RelativeSizeSpan((float)0.80);
+            } else if (obj instanceof Sample)
+                span = new RelativeSizeSpan((float) 0.80);
             else if (obj instanceof Code)
                 span = new TypefaceSpan("monospace");
-            else if (obj instanceof Font && _showTags)
-            {
-                span = new ForegroundColorSpan(getColor(((Font)obj).getColor()) | 0xFF000000);
+            else if (obj instanceof Font && _showTags) {
+                span = new ForegroundColorSpan(getColor(((Font) obj).getColor()) | 0xFF000000);
                 _currentColor = null;
             }
 
@@ -278,8 +249,7 @@ public class ShackTagsConverter implements ContentHandler
         }
     }
 
-    public void characters(char[] ch, int start, int length) throws SAXException
-    {
+    public void characters(char[] ch, int start, int length) throws SAXException {
         StringBuilder sb = new StringBuilder();
 
         /*
@@ -317,91 +287,106 @@ public class ShackTagsConverter implements ContentHandler
         _builder.append(sb);
     }
 
-    public void endDocument() throws SAXException { }
+    public void endDocument() throws SAXException {
+    }
 
-    public void endElement(String uri, String localName, String qName) throws SAXException
-    {
+    public void endElement(String uri, String localName, String qName) throws SAXException {
         handleEndTag(localName);
     }
 
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
-    {
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         handleStartTag(localName, attributes);
     }
 
-    public void endPrefixMapping(String prefix) throws SAXException { }
+    public void endPrefixMapping(String prefix) throws SAXException {
+    }
 
-    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException { }
+    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+    }
 
-    public void processingInstruction(String target, String data) throws SAXException { }
+    public void processingInstruction(String target, String data) throws SAXException {
+    }
 
-    public void setDocumentLocator(Locator locator) { }
+    public void setDocumentLocator(Locator locator) {
+    }
 
-    public void skippedEntity(String name) throws SAXException { }
+    public void skippedEntity(String name) throws SAXException {
+    }
 
-    public void startDocument() throws SAXException { }
+    public void startDocument() throws SAXException {
+    }
 
-    public void startPrefixMapping(String prefix, String uri) throws SAXException { }
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
+    }
 
-    private static class Span { }
-    private static class Bold extends Span { }
-    private static class Italic extends Span { }
-    private static class Blockquote extends Span { }
-    private static class Underline extends Span
-    {
+    private static class Span {
+    }
+
+    private static class Bold extends Span {
+    }
+
+    private static class Italic extends Span {
+    }
+
+    private static class Blockquote extends Span {
+    }
+
+    private static class Underline extends Span {
         String _color;
 
-        public Underline(String color)
-        {
+        public Underline(String color) {
             if (color == null)
                 color = "white";
             _color = color;
         }
 
-        public String getColor()
-        {
+        public String getColor() {
             return _color;
         }
     }
-    private static class Strikethrough extends Span { }
-    private static class Spoiler extends Span { }
-    private static class PrevSpoiler extends Span { }
-    private static class Sample extends Span { }
-    private static class Code extends Span { }
-    private static class Font extends Span
-    {
+
+    private static class Strikethrough extends Span {
+    }
+
+    private static class Spoiler extends Span {
+    }
+
+    private static class PrevSpoiler extends Span {
+    }
+
+    private static class Sample extends Span {
+    }
+
+    private static class Code extends Span {
+    }
+
+    private static class Font extends Span {
         String _color;
 
-        public Font(String color)
-        {
+        public Font(String color) {
             _color = color;
         }
 
-        public String getColor()
-        {
+        public String getColor() {
             return _color;
         }
     }
 
-    private static class Href
-    {
+    private static class Href {
         String _href;
 
-        public Href(String href)
-        {
+        public Href(String href) {
             _href = href;
         }
 
-        public String getHref()
-        {
+        public String getHref() {
             return _href;
         }
     }
 
     private static HashMap<String, Integer> COLORS = buildColorMap();
 
-    private static HashMap<String, Integer> buildColorMap()
-    {
+    private static HashMap<String, Integer> buildColorMap() {
         HashMap<String, Integer> map = new HashMap<String, Integer>();
         map.put("red", 0xFF0000);
         map.put("green", 0x8DC63F);
@@ -415,8 +400,7 @@ public class ShackTagsConverter implements ContentHandler
         return map;
     }
 
-    private static int getColor(String color)
-    {
+    private static int getColor(String color) {
         Integer i = COLORS.get(color.toLowerCase());
         if (i != null)
             return i;
@@ -447,7 +431,7 @@ public class ShackTagsConverter implements ContentHandler
         Object[] spans = stext.getSpans(0, stext.length(), Object.class);
         Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());
         if (spans != null && spans.length > 0) {
-            for(int i = spans.length - 1; i >= 0; --i) {
+            for (int i = spans.length - 1; i >= 0; --i) {
                 ret.setSpan(spans[i], stext.getSpanStart(spans[i]), stext.getSpanEnd(spans[i]), stext.getSpanFlags(spans[i]));
             }
         }

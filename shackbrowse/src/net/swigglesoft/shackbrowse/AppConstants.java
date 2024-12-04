@@ -1,7 +1,6 @@
 package net.swigglesoft.shackbrowse;
 
-public class AppConstants
-{
+public class AppConstants {
     public static final String SHACKNEWS_TXT = "shacknews";
     public static final String SHACKNEWS_AUTHOR = "Shacknews";
     public static final String SHACKNEWS_HOST = "shacknews.com";
@@ -68,7 +67,6 @@ public class AppConstants
 
     static final int USERTYPE_EMPLOYEE = 2;
     static final int USERTYPE_MODERATOR = 1;
-
 
 
     // no longer used

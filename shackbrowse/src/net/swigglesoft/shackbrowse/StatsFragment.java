@@ -52,6 +52,7 @@ public class StatsFragment extends ListFragment {
         // setListAdapter(new StatListAdapter(getActivity(), mItems));
 
     }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -68,8 +69,7 @@ public class StatsFragment extends ListFragment {
 
     }
 
-    public void wipeStats()
-    {
+    public void wipeStats() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Delete Stats?");
         builder.setMessage("This will clear stats both on this device and in the cloud for your username. Are you SURE?");
@@ -89,8 +89,7 @@ public class StatsFragment extends ListFragment {
 
     }
 
-    public void optOutDialog()
-    {
+    public void optOutDialog() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         new MaterialDialog.Builder(getActivity())
                 .title("Select Opt Out Option")
@@ -102,7 +101,7 @@ public class StatsFragment extends ListFragment {
                         SharedPreferences.Editor edit = prefs.edit();
                         edit.putInt("optOutFromStats", which);
                         edit.commit();
-                        mCloudUserName = ((MainActivity)getActivity()).getCloudUsername();
+                        mCloudUserName = ((MainActivity) getActivity()).getCloudUsername();
 
                         // paranoids get a wipe of local
                         if (which == 2)
@@ -115,7 +114,7 @@ public class StatsFragment extends ListFragment {
                                     .title("Nullify Cloud Data")
                                     .content("You can choose at this time to remove all cloud data for user " + mCloudUserName + ". This cannot be undone. Would you like to delete cloud stats?")
                                     .negativeText("No, do not delete")
-                                    .positiveText("Delete all cloud stat data for " +mCloudUserName)
+                                    .positiveText("Delete all cloud stat data for " + mCloudUserName)
                                     .callback(new MaterialDialog.ButtonCallback() {
                                         @Override
                                         public void onPositive(MaterialDialog dialog) {
@@ -133,21 +132,18 @@ public class StatsFragment extends ListFragment {
                 .show();
     }
 
-    public void nullifyRemoteStats(Activity context)
-    {
+    public void nullifyRemoteStats(Activity context) {
         setContext(context);
         new CloudStats().execute("remotestatremove");
     }
 
-    public void blindStatSync(Activity context)
-    {
+    public void blindStatSync(Activity context) {
         setContext(context);
         new CloudStats().execute("blind");
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.stats_layout, null);
         return layout;
     }
@@ -159,7 +155,7 @@ public class StatsFragment extends ListFragment {
         // do something
         String string = item.getFancyTitle() + ": " + item.getItemDesc();
         Toast.makeText(getActivity(), "Copied to clipboard: " + string, Toast.LENGTH_SHORT).show();
-        ClipboardManager clipboard = (ClipboardManager)getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
+        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
         clipboard.setText(string);
     }
 
@@ -170,18 +166,19 @@ public class StatsFragment extends ListFragment {
         private int num;
         private long time;
         private long lastTime;
-        public int getNum()
-        {
+
+        public int getNum() {
             return num;
         }
-        public long getLastTime()
-        {
+
+        public long getLastTime() {
             return lastTime;
         }
-        public long getTime()
-        {
+
+        public long getTime() {
             return time;
         }
+
         public String getItemDesc() {
             return desc;
         }
@@ -205,13 +202,16 @@ public class StatsFragment extends ListFragment {
         public void setNum(int num) {
             this.num = num;
         }
+
         public void setTime(long time) {
             this.time = time;
         }
+
         public void setLastTime(long time) {
             this.lastTime = time;
         }
-        public StatsItem(String titleWithoutUsernameButIncludingStatsItemPrefix, int num, long time, long lastTime){
+
+        public StatsItem(String titleWithoutUsernameButIncludingStatsItemPrefix, int num, long time, long lastTime) {
             this.title = titleWithoutUsernameButIncludingStatsItemPrefix;
             this.fancyTitle = titleWithoutUsernameButIncludingStatsItemPrefix.substring(9);
             this.num = num;
@@ -220,42 +220,30 @@ public class StatsFragment extends ListFragment {
             System.out.println("GETR RES:" + this.getTitle());
             try {
                 this.fancyTitle = getResources().getString(getResources().getIdentifier(this.getTitle(), "string", getActivity().getPackageName()));
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 // e.printStackTrace();
             }
         }
-        public StatsItem calcDesc()
-        {
+
+        public StatsItem calcDesc() {
             long timeToUse = this.getTime();
             if (mFirstTime < timeToUse) timeToUse = mFirstTime;
 
-            if (this.title == "notTurnedOn")
-            {
+            if (this.title == "notTurnedOn") {
                 this.desc = "Statistics are turned off";
-            }
-            else if (this.time == 0L && this.title != "statsItemFirstStatRecord")
-            {
+            } else if (this.time == 0L && this.title != "statsItemFirstStatRecord") {
                 this.desc = "Not yet logged";
-            }
-            else if (this.title == "statsItemFirstStatRecord")
-            {
+            } else if (this.title == "statsItemFirstStatRecord") {
                 this.desc = TimeDisplay.getNiceTimeSince(mFirstTime, true);
-            }
-            else if (this.title.contains("Max"))
-            {
+            } else if (this.title.contains("Max")) {
                 this.desc = this.getNum() + "";
-            }
-            else if (this.title.contains("TimeIn"))
-            {
+            } else if (this.title.contains("TimeIn")) {
 
                 double daysSince = TimeDisplay.threadAgeInHours(timeToUse) / 24d;
                 daysSince = Math.ceil(daysSince);
-                int perDay = (int)(this.getNum() / daysSince);
+                int perDay = (int) (this.getNum() / daysSince);
                 this.desc = TimeDisplay.secondsToNiceTime(this.getNum()) + ", " + TimeDisplay.secondsToNiceTime(perDay) + "/day, since " + TimeDisplay.getNiceTimeSince(time, true);
-            }
-            else {
+            } else {
                 double daysSince = TimeDisplay.threadAgeInHours(timeToUse) / 24d;
                 daysSince = Math.ceil(daysSince);
                 double perDay = this.getNum() / daysSince;
@@ -267,7 +255,7 @@ public class StatsFragment extends ListFragment {
 
         @Override
         public int compareTo(StatsItem another) {
-            return ((Integer.compare(another.getNum(), this.getNum() ) != 0) ? Integer.compare(another.getNum(), this.getNum()) : this.fancyTitle.toLowerCase().compareTo(another.fancyTitle.toLowerCase()));
+            return ((Integer.compare(another.getNum(), this.getNum()) != 0) ? Integer.compare(another.getNum(), this.getNum()) : this.fancyTitle.toLowerCase().compareTo(another.fancyTitle.toLowerCase()));
         }
     }
 
@@ -316,10 +304,10 @@ public class StatsFragment extends ListFragment {
         }
     }
 
-    public void setContext(Activity context)
-    {
+    public void setContext(Activity context) {
         mContext = context;
     }
+
     class CloudStats extends AsyncTask<String, Void, ArrayList<StatsItem>> {
         private boolean _verbose;
         private String _verboseMsg;
@@ -333,26 +321,21 @@ public class StatsFragment extends ListFragment {
             int localOnly = prefs.getInt("optOutFromStats", 1);
             ArrayList<StatsItem> remoteStatList = new ArrayList<StatsItem>();
             JSONArray stats = new JSONArray();
-            mCloudUserName = ((MainActivity)mContext).getCloudUsername();
+            mCloudUserName = ((MainActivity) mContext).getCloudUsername();
             if (mCloudUserName == null || mCloudUserName.equals(""))
                 return null;
 
-            if (params[0].equalsIgnoreCase("remotestatremove"))
-            {
+            if (params[0].equalsIgnoreCase("remotestatremove")) {
                 try {
                     cloudJson = ShackApi.getCloudPinned(mCloudUserName);
                     cloudJson.remove("stats");
                     String result = ShackApi.putCloudPinned(cloudJson, mCloudUserName);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            if (localOnly == 2)
-            {
-                if (params[0].equalsIgnoreCase("wipe"))
-                {
+            if (localOnly == 2) {
+                if (params[0].equalsIgnoreCase("wipe")) {
                     clearLocalPrefs(prefs);
                     mFirstTime = TimeDisplay.now();
                 }
@@ -361,14 +344,10 @@ public class StatsFragment extends ListFragment {
 
             }
             // local only
-            else if (localOnly == 1)
-            {
-                if (params[0].equalsIgnoreCase("blind"))
-                {
+            else if (localOnly == 1) {
+                if (params[0].equalsIgnoreCase("blind")) {
                     // nothing to do
-                }
-                else if (params[0].equalsIgnoreCase("wipe"))
-                {
+                } else if (params[0].equalsIgnoreCase("wipe")) {
                     clearLocalPrefs(prefs);
                     mFirstTime = TimeDisplay.now();
                 }
@@ -380,13 +359,10 @@ public class StatsFragment extends ListFragment {
                         mFirstTime = remoteStatList.get(i).getTime();
                     }
                 }
-            }
-            else if (localOnly == 0) {
+            } else if (localOnly == 0) {
                 try {
                     cloudJson = ShackApi.getCloudPinned(mCloudUserName);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 try {
@@ -540,8 +516,7 @@ public class StatsFragment extends ListFragment {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
             int localOnly = prefs.getInt("optOutFromStats", 0);
             // no stats mode
-            if (localOnly == 2)
-            {
+            if (localOnly == 2) {
                 mItems = result;
                 setListAdapter(new StatListAdapter(mContext, mItems));
             }
@@ -581,8 +556,7 @@ public class StatsFragment extends ListFragment {
             }
 
             // add in any stat in the name list that was not already represented
-            for (String missingStat : statNameList)
-            {
+            for (String missingStat : statNameList) {
                 statList.add(new StatsItem(missingStat, 0, 0L, 0L).calcDesc());
             }
         }
@@ -621,13 +595,11 @@ public class StatsFragment extends ListFragment {
                 // max items
                 else if (remoteItem.getTitle().equalsIgnoreCase(prefKeyWithoutUsername) && prefKeyWithoutUsername.contains("Max")) {
                     // is cloud item more than local?
-                    if (remoteItem.getNum() > numberToAddOrInit)
-                    {
+                    if (remoteItem.getNum() > numberToAddOrInit) {
                         edit.putInt(prefKey, remoteItem.getNum());
                     }
                     // is cloud item less than local?
-                    else if (remoteItem.getNum() < numberToAddOrInit)
-                    {
+                    else if (remoteItem.getNum() < numberToAddOrInit) {
                         remoteItem.setNum(numberToAddOrInit);
                     }
                     // check to see if cloud data predates local time or supersedes
@@ -655,13 +627,11 @@ public class StatsFragment extends ListFragment {
     }
 
 
-    public static void statInc(Context con, String itemName)
-    {
+    public static void statInc(Context con, String itemName) {
         statInc(con, itemName, 1);
     }
 
-    public static void statInc(Context con, String itemName, int by)
-    {
+    public static void statInc(Context con, String itemName, int by) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(con);
         SharedPreferences.Editor edit = prefs.edit();
 
@@ -677,28 +647,26 @@ public class StatsFragment extends ListFragment {
 
         Long now = TimeDisplay.now();
 
-        if (now <= prefs.getLong("statsTime" + itemName + cloudUsername, now))
-        {
+        if (now <= prefs.getLong("statsTime" + itemName + cloudUsername, now)) {
             edit.putLong("statsTime" + itemName + cloudUsername, now);
         }
-        if (now >= prefs.getLong("statsLastTime" + itemName + cloudUsername, now))
-        {
+        if (now >= prefs.getLong("statsLastTime" + itemName + cloudUsername, now)) {
             edit.putLong("statsLastTime" + itemName + cloudUsername, now);
         }
 
         edit.putInt("statsItem" + itemName + cloudUsername, prefs.getInt("statsItem" + itemName + cloudUsername, 0) + by);
         edit.apply();
     }
-    public static String getCloudUsername(Context con)
-    {
+
+    public static String getCloudUsername(Context con) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(con);
         String userName = prefs.getString("userName", "");
-        if ((userName.length() == 0) || !prefs.getBoolean("usernameVerified", false))
-        {
+        if ((userName.length() == 0) || !prefs.getBoolean("usernameVerified", false)) {
             return null;
         }
         return userName.trim();
     }
+
     public static void statMax(Context con, String itemName, int max) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(con);
         SharedPreferences.Editor edit = prefs.edit();
@@ -717,8 +685,7 @@ public class StatsFragment extends ListFragment {
         if (now <= prefs.getLong("statsTime" + itemName + cloudUsername, now)) {
             edit.putLong("statsTime" + itemName + cloudUsername, now);
         }
-        if (now >= prefs.getLong("statsLastTime" + itemName + cloudUsername, now))
-        {
+        if (now >= prefs.getLong("statsLastTime" + itemName + cloudUsername, now)) {
             edit.putLong("statsLastTime" + itemName + cloudUsername, now);
         }
         if (max > prefs.getInt("statsItem" + itemName + cloudUsername, 0)) {

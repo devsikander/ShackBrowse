@@ -1,25 +1,25 @@
 /*
-* SlidingLayer.java
-*
-* Copyright (C) 2013 6 Wunderkinder GmbH.
-*
-* @author Jose L Ugia - @Jl_Ugia
-* @author Antonio Consuegra - @aconsuegra
-* @author Cesar Valiente - @CesarValiente
-* @version 1.0
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * SlidingLayer.java
+ *
+ * Copyright (C) 2013 6 Wunderkinder GmbH.
+ *
+ * @author Jose L Ugia - @Jl_Ugia
+ * @author Antonio Consuegra - @aconsuegra
+ * @author Cesar Valiente - @CesarValiente
+ * @version 1.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package net.swigglesoft.shackbrowse;
 
@@ -29,9 +29,11 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.VelocityTrackerCompat;
 import androidx.core.view.ViewConfigurationCompat;
+
 import android.util.AttributeSet;
 import android.view.*;
 import android.view.animation.Interpolator;
@@ -45,27 +47,27 @@ public class SlideFrame extends FrameLayout {
     // TODO Document
 
     /**
-* Default value for the position of the layer. STICK_TO_AUTO shall inspect the container and choose a stick
-* mode depending on the position of the layour (ie.: layout is positioned on the right = STICK_TO_RIGHT).
-*/
+     * Default value for the position of the layer. STICK_TO_AUTO shall inspect the container and choose a stick
+     * mode depending on the position of the layour (ie.: layout is positioned on the right = STICK_TO_RIGHT).
+     */
     public static final int STICK_TO_AUTO = 0;
 
     /**
-* Special value for the position of the layer. STICK_TO_RIGHT means that the view shall be attached to the
-* right side of the screen, and come from there into the viewable area.
-*/
+     * Special value for the position of the layer. STICK_TO_RIGHT means that the view shall be attached to the
+     * right side of the screen, and come from there into the viewable area.
+     */
     public static final int STICK_TO_RIGHT = -1;
 
     /**
-* Special value for the position of the layer. STICK_TO_LEFT means that the view shall be attached to the left
-* side of the screen, and come from there into the viewable area.
-*/
+     * Special value for the position of the layer. STICK_TO_LEFT means that the view shall be attached to the left
+     * side of the screen, and come from there into the viewable area.
+     */
     public static final int STICK_TO_LEFT = -2;
 
     /**
-* Special value for the position of the layer. STICK_TO_MIDDLE means that the view will stay attached trying to
-* be in the middle of the screen and allowing dismissing both to right and left side.
-*/
+     * Special value for the position of the layer. STICK_TO_MIDDLE means that the view will stay attached trying to
+     * be in the middle of the screen and allowing dismissing both to right and left side.
+     */
     public static final int STICK_TO_MIDDLE = -3;
 
     private static final int MAX_SCROLLING_DURATION = 300; // in ms
@@ -102,8 +104,8 @@ public class SlideFrame extends FrameLayout {
     protected int mActivePointerId = INVALID_POINTER;
 
     /**
-* Sentinel value for no current active pointer. Used by {@link #mActivePointerId}.
-*/
+     * Sentinel value for no current active pointer. Used by {@link #mActivePointerId}.
+     */
     private static final int INVALID_POINTER = -1;
 
     private boolean mIsOpen;
@@ -177,16 +179,16 @@ public class SlideFrame extends FrameLayout {
         public void onOpened();
 
         public void onClosed();
-        
+
         public void onDrag();
 
         public void onXChange(float x);
     }
-    
+
     float lastPercent = 0f;
-    public void scrollToWrapper (int x, int y)
-    {
-    	scrollTo(x,y);
+
+    public void scrollToWrapper(int x, int y) {
+        scrollTo(x, y);
 
         float granularity = 0.005f;
 
@@ -194,20 +196,15 @@ public class SlideFrame extends FrameLayout {
             float ratio = ((x * -1f) / getWidth());
             ratio = Math.abs(ratio);
             // System.out.println("XDATA" + (ratio - mLastOXCP) + " " + granularity + " " + mLastOXCP + " " + ratio + " " + x + " " + getWidth());
-            if (mLastOXCP == -1f)
-            {
+            if (mLastOXCP == -1f) {
                 mLastOXCP = ratio;
                 mOnInteractListener.onXChange(mLastOXCP);
-            }
-            else
-            {
-                if (Math.abs(ratio - mLastOXCP) > granularity)
-                {
+            } else {
+                if (Math.abs(ratio - mLastOXCP) > granularity) {
                     mLastOXCP = ratio;
                     mOnInteractListener.onXChange(mLastOXCP);
                 }
-                if (ratio == 1f || ratio == 0f)
-                {
+                if (ratio == 1f || ratio == 0f) {
                     mLastOXCP = ratio;
                     mOnInteractListener.onXChange(mLastOXCP);
                 }
@@ -282,55 +279,51 @@ public class SlideFrame extends FrameLayout {
     }
 
     /**
-* Sets the listener to be invoked after a switch change {@link OnInteractListener}.
-*
-* @param listener
-* Listener to set
-*/
+     * Sets the listener to be invoked after a switch change {@link OnInteractListener}.
+     *
+     * @param listener Listener to set
+     */
     public void setOnInteractListener(OnInteractListener listener) {
         mOnInteractListener = listener;
     }
 
     /**
-* Sets the shadow of the width which will be included within the view by using padding since it's on the left
-* of the view in this case
-*
-* @param shadowWidth
-* Desired width of the shadow
-* @see #getShadowWidth()
-* @see #setShadowDrawable(Drawable)
-* @see #setShadowDrawable(int)
-*/
+     * Sets the shadow of the width which will be included within the view by using padding since it's on the left
+     * of the view in this case
+     *
+     * @param shadowWidth Desired width of the shadow
+     * @see #getShadowWidth()
+     * @see #setShadowDrawable(Drawable)
+     * @see #setShadowDrawable(int)
+     */
     public void setShadowWidth(int shadowWidth) {
         mShadowWidth = shadowWidth;
         invalidate(getLeft(), getTop(), getRight(), getBottom());
     }
 
     /**
-* Sets the shadow width by the value of a resource.
-*
-* @param resId
-* The dimension resource id to be set as the shadow width.
-*/
+     * Sets the shadow width by the value of a resource.
+     *
+     * @param resId The dimension resource id to be set as the shadow width.
+     */
     public void setShadowWidthRes(int resId) {
         setShadowWidth((int) getResources().getDimension(resId));
     }
 
     /**
-* Return the current with of the shadow.
-*
-* @return The size of the shadow in pixels
-*/
+     * Return the current with of the shadow.
+     *
+     * @return The size of the shadow in pixels
+     */
     public int getShadowWidth() {
         return mShadowWidth;
     }
 
     /**
-* Sets a drawable that will be used to create the shadow for the layer.
-*
-* @param d
-* Drawable append as a shadow
-*/
+     * Sets a drawable that will be used to create the shadow for the layer.
+     *
+     * @param d Drawable append as a shadow
+     */
     public void setShadowDrawable(Drawable d) {
         mShadowDrawable = d;
         refreshDrawableState();
@@ -339,11 +332,10 @@ public class SlideFrame extends FrameLayout {
     }
 
     /**
-* Sets a drawable resource that will be used to create the shadow for the layer.
-*
-* @param resId
-* Resource ID of a drawable
-*/
+     * Sets a drawable resource that will be used to create the shadow for the layer.
+     *
+     * @param resId Resource ID of a drawable
+     */
     public void setShadowDrawable(int resId) {
         setShadowDrawable(getContext().getResources().getDrawable(resId));
     }
@@ -380,12 +372,12 @@ public class SlideFrame extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-    	
+
         if (!mEnabled) {
             return false;
         }
         final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
-        
+
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
             mIsDragging = false;
             mIsUnableToDrag = false;
@@ -406,51 +398,51 @@ public class SlideFrame extends FrameLayout {
         }
 
         switch (action) {
-        case MotionEvent.ACTION_MOVE:
-            final int activePointerId = mActivePointerId;
-            if (activePointerId == INVALID_POINTER) {
+            case MotionEvent.ACTION_MOVE:
+                final int activePointerId = mActivePointerId;
+                if (activePointerId == INVALID_POINTER) {
+                    break;
+                }
+
+                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
+                if (pointerIndex == -1) {
+                    mActivePointerId = INVALID_POINTER;
+                    break;
+                }
+
+                final float x = MotionEventCompat.getX(ev, pointerIndex);
+                final float dx = x - mLastX;
+                final float xDiff = Math.abs(dx);
+                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                final float yDiff = Math.abs(y - mLastY);
+                if (xDiff > mTouchSlop && xDiff > yDiff && allowDragging(dx)) {
+                    mIsDragging = true;
+                    mLastX = x;
+                    setDrawingCacheEnabled(true);
+                    mOnInteractListener.onDrag();
+                } else if (yDiff > mTouchSlop) {
+                    mIsUnableToDrag = true;
+                }
                 break;
-            }
 
-            final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
-            if (pointerIndex == -1) {
-                mActivePointerId = INVALID_POINTER;
+            case MotionEvent.ACTION_DOWN:
+                mActivePointerId = ev.getAction()
+                        & (Build.VERSION.SDK_INT >= 8 ? MotionEvent.ACTION_POINTER_INDEX_MASK
+                        : MotionEvent.ACTION_POINTER_INDEX_MASK);
+                mLastX = mInitialX = MotionEventCompat.getX(ev, mActivePointerId);
+                mLastY = MotionEventCompat.getY(ev, mActivePointerId);
+                if (allowSlidingFromHere(ev)) {
+                    mIsDragging = false;
+                    mIsUnableToDrag = false;
+                    // If nobody else got the focus we use it to close the layer
+                    return super.onInterceptTouchEvent(ev);
+                } else {
+                    mIsUnableToDrag = true;
+                }
                 break;
-            }
-
-            final float x = MotionEventCompat.getX(ev, pointerIndex);
-            final float dx = x - mLastX;
-            final float xDiff = Math.abs(dx);
-            final float y = MotionEventCompat.getY(ev, pointerIndex);
-            final float yDiff = Math.abs(y - mLastY);
-            if (xDiff > mTouchSlop && xDiff > yDiff && allowDragging(dx)) {
-                mIsDragging = true;
-                mLastX = x;
-                setDrawingCacheEnabled(true);
-                mOnInteractListener.onDrag();
-            } else if (yDiff > mTouchSlop) {
-                mIsUnableToDrag = true;
-            }
-            break;
-
-        case MotionEvent.ACTION_DOWN:
-            mActivePointerId = ev.getAction()
-                    & (Build.VERSION.SDK_INT >= 8 ? MotionEvent.ACTION_POINTER_INDEX_MASK
-                            : MotionEvent.ACTION_POINTER_INDEX_MASK);
-            mLastX = mInitialX = MotionEventCompat.getX(ev, mActivePointerId);
-            mLastY = MotionEventCompat.getY(ev, mActivePointerId);
-            if (allowSlidingFromHere(ev)) {
-                mIsDragging = false;
-                mIsUnableToDrag = false;
-                // If nobody else got the focus we use it to close the layer
-                return super.onInterceptTouchEvent(ev);
-            } else {
-                mIsUnableToDrag = true;
-            }
-            break;
-        case MotionEventCompat.ACTION_POINTER_UP:
-            onSecondaryPointerUp(ev);
-            break;
+            case MotionEventCompat.ACTION_POINTER_UP:
+                onSecondaryPointerUp(ev);
+                break;
         }
 
         if (!mIsDragging) {
@@ -484,91 +476,91 @@ public class SlideFrame extends FrameLayout {
         mVelocityTracker.addMovement(ev);
 
         switch (action & MotionEventCompat.ACTION_MASK) {
-        case MotionEvent.ACTION_DOWN:
-            completeScroll();
+            case MotionEvent.ACTION_DOWN:
+                completeScroll();
 
-            // Remember where the motion event started
-            mLastX = mInitialX = ev.getX();
-            mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
-            break;
-        case MotionEvent.ACTION_MOVE:
-            if (!mIsDragging) {
-                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                if (pointerIndex == -1) {
-                    mActivePointerId = INVALID_POINTER;
-                    break;
+                // Remember where the motion event started
+                mLastX = mInitialX = ev.getX();
+                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (!mIsDragging) {
+                    final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                    if (pointerIndex == -1) {
+                        mActivePointerId = INVALID_POINTER;
+                        break;
+                    }
+                    final float x = MotionEventCompat.getX(ev, pointerIndex);
+                    final float xDiff = Math.abs(x - mLastX);
+                    final float y = MotionEventCompat.getY(ev, pointerIndex);
+                    final float yDiff = Math.abs(y - mLastY);
+                    if (xDiff > mTouchSlop && xDiff > yDiff) {
+                        mIsDragging = true;
+                        mLastX = x;
+                        setDrawingCacheEnabled(true);
+                        mOnInteractListener.onDrag();
+                    }
                 }
-                final float x = MotionEventCompat.getX(ev, pointerIndex);
-                final float xDiff = Math.abs(x - mLastX);
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
-                final float yDiff = Math.abs(y - mLastY);
-                if (xDiff > mTouchSlop && xDiff > yDiff) {
-                    mIsDragging = true;
+                if (mIsDragging) {
+                    // Scroll to follow the motion event
+                    final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                    if (activePointerIndex == -1) {
+                        mActivePointerId = INVALID_POINTER;
+                        break;
+                    }
+                    final float x = MotionEventCompat.getX(ev, activePointerIndex);
+                    final float deltaX = mLastX - x;
                     mLastX = x;
-                    setDrawingCacheEnabled(true);
-                    mOnInteractListener.onDrag();
+                    float oldScrollX = getScrollX();
+                    float scrollX = oldScrollX + deltaX;
+                    final float leftBound = mScreenSide < STICK_TO_RIGHT ? getWidth() : 0;
+                    final float rightBound = mScreenSide == STICK_TO_LEFT ? 0 : -getWidth();
+                    if (scrollX > leftBound) {
+                        scrollX = leftBound;
+                    } else if (scrollX < rightBound) {
+                        scrollX = rightBound;
+                    }
+                    // Keep the precision
+                    mLastX += scrollX - (int) scrollX;
+                    scrollToWrapper((int) scrollX, getScrollY());
                 }
-            }
-            if (mIsDragging) {
-                // Scroll to follow the motion event
-                final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                if (activePointerIndex == -1) {
-                    mActivePointerId = INVALID_POINTER;
-                    break;
-                }
-                final float x = MotionEventCompat.getX(ev, activePointerIndex);
-                final float deltaX = mLastX - x;
-                mLastX = x;
-                float oldScrollX = getScrollX();
-                float scrollX = oldScrollX + deltaX;
-                final float leftBound = mScreenSide < STICK_TO_RIGHT ? getWidth() : 0;
-                final float rightBound = mScreenSide == STICK_TO_LEFT ? 0 : -getWidth();
-                if (scrollX > leftBound) {
-                    scrollX = leftBound;
-                } else if (scrollX < rightBound) {
-                    scrollX = rightBound;
-                }
-                // Keep the precision
-                mLastX += scrollX - (int) scrollX;
-                scrollToWrapper((int) scrollX, getScrollY());
-            }
-            break;
-        case MotionEvent.ACTION_UP:
-            if (mIsDragging) {
-                final VelocityTracker velocityTracker = mVelocityTracker;
-                velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(velocityTracker, mActivePointerId);
-                final int scrollX = getScrollX();
-                final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                final float x = MotionEventCompat.getX(ev, activePointerIndex);
-                final int totalDelta = (int) (x - mInitialX);
-                boolean nextStateOpened = determineNextStateOpened(mIsOpen, scrollX, initialVelocity, totalDelta);
-                switchLayer(nextStateOpened, true, true, initialVelocity);
+                break;
+            case MotionEvent.ACTION_UP:
+                if (mIsDragging) {
+                    final VelocityTracker velocityTracker = mVelocityTracker;
+                    velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
+                    int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(velocityTracker, mActivePointerId);
+                    final int scrollX = getScrollX();
+                    final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                    final float x = MotionEventCompat.getX(ev, activePointerIndex);
+                    final int totalDelta = (int) (x - mInitialX);
+                    boolean nextStateOpened = determineNextStateOpened(mIsOpen, scrollX, initialVelocity, totalDelta);
+                    switchLayer(nextStateOpened, true, true, initialVelocity);
 
-                mActivePointerId = INVALID_POINTER;
-                endDrag();
-            } else if (mIsOpen && closeOnTapEnabled) {
-                closeLayer(true);
+                    mActivePointerId = INVALID_POINTER;
+                    endDrag();
+                } else if (mIsOpen && closeOnTapEnabled) {
+                    closeLayer(true);
+                }
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                if (mIsDragging) {
+                    switchLayer(mIsOpen, true, true);
+                    mActivePointerId = INVALID_POINTER;
+                    endDrag();
+                }
+                break;
+            case MotionEventCompat.ACTION_POINTER_DOWN: {
+                final int index = MotionEventCompat.getActionIndex(ev);
+                final float x = MotionEventCompat.getX(ev, index);
+                mLastX = x;
+                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
+                break;
             }
-            break;
-        case MotionEvent.ACTION_CANCEL:
-            if (mIsDragging) {
-                switchLayer(mIsOpen, true, true);
-                mActivePointerId = INVALID_POINTER;
-                endDrag();
-            }
-            break;
-        case MotionEventCompat.ACTION_POINTER_DOWN: {
-            final int index = MotionEventCompat.getActionIndex(ev);
-            final float x = MotionEventCompat.getX(ev, index);
-            mLastX = x;
-            mActivePointerId = MotionEventCompat.getPointerId(ev, index);
-            break;
-        }
-        case MotionEventCompat.ACTION_POINTER_UP:
-            onSecondaryPointerUp(ev);
-            mLastX = MotionEventCompat.getX(ev, MotionEventCompat.findPointerIndex(ev, mActivePointerId));
-            break;
+            case MotionEventCompat.ACTION_POINTER_UP:
+                onSecondaryPointerUp(ev);
+                mLastX = MotionEventCompat.getX(ev, MotionEventCompat.findPointerIndex(ev, mActivePointerId));
+                break;
         }
         if (mActivePointerId == INVALID_POINTER) {
             mLastTouchAllowed = false;
@@ -610,27 +602,22 @@ public class SlideFrame extends FrameLayout {
     }
 
     /**
-* Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
-*
-* @param x
-* the number of pixels to scroll by on the X axis
-* @param y
-* the number of pixels to scroll by on the Y axis
-*/
+     * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
+     *
+     * @param x the number of pixels to scroll by on the X axis
+     * @param y the number of pixels to scroll by on the Y axis
+     */
     void smoothScrollTo(int x, int y) {
         smoothScrollTo(x, y, 0);
     }
 
     /**
-* Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
-*
-* @param x
-* the number of pixels to scroll by on the X axis
-* @param y
-* the number of pixels to scroll by on the Y axis
-* @param velocity
-* the velocity associated with a fling, if applicable. (0 otherwise)
-*/
+     * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
+     *
+     * @param x        the number of pixels to scroll by on the X axis
+     * @param y        the number of pixels to scroll by on the Y axis
+     * @param velocity the velocity associated with a fling, if applicable. (0 otherwise)
+     */
     void smoothScrollTo(int x, int y, int velocity) {
         if (getChildCount() == 0) {
             setDrawingCacheEnabled(false);
@@ -682,7 +669,7 @@ public class SlideFrame extends FrameLayout {
     float distanceInfluenceForSnapDuration(float f) {
         f -= 0.5f; // center the values about 0.
         f *= 0.3f * Math.PI / 2.0f;
-        return (float)Math.sin(f);
+        return (float) Math.sin(f);
     }
 
     private void endDrag() {
@@ -775,7 +762,7 @@ public class SlideFrame extends FrameLayout {
                     .getDefaultDisplay();
             try {
                 Class<?> cls = Display.class;
-                Class<?>[] parameterTypes = { Point.class };
+                Class<?>[] parameterTypes = {Point.class};
                 Point parameter = new Point();
                 Method method = cls.getMethod("getSize", parameterTypes);
                 method.invoke(display, parameter);

@@ -9,7 +9,7 @@ import android.text.Spannable;
 
 public class Thread implements Parcelable {
 
-	// these must be initialized or the parcelable gets borked
+    // these must be initialized or the parcelable gets borked
     private int _threadId = 0;
     private String _userName = "unset";
     private Long _postedTime = 0L;
@@ -21,12 +21,11 @@ public class Thread implements Parcelable {
     private JSONObject _json;
 
     private Spannable _preview = null;
-	private boolean _pinned = false;
-	private String _filterable;
-	private LolObj _lolObj;
+    private boolean _pinned = false;
+    private String _filterable;
+    private LolObj _lolObj;
 
-    public Thread(int threadId, String userName, String content, Long postedTime, int replyCount, String moderation, boolean replied, boolean pinned)
-    {
+    public Thread(int threadId, String userName, String content, Long postedTime, int replyCount, String moderation, boolean replied, boolean pinned) {
         _threadId = threadId;
         _userName = userName;
         _content = content;
@@ -39,121 +38,109 @@ public class Thread implements Parcelable {
 
         JSONObject jconst = new JSONObject();
         try {
-	        jconst.put("id", Integer.toString(threadId));
-	        jconst.put("body", content);
-	        jconst.put("author", userName);
-	        jconst.put("category", moderation);
-	        // serverside replycount is off by one
-	        jconst.put("reply_count", replyCount);
+            jconst.put("id", Integer.toString(threadId));
+            jconst.put("body", content);
+            jconst.put("author", userName);
+            jconst.put("category", moderation);
+            // serverside replycount is off by one
+            jconst.put("reply_count", replyCount);
             jconst.put("replied", replied);
             jconst.put("date", TimeDisplay.getTimeAsMMDDYY_HMA_TZ(postedTime));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         _json = jconst;
     }
-    
-    public void setLolObj(LolObj lol)
-    {
-    	_lolObj = lol;
-    }
-    
-    public LolObj getLolObj()
-    {
-    	return _lolObj;
+
+    public void setLolObj(LolObj lol) {
+        _lolObj = lol;
     }
 
-    public int getThreadId()
-    {
+    public LolObj getLolObj() {
+        return _lolObj;
+    }
+
+    public int getThreadId() {
         return _threadId;
     }
 
-    public String getUserName()
-    {
+    public String getUserName() {
         return _userName;
     }
-    public JSONObject getJson()
-    {
+
+    public JSONObject getJson() {
         return _json;
     }
 
-    public Long getPosted()
-    {
+    public Long getPosted() {
         return _postedTime;
     }
 
-    public String getContent()
-    {
+    public String getContent() {
         return _content;
     }
-    
-    public void setContent(String set)
-    {
-    	_content = set;
+
+    public void setContent(String set) {
+        _content = set;
     }
 
-    public int getReplyCount()
-    {
+    public int getReplyCount() {
         return _replyCount;
     }
 
-    public int getReplyCountPrevious()
-    {
+    public int getReplyCountPrevious() {
         return _replyCountPrevious;
     }
 
-    public void setReplyCount(int replyCount)
-    {
+    public void setReplyCount(int replyCount) {
         _replyCount = replyCount;
     }
-    
-    public void setReplyCountPrevious(int replyCountPrevious)
-    {
+
+    public void setReplyCountPrevious(int replyCountPrevious) {
         _replyCountPrevious = replyCountPrevious;
     }
-    public String getModeration()
-    {
+
+    public String getModeration() {
         return _moderation;
     }
-    
-    public boolean getReplied()
-    {
+
+    public boolean getReplied() {
         return _replied;
     }
-    public void setReplied(boolean set)
-    {
+
+    public void setReplied(boolean set) {
         _replied = set;
     }
-    public Spannable getPreview(boolean showTags, boolean stripNewLines)
-    {
-        if (_preview == null){
+
+    public Spannable getPreview(boolean showTags, boolean stripNewLines) {
+        if (_preview == null) {
             _preview = PostFormatter.formatContent(this, !stripNewLines, showTags);
         }
         return _preview;
     }
-    public void nullifyPreview()
-    {
-    	_preview = null;
+
+    public void nullifyPreview() {
+        _preview = null;
     }
-    public String getFilterable ()
-    {
+
+    public String getFilterable() {
         return _filterable;
     }
 
-	public boolean getPinned() {
-		
-		return _pinned;
-	}
+    public boolean getPinned() {
 
-	
-	// parcelable
-	
-	 // Your existing code
+        return _pinned;
+    }
+
+
+    // parcelable
+
+    // Your existing code
 
     public Thread(Parcel in) {
-        super(); 
+        super();
         readFromParcel(in);
     }
 
@@ -170,64 +157,63 @@ public class Thread implements Parcelable {
     };
 
     public void readFromParcel(Parcel in) {
-    	_threadId = in.readInt();
-    	_postedTime = in.readLong();
-    	_replyCount = in.readInt();
-    	_replyCountPrevious = in.readInt();
-    	_replied = (in.readInt() == 1) ? true : false;
-    	_pinned = (in.readInt() == 1) ? true : false;
-    	_content = in.readString();
-    	_userName = in.readString();
-    	_moderation = in.readString();
-    	String lolString = in.readString();
-    	if (lolString.equalsIgnoreCase("x"))
-    		_lolObj = null;
-    	else
-    	{
-    		_lolObj = new LolObj(lolString);
-    	}
-    	
-    	JSONObject jconst = new JSONObject();
+        _threadId = in.readInt();
+        _postedTime = in.readLong();
+        _replyCount = in.readInt();
+        _replyCountPrevious = in.readInt();
+        _replied = (in.readInt() == 1) ? true : false;
+        _pinned = (in.readInt() == 1) ? true : false;
+        _content = in.readString();
+        _userName = in.readString();
+        _moderation = in.readString();
+        String lolString = in.readString();
+        if (lolString.equalsIgnoreCase("x"))
+            _lolObj = null;
+        else {
+            _lolObj = new LolObj(lolString);
+        }
+
+        JSONObject jconst = new JSONObject();
         try {
-	        jconst.put("id", Integer.toString(_threadId));
-	        jconst.put("body", _content);
-	        jconst.put("author", _userName);
-	        jconst.put("category", _moderation);
-	        // serverside replycount is off by one
-	        jconst.put("reply_count", _replyCount);
+            jconst.put("id", Integer.toString(_threadId));
+            jconst.put("body", _content);
+            jconst.put("author", _userName);
+            jconst.put("category", _moderation);
+            // serverside replycount is off by one
+            jconst.put("reply_count", _replyCount);
             jconst.put("replied", _replied);
             jconst.put("date", TimeDisplay.getTimeAsMMDDYY_HMA_TZ(_postedTime));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         _json = jconst;
-        
+
         _filterable = _userName.toLowerCase() + " " + PostFormatter.formatContent(this, false, false).toString().toLowerCase();
     }
+
     public int describeContents() {
         return 0;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
-    	dest.writeInt(_threadId);
-    	dest.writeLong(_postedTime);
-    	dest.writeInt(_replyCount);
-    	dest.writeInt(_replyCountPrevious);
-    	dest.writeInt(bToInt(_replied));
-    	dest.writeInt(bToInt(_pinned));
-    	dest.writeString(_content);
-    	dest.writeString(_userName);
-    	dest.writeString(_moderation);
-    	dest.writeString(_lolObj != null ? _lolObj.lolObjToString() : "x");
-   }
+        dest.writeInt(_threadId);
+        dest.writeLong(_postedTime);
+        dest.writeInt(_replyCount);
+        dest.writeInt(_replyCountPrevious);
+        dest.writeInt(bToInt(_replied));
+        dest.writeInt(bToInt(_pinned));
+        dest.writeString(_content);
+        dest.writeString(_userName);
+        dest.writeString(_moderation);
+        dest.writeString(_lolObj != null ? _lolObj.lolObjToString() : "x");
+    }
 
-    public int bToInt (boolean val)
-    {
-    	if (val)
-    		return 1;
-    	else
-    		return 0;
+    public int bToInt(boolean val) {
+        if (val)
+            return 1;
+        else
+            return 0;
     }
 }
