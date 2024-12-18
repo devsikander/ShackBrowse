@@ -3,27 +3,25 @@ package net.swigglesoft.shackbrowse.imgur;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
+import net.swigglesoft.shackbrowse.DebugLogger;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-
 
 public class ImgurTools {
     private static final String TAG = ImgurTools.class.getSimpleName();
-    private static final String UPLOAD_URL = "https://api.imgur.com/3/imge";
+    private static final String UPLOAD_URL = "https://api.imgur.com/3/image";
 
     public static class RefreshAccessTokenTask extends AsyncTask<Void, Void, String> {
 
@@ -31,9 +29,9 @@ public class ImgurTools {
         protected String doInBackground(Void... params) {
             String accessToken = ImgurAuthorization.getInstance().requestNewAccessToken();
             if (!TextUtils.isEmpty(accessToken)) {
-                Log.i(TAG, "Got new access token");
+                DebugLogger.i(TAG, "Got new access token");
             } else {
-                Log.i(TAG, "Could not get new access token");
+                DebugLogger.i(TAG, "Could not get new access token");
             }
             return accessToken;
         }
@@ -46,12 +44,13 @@ public class ImgurTools {
             sb.append(scanner.next());
         }
 
+        DebugLogger.i(TAG, "RESPONSE: " + sb);
+
         JSONObject root = new JSONObject(sb.toString());
         String id = root.getJSONObject("data").getString("id");
         String deletehash = root.getJSONObject("data").getString("deletehash");
 
-        Log.e(TAG, sb.toString());
-        Log.i(TAG, "new imgur url: http://imgur.com/" + id + " (delete hash: " + deletehash + ")");
+        DebugLogger.i(TAG, "new imgur url: http://imgur.com/" + id + " (delete hash: " + deletehash + ")");
         return root;
     }
 
@@ -69,6 +68,7 @@ public class ImgurTools {
         ImgurUploadResponse responseObject = null;
 
         try {
+            DebugLogger.d(TAG, "Uploading to " + UPLOAD_URL);
             conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type",
@@ -84,11 +84,12 @@ public class ImgurTools {
             wr.close();
 
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                DebugLogger.d(TAG, "Imgur upload received HTTP OK status");
                 responseIn = conn.getInputStream();
                 responseObject = new ImgurUploadResponse(true, onInput(responseIn), null, null);
             } else {
                 String responseCode = String.valueOf(conn.getResponseCode());
-                Log.i(TAG, "responseCode=" + responseCode);
+                DebugLogger.i(TAG, "responseCode=" + responseCode);
                 responseIn = conn.getErrorStream();
                 StringBuilder sb = new StringBuilder();
                 Scanner scanner = new Scanner(responseIn);
@@ -96,12 +97,12 @@ public class ImgurTools {
                     sb.append(scanner.next());
                 }
                 String errorMessage = "uploadImageToImgur error responseCode: " + responseCode + ",response: " + sb.toString();
-                Log.i(TAG, errorMessage);
+                DebugLogger.i(TAG, errorMessage);
                 FirebaseCrashlytics.getInstance().log(errorMessage);
                 responseObject = new ImgurUploadResponse(false, null, errorMessage, null);
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Error during POST", ex);
+            DebugLogger.e(TAG, "Error during POST", ex);
             FirebaseCrashlytics.getInstance().recordException(ex);
             responseObject = new ImgurUploadResponse(false, null, "Error during POST: " + ex.getMessage(), ex);
         } finally {

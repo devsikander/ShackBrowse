@@ -73,6 +73,19 @@ public class PreferenceView extends PreferenceFragment {
                                                 }
         );
 
+        Preference debugLoggerPref = (Preference) findPreference("debugLogger");
+        debugLoggerPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+                                                    @Override
+                                                    public boolean onPreferenceClick(Preference preference) {
+                                                        DebugLogDialog dl = new DebugLogDialog(cont);
+                                                        dl.getDialog().show();
+                                                        return false;
+                                                    }
+                                                }
+        );
+
+
         Preference imgurLogin = (Preference) findPreference("imgurLogin");
         imgurLogin.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                                                     @Override

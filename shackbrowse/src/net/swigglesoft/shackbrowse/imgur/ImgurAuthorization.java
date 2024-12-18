@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import net.swigglesoft.shackbrowse.APIConstants;
+import net.swigglesoft.shackbrowse.DebugLogger;
 import net.swigglesoft.shackbrowse.SBApplication;
 
 import org.apache.http.NameValuePair;
@@ -56,8 +57,10 @@ public class ImgurAuthorization {
         String accessToken = prefs.getString("access_token", null);
 
         if (!TextUtils.isEmpty(accessToken)) {
+            DebugLogger.d(TAG, "Adding access token to Imgur HttpUrlConnection for user upload");
             conn.setRequestProperty("Authorization", "Bearer " + accessToken);
         } else {
+            DebugLogger.d(TAG, "Adding Client-ID to Imgur HttpUrlConnection for anonymous upload");
             conn.setRequestProperty("Authorization", "Client-ID " + APIConstants.MY_IMGUR_CLIENT_ID);
         }
     }

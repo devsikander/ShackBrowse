@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.swigglesoft.EditTextSelectionSavedAllowImage;
@@ -85,6 +84,7 @@ import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.StackingBehavior;
 import com.gc.materialdesign.views.ButtonFloatSmall;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.vdurmont.emoji.EmojiParser;
 
 import org.json.JSONObject;
@@ -93,6 +93,7 @@ import static net.swigglesoft.shackbrowse.StatsFragment.statInc;
 import static net.swigglesoft.shackbrowse.imgur.ImgurTools.uploadImageToImgur;
 
 public class ComposePostView extends AppCompatActivity {
+    private static final String TAG = ComposePostView.class.getSimpleName();
 
     protected static final int SELECT_IMAGE = 0;
     protected static final int TAKE_PICTURE = 1;
@@ -1663,6 +1664,9 @@ public class ComposePostView extends AppCompatActivity {
         @Override
         protected UploadResult doInBackground(String... params) {
             try {
+                DebugLogger.d(TAG,
+                        "Preparing to upload file to Imgur \"" + params[0] + "\"",
+                        true);
                 Uri uri = Uri.parse(params[0]);
                 String ext = getMimeTypeOfUri(ComposePostView.this, uri);
                 InputStream inputstream = getContentResolver().openInputStream(uri);
@@ -1670,20 +1674,23 @@ public class ComposePostView extends AppCompatActivity {
                 if ((ext == null) || (ext == "jpeg")) {
                     ext = "jpg";
                 }
+                DebugLogger.d(TAG, "Imgur file upload ext is \"" + ext + "\"");
 
                 // resize jpg
                 if (ext == "jpg") {
-                    System.out.println("UPLOADuri: RESIZE");
+                    DebugLogger.d(TAG, "Resizing the image in UploadUri");
                     Bitmap img = handleSamplingAndRotationBitmap(uri);
                     final BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    img.compress(CompressFormat.JPEG, 100, stream);
+                    img.compress(CompressFormat.JPEG, 95, stream);
                     inputstream = new ByteArrayInputStream(stream.toByteArray());
+                    DebugLogger.d(TAG, "Resizing image complete");
                 }
 
                 ImgurUploadResponse imgurResponse = uploadImageToImgur(inputstream);
                 if (imgurResponse.success) {
+                    DebugLogger.d(TAG, "imgurResponse success");
                     JSONObject response = imgurResponse.response;
                     String link = "";
                     if (response.getJSONObject("data").has("gifv")) {
@@ -1691,11 +1698,13 @@ public class ComposePostView extends AppCompatActivity {
                     } else if (response.getJSONObject("data").has("link")) {
                         link = response.getJSONObject("data").getString("link");
                     }
+                    DebugLogger.d(TAG, "Returned link is \"" + link + "\"");
                     return new UploadResult(link, null);
                 }
                 return new UploadResult(null, imgurResponse.errorMessage);
             } catch (Exception e) {
-                Log.e("shackbrowse", "Error posting image", e);
+                DebugLogger.e("shackbrowse", "Error posting image", e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 return new UploadResult(null, "Error posting image: " + e.getMessage());
             }
         }
@@ -1797,7 +1806,7 @@ public class ComposePostView extends AppCompatActivity {
             }
 
             if (result.errorMessage != null) {
-                System.out.println("imgupload: err");
+                DebugLogger.i(TAG, "Error occurred with image upload, message: " + result.errorMessage);
                 ErrorDialog.display(ComposePostView.this, "Error", "Error occurred with image upload, message: " + result.errorMessage);
             } else {
                 final String result1 = result.link;

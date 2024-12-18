@@ -245,6 +245,8 @@
     <string name="preferences_version">Application Version</string>
     <string name="preference_version_title">Unknown</string>
     <string name="preference_version_summary">Click to view the change log</string>
+    <string name="preference_debuglogger_title">View Debug Log</string>
+    <string name="preference_debuglogger_summary">Click to view the debug log for Imgur uploading</string>
     
     <string name="preference_ping">Ping APIs</string>
     
@@ -252,6 +254,8 @@
     <string name="changelog_title">What\'s New</string>
     <string name="changelog_ok_button">OK</string>
     <string name="changelog_show_full">more...</string>
+
+    <string name="debuglogdialog_title">Debug Log</string>
 
     <string name="tcs_dialog"><![CDATA[By using this app, you agree to our <a href="https://stimpydad.github.io/ShackBrowse/pages/termsandconditions">Terms and Conditions</a> and <a href="https://stimpydad.github.io/ShackBrowse/pages/privacy">Privacy Policy</a>.
         <p>You also agree to follow the <a href="https://www.shacknews.com/guidelines">Shacknews Community Guidelines</a></p>]]></string>
