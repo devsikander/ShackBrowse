@@ -6,7 +6,7 @@ import android.util.Base64;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import net.swigglesoft.shackbrowse.DebugLogger;
+import net.swigglesoft.shackbrowse.logging.DebugLogger;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;

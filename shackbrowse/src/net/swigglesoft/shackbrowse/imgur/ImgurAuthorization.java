@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import net.swigglesoft.shackbrowse.APIConstants;
-import net.swigglesoft.shackbrowse.DebugLogger;
+import net.swigglesoft.shackbrowse.logging.DebugLogger;
 import net.swigglesoft.shackbrowse.SBApplication;
 
 import org.apache.http.NameValuePair;

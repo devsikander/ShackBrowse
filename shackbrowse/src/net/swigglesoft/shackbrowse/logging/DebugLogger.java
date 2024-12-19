@@ -1,4 +1,4 @@
-package net.swigglesoft.shackbrowse;
+package net.swigglesoft.shackbrowse.logging;
 
 import android.util.Log;
 

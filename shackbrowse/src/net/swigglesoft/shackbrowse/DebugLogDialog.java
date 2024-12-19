@@ -7,6 +7,8 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.webkit.WebView;
 
+import net.swigglesoft.shackbrowse.logging.DebugLogger;
+
 import java.util.List;
 
 public class DebugLogDialog {

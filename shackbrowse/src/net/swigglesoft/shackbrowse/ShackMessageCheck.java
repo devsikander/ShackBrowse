@@ -43,7 +43,7 @@ public class ShackMessageCheck {
     }
 
     public void syncCheckAPIForSMS() {
-        System.out.println("SMCHK: trigger check synchronous");
+        Log.d("ShackMessageCheck", "SMCHK: trigger check synchronous");
         int checkResult = new CheckForSMTaskFrugal().checkFrugalSMs();
         if (checkResult == 1) {
             new CheckForSMTask().backgroundSyncCheckAPIForSMS();

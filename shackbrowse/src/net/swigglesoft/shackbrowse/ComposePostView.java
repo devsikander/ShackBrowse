@@ -13,6 +13,7 @@ import net.swigglesoft.EditTextSelectionSavedAllowImage;
 import net.swigglesoft.shackbrowse.imgur.ImgurAuthorization;
 import net.swigglesoft.shackbrowse.imgur.ImgurTools;
 import net.swigglesoft.shackbrowse.imgur.ImgurUploadResponse;
+import net.swigglesoft.shackbrowse.logging.DebugLogger;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
