@@ -44,7 +44,7 @@
     <color name="userName">#f3e7b5</color>
     <color name="OPUserName">#90A959</color>
     <color name="selfUserName">#6A9FB5</color>
-    <color name="modUserName">#FF4142</color>
+    <color name="modUserName">#D04142</color>
     <color name="emplUserName">#aa759f</color>
     <color name="separator">#151515</color>
     <color name="app_bg_color">#000</color>
@@ -70,7 +70,7 @@
 	<color name="replyCountNewBg">#90A959</color>
 	<color name="modtag_political">#f4bf75</color>
 	<color name="modtag_nws">#ff4142</color>
-	<color name="shacktag_unf">#ff4142</color>
+	<color name="shacktag_unf">#d04142</color>
 	<color name="thread_containsbg">#909090</color>
 	<color name="modtag_tangent">#8f5536</color>
 	<color name="shacktag_wtf">#aa759f</color>

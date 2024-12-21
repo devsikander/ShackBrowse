@@ -94,13 +94,13 @@ $ 7.2.0
 _ December 19, 2024
 * Background ShackMessage checking was not showing the new message notification on newer Android versions due to a previous SDK update. This should now be fixed. Enable background checking in Settings -> Notifications -> Background ShackMessage Check. Note this is a polling check and not a push notification, so network usage will occur.
 * Imgur uploading has a lot more debug logging added. One can now look at some debug logging for Imgur uploads at Settings -> PicUploader Imgur Account -> View Debug Log. This data may contain your imgur username in a successful Imgur response so use care when showing/copying it.
-* Sharing a Link to Post will now populate the EXTRA_SUBJECT information so a subject line will be shared to apps that support it e.g. GMail.
+* Sharing a Link to Post will now populate the subject information so a subject line will be available to apps that support it e.g. GMail.
 * The Moderator list has been updated in the app for user colouring.
 * The Twitter Android package has been removed as it no longer worked anyways.
 * The YouTube and Video/Exoplayer package versions have been updated as the old ones were no longer available and would not let the app compile.
-* The YouTube video ID URL parsing has been overhauled. YouTube Shorts should now play correctly in the in-app player. Clips will not work as the embedded player does not support it.
+* The YouTube video ID URL parsing has been reworked. YouTube Shorts should now play correctly in the in-app player. Clips will not work as the embedded player does not support it.
 * ChattyPics uploading options have been removed as it hasn't worked for a long time.
-* The Android CompileSDK has been updated from 34 to 35. This shouldn't result in any changes but let me know if anything breaks.
+* The Android CompileSDK has been updated from 34 to 35.
 * Brighten up the red colour used for Moderator Names, Unf tags.
 
 $ 7.1.1
